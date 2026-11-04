@@ -1,0 +1,19 @@
+[package]
+name = "unseen-kernel"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "unseen-kernel"
+test = false
+bench = false
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+opt-level = "s"
+
+[dependencies]
+linked_list_allocator = "0.10.6"

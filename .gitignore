@@ -1,0 +1,11 @@
+/kernel/target
+/out/*.log
+/out/*.png
+/out/runs
+/out/logs
+/out/dryrun
+/out/review-logs
+/out/session.json
+/out/experiment/console-*.txt
+/out/experiment/aborted-1/console-*.txt
+__pycache__/

@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unseen OS</title>
+<meta name="description" content="A 20 KB operating system no AI has ever seen, built to test whether small AI models can learn an unfamiliar computer, and how much a manual helps.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0d14'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='monospace' font-size='18' font-weight='500' fill='%2362d9d9'%3E%26gt;%26gt;%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Ink ramp (dark). Direction: a dark room with one glowing text terminal. */
+  :root {
+    --deep: #07080d;
+    --page: #0b0d14;
+    --card: #11141c;
+    --raised: #1a1e28;
+    --text: #eef0f5;
+    --text-2: #a3a9b8;
+    --muted: #7a8296;
+    --hair: rgba(238, 240, 245, 0.08);
+    --hair-strong: rgba(238, 240, 245, 0.14);
+    --accent: #62d9d9;
+    --accent-ink: #0b0d14;
+    --good: #4cc38a;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    /* VGA palette, used only inside the terminal: the one bright element. */
+    --vga-blue: #0000aa;
+    --vga-grey: #aaaaaa;
+    --vga-white: #ffffff;
+    --vga-cyan: #55ffff;
+    --vga-yellow: #ffff55;
+    --vga-bar: #00aaaa;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 22px;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  p { margin: 0; }
+  h1, h2, h3 { margin: 0; font-weight: 500; }
+  img { display: block; max-width: 100%; height: auto; }
+  code, .mono { font-family: var(--mono); font-size: 13px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  .wrap { width: min(1200px, 100% - 48px); margin: 0 auto; }
+  @media (max-width: 720px) { .wrap { width: calc(100% - 32px); } }
+
+  /* Navigation: quiet. */
+  .nav { height: 64px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 16px; }
+  .brand .mark { font-family: var(--mono); color: var(--accent); font-size: 14px; }
+  .links { display: flex; gap: 24px; color: var(--text-2); font-size: 14px; }
+  .links a { transition: color 140ms var(--ease); }
+  .links a:hover { color: var(--text); }
+  @media (max-width: 720px) { .links { display: none; } }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 36px; padding: 0 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    border: 1px solid var(--hair-strong); background: var(--raised); color: var(--text);
+    cursor: pointer; font-family: inherit;
+    transition: background-color 140ms var(--ease), border-color 140ms var(--ease), transform 120ms var(--ease);
+  }
+  .btn:hover { background: #222736; }
+  .btn:active { transform: scale(0.98); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  .btn.primary:hover { background: #7be3e3; }
+  .btn.big { height: 44px; padding: 0 20px; font-size: 15px; }
+
+  /* Hero: an asymmetric split, text left, the live terminal given more than half. */
+  .hero { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: center; padding: 64px 0 96px; min-height: calc(100vh - 64px); }
+  .hero > div { min-width: 0; }
+  .hero h1 { font-size: 56px; line-height: 1.04; letter-spacing: -0.02em; max-width: 16ch; }
+  .hero .sub { font-size: 18px; line-height: 28px; color: var(--text-2); max-width: 34rem; margin-top: 24px; }
+  .hero .actions { display: flex; gap: 12px; margin-top: 32px; }
+  .hero .note { margin-top: 20px; color: var(--muted); font-size: 13px; line-height: 20px; }
+  .hero .note kbd { font-family: var(--mono); font-size: 12px; background: var(--raised); border: 1px solid var(--hair-strong); border-radius: 4px; padding: 1px 6px; color: var(--text-2); }
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding: 48px 0 64px; min-height: 0; }
+    .hero h1 { font-size: 40px; }
+  }
+
+  /* The monitor: a bezel with weight, an inner screen with its own light. */
+  .monitor { background: var(--raised); border: 1px solid var(--hair-strong); border-radius: 16px; padding: 8px; box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55); }
+  .screen-scroll { overflow-x: auto; border-radius: 8px; }
+  .screen {
+    --cell: 14px;
+    background: var(--vga-blue); color: var(--vga-grey);
+    font-family: var(--mono); font-size: var(--cell); line-height: 1.25; font-weight: 500;
+    width: 80ch; min-width: 80ch; padding: 0; margin: 0; cursor: text; white-space: pre; user-select: none;
+    outline: none; border-radius: 8px;
+  }
+  .screen .row { height: 1.25em; }
+  .screen .n { color: var(--vga-grey); }
+  .screen .b { color: var(--vga-white); }
+  .screen .a { color: var(--vga-cyan); }
+  .screen .w { color: var(--vga-yellow); }
+  .screen .bar { background: var(--vga-bar); color: #000; }
+  .screen .cur { background: var(--vga-grey); color: var(--vga-blue); }
+  .screen:focus .cur { animation: blink 1s steps(2, start) infinite; }
+  @keyframes blink { to { background: transparent; color: var(--vga-grey); } }
+  .monitor-foot { display: flex; justify-content: space-between; padding: 10px 8px 2px; color: var(--muted); font-size: 12px; line-height: 16px; font-family: var(--mono); }
+
+  /* Sections */
+  section { padding: 96px 0 0; }
+  .kicker { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-bottom: 16px; }
+  .kicker span { color: var(--muted); }
+  h2 { font-size: 32px; line-height: 1.15; letter-spacing: -0.01em; max-width: 24ch; }
+  .lead { color: var(--text-2); font-size: 16px; line-height: 24px; max-width: 36rem; margin-top: 16px; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+  .stat { background: var(--card); border: 1px solid var(--hair); border-radius: 12px; padding: 20px; }
+  .stat .label { color: var(--muted); font-size: 13px; line-height: 20px; }
+  .stat .figure { font-size: 32px; line-height: 1; font-weight: 500; margin-top: 12px; font-variant-numeric: tabular-nums; }
+  .stat .cmp { color: var(--text-2); font-size: 13px; line-height: 20px; margin-top: 12px; }
+  @media (max-width: 720px) { .stats { grid-template-columns: 1fr; } }
+
+  .apps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px; }
+  .app { background: var(--card); border: 1px solid var(--hair); border-radius: 16px; padding: 8px; }
+  .app.wide { grid-column: 1 / -1; }
+  .app img { border-radius: 8px; width: 100%; image-rendering: pixelated; }
+  .app.wide img { max-width: 720px; margin: 0 auto; }
+  .app .cap { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 14px 12px 8px; }
+  .app .cap b { font-weight: 500; }
+  .app .cap p { color: var(--text-2); font-size: 14px; line-height: 20px; }
+  @media (max-width: 720px) { .apps { grid-template-columns: 1fr; } .app .cap { grid-template-columns: 1fr; gap: 4px; } }
+
+  .exp { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 40px; align-items: start; }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  .steps li { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding: 16px 0; border-top: 1px solid var(--hair); }
+  .steps li::before { counter-increment: s; content: counter(s); font-family: var(--mono); font-size: 13px; color: var(--muted); padding-top: 1px; }
+  .steps li > div { min-width: 0; }
+  .steps b { display: block; font-weight: 500; }
+  .steps p { color: var(--text-2); font-size: 14px; line-height: 20px; margin-top: 4px; }
+  .facts { background: var(--card); border: 1px solid var(--hair); border-radius: 12px; padding: 8px 20px; }
+  .facts dl { margin: 0; }
+  .facts div { display: grid; grid-template-columns: 112px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--hair); }
+  .facts div:first-child { border-top: 0; }
+  .facts dt { color: var(--muted); font-size: 13px; line-height: 20px; }
+  .facts dd { margin: 0; font-size: 14px; line-height: 20px; }
+  .facts dd code { color: var(--text-2); }
+  @media (max-width: 960px) { .exp { grid-template-columns: 1fr; gap: 32px; } }
+
+  .phases { list-style: none; margin: 40px 0 0; padding: 0; }
+  .phases li { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; height: 44px; border-top: 1px solid var(--hair); font-size: 15px; }
+  .phases li:last-child { border-bottom: 1px solid var(--hair); }
+  .phases .num { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .phases .st { font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .phases .dot { width: 8px; height: 8px; border-radius: 4px; background: var(--hair-strong); }
+  .phases .done .dot { background: var(--good); }
+  .phases .now .dot { background: var(--accent); }
+  .phases .now .st { color: var(--text-2); }
+  .phases .planned { color: var(--text-2); }
+  .phases small { color: var(--muted); font-size: 13px; margin-left: 8px; }
+  @media (max-width: 720px) { .phases small { display: none; } }
+
+  footer { margin-top: 96px; padding: 24px 0 40px; border-top: 1px solid var(--hair); color: var(--muted); font-size: 13px; line-height: 20px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { color: var(--text-2); }
+
+  /* One entrance on load. */
+  .rise { opacity: 0; transform: translateY(8px); animation: rise 420ms var(--ease) forwards; }
+  .rise:nth-child(2) { animation-delay: 60ms; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .rise { animation: none; opacity: 1; transform: none; } .screen:focus .cur { animation: none; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav">
+    <a class="brand" href="#"><span class="mark">&gt;&gt;</span>Unseen OS</a>
+    <div class="links">
+      <a href="#about">What it is</a>
+      <a href="#apps">Apps</a>
+      <a href="#experiment">Experiment</a>
+      <a href="#progress">Progress</a>
+    </div>
+    <button class="btn" id="try-nav" type="button">Try the shell</button>
+  </nav>
+
+  <header class="hero">
+    <div class="rise">
+      <h1>A computer no AI has ever seen</h1>
+      <p class="sub">Unseen OS is a 20 KB operating system written from scratch, with its own words for everything. It exists so small AI models can be tested on a machine that is not in their training data, and so we can measure how much a manual helps.</p>
+      <div class="actions">
+        <button class="btn primary big" id="try" type="button">Try the shell</button>
+        <a class="btn big" href="#experiment">How it is tested</a>
+      </div>
+      <p class="note">This is the real shell, rebuilt in the page. Click it, type <kbd>guide</kbd> and press <kbd>Enter</kbd>.</p>
+    </div>
+    <div class="rise">
+      <div class="monitor">
+        <div class="screen-scroll">
+          <div class="screen" id="screen" tabindex="0" role="application" aria-label="Unseen OS shell. Type commands and press Enter."></div>
+        </div>
+        <div class="monitor-foot"><span>80 × 25 text mode</span><span>same words as the real OS</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="about">
+    <p class="kicker">desk:about <span>&gt;&gt;</span></p>
+    <h2>Small on purpose, and strange on purpose</h2>
+    <p class="lead">Every model has read millions of pages about Windows and Linux. None has read one page about this. So when a model works out how to rename a page here, it had to look, not remember.</p>
+    <div class="stats">
+      <div class="stat"><p class="label">Size of the whole system</p><p class="figure">20 KB</p><p class="cmp">Windows is about 1.5 million times larger</p></div>
+      <div class="stat"><p class="label">Written in</p><p class="figure">Rust</p><p class="cmp">From the boot code up, no Linux or Windows inside, runs in QEMU</p></div>
+      <div class="stat"><p class="label">Commands with their own names</p><p class="figure">20</p><p class="cmp">peek, toss, seek, build, none borrowed from another system</p></div>
+    </div>
+  </section>
+
+  <section id="apps">
+    <p class="kicker">desk:apps <span>&gt;&gt;</span></p>
+    <h2>Three apps, one keyboard</h2>
+    <p class="lead">Folders are drawers, files are pages, and the top drawer is the desk. The screens below are captured from the OS running in QEMU.</p>
+    <div class="apps">
+      <figure class="app wide" style="margin:0">
+        <img src="img/shell.png" width="720" height="400" alt="The Unseen OS shell after a dozen commands: entering the letters drawer, reading a page, writing a todo page, moving it into a new archive drawer and finding it again with seek">
+        <figcaption class="cap"><b>Shell</b><p>Twenty commands. The prompt always shows which drawer you are in, and an unknown word points you back to <code>guide</code> instead of failing silently.</p></figcaption>
+      </figure>
+      <figure class="app" style="margin:0">
+        <img src="img/notes.png" width="720" height="400" alt="The Notes app editing a letter to Mira, with the key help bar reading Kept">
+        <figcaption class="cap"><b>Notes</b><p>A text editor. Ctrl+K keeps the page. Leaving with changes warns first, and a second Esc leaves without keeping.</p></figcaption>
+      </figure>
+      <figure class="app" style="margin:0">
+        <img src="img/files.png" width="720" height="400" alt="The Files app showing three drawers on the desk, one selected, after moving a page">
+        <figcaption class="cap"><b>Files</b><p>Browse with the arrow keys. N renames, M moves, T tosses, B builds a new drawer. Every action answers with a plain message.</p></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="experiment">
+    <p class="kicker">desk:experiment <span>&gt;&gt;</span></p>
+    <h2>Can a small model learn a computer it has never seen?</h2>
+    <p class="lead">And how much does reading the manual help? The pass rules are written down before any model runs, so the result cannot be bent afterwards.</p>
+    <div class="exp">
+      <ol class="steps">
+        <li><div><b>The model gets a task</b><p>Like “put the shopping list in Mira’s drawer”. In one condition it also gets the manual.</p></div></li>
+        <li><div><b>It uses the keyboard</b><p>It types through QEMU’s virtual keyboard and reads the 80 × 25 screen as plain text, the same way a person at the machine would.</p></div></li>
+        <li><div><b>The files decide</b><p>Afterwards a hidden channel reads the OS’s files. What the model says it did counts for nothing; only the end state is scored.</p></div></li>
+      </ol>
+      <div class="facts">
+        <dl>
+          <div><dt>Models</dt><dd>Haiku and Luna, two small models</dd></div>
+          <div><dt>Conditions</dt><dd>Alone, and with the manual</dd></div>
+          <div><dt>Tasks</dt><dd>30, in three levels: easy, medium, hard</dd></div>
+          <div><dt>Scoring</dt><dd>Inspect, with rules fixed before the first run</dd></div>
+          <div><dt>Side tool</dt><dd>Promptfoo, to compare manual versions</dd></div>
+          <div><dt>Machine</dt><dd><code>qemu-system-x86_64 -kernel unseen.bin</code></dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section id="progress">
+    <p class="kicker">desk:progress <span>&gt;&gt;</span></p>
+    <h2>Where it stands</h2>
+    <p class="lead">Two of six phases done since 4 Nov 2026. Each phase has a proof written down before it starts.</p>
+    <ol class="phases">
+      <li class="done"><span class="num">1</span><span>It boots<small>kernel, text screen, keyboard, shell</small></span><span class="st"><span class="dot"></span>done</span></li>
+      <li class="done"><span class="num">2</span><span>Files and three apps<small>reviewed by Codex, 7 findings fixed and re-tested</small></span><span class="st"><span class="dot"></span>done</span></li>
+      <li class="now"><span class="num">3</span><span>AI connection<small>keys in, screen out, files inspected</small></span><span class="st"><span class="dot"></span>in progress</span></li>
+      <li class="planned"><span class="num">4</span><span>30 tasks scored by Inspect</span><span class="st"><span class="dot"></span>planned</span></li>
+      <li class="planned"><span class="num">5</span><span>The experiment</span><span class="st"><span class="dot"></span>planned</span></li>
+      <li class="planned"><span class="num">6</span><span>Write-up, leaderboard and repo</span><span class="st"><span class="dot"></span>planned</span></li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>Yentl Peck, 2026 · built with Claude Code, reviewed by Codex</span>
+    <span>Site designed with <a href="https://github.com/heydamir/unslop">unslop</a> by <a href="https://x.com/heydamir">@heydamir</a></span>
+  </footer>
+</div>
+
+<script>
+// A faithful copy of the Unseen OS shell: same vocabulary, same messages.
+(() => {
+  const COLS = 80, ROWS = 25, TOP = 1, MAX_LINE = 200;
+  const N = "n", B = "b", A = "a", W = "w";
+
+  // ---- file system: drawers and pages, paths joined with ':' -------------
+  const entries = new Map();
+  const seed = () => {
+    entries.clear();
+    entries.set("welcome", "Welcome to your desk.\nDrawers hold pages and other drawers.\nType guide to see what you can do.");
+    entries.set("letters", null);
+    entries.set("letters:mira", "Hi! Could you send me the shopping list?\n- Mira");
+    entries.set("lists", null);
+    entries.set("lists:shopping", "eggs\nbread\ntea");
+  };
+  seed();
+  const display = p => p ? "desk:" + p : "desk";
+  const parent = p => p.includes(":") ? p.slice(0, p.lastIndexOf(":")) : "";
+  const name = p => p.includes(":") ? p.slice(p.lastIndexOf(":") + 1) : p;
+  const join = (d, n) => d ? d + ":" + n : n;
+  const isDrawer = p => p === "" || (entries.has(p) && entries.get(p) === null);
+  const exists = p => p === "" || entries.has(p);
+  const validName = n => n.length > 0 && n.length <= 24 && n !== "desk" && /^[A-Za-z0-9._-]+$/.test(n);
+  const fail = m => { throw new Error(m); };
+  const resolve = (here, input) => {
+    input = input.trim();
+    let path, rest;
+    if (input === "desk") [path, rest] = ["", ""];
+    else if (input.startsWith("desk:")) [path, rest] = ["", input.slice(5)];
+    else [path, rest] = [here, input];
+    for (const part of rest.split(":").filter(Boolean)) {
+      if (!validName(part)) fail(`'${part}' is not a valid name (use letters, digits, - _ . and at most 24 characters)`);
+      path = join(path, part);
+    }
+    return path;
+  };
+  const children = dir => {
+    const d = [], p = [];
+    for (const [path, v] of [...entries].sort()) {
+      if (parent(path) === dir && path !== dir) (v === null ? d : p).push([name(path), v === null]);
+    }
+    return d.concat(p);
+  };
+  const checkParent = p => { if (!isDrawer(parent(p))) fail(`there is no drawer called ${display(parent(p))}`); };
+  const readPage = p => {
+    if (p === "") fail("the desk is a drawer, not a page");
+    if (!entries.has(p)) fail(`there is no page called ${display(p)}`);
+    if (entries.get(p) === null) fail(`${display(p)} is a drawer, not a page`);
+    return entries.get(p);
+  };
+  const writePage = (p, t) => { if (isDrawer(p)) fail(`${display(p)} is a drawer, not a page`); checkParent(p); entries.set(p, t); };
+  const buildDrawer = p => { if (exists(p)) fail(`${display(p)} already exists`); checkParent(p); entries.set(p, null); };
+  const toss = p => {
+    if (p === "") fail("the desk cannot be thrown away");
+    if (!exists(p)) fail(`there is nothing called ${display(p)}`);
+    if (isDrawer(p) && children(p).length) fail(`${display(p)} is not empty; empty it first`);
+    entries.delete(p);
+  };
+  const moves = [];
+  const relocate = (from, to) => {
+    if (from === "") fail("the desk cannot be moved");
+    if (!exists(from)) fail(`there is nothing called ${display(from)}`);
+    if (exists(to)) fail(`${display(to)} already exists`);
+    if (to === from || to.startsWith(from + ":")) fail("a drawer cannot go inside itself");
+    checkParent(to);
+    for (const old of [...entries.keys()].filter(k => k === from || k.startsWith(from + ":"))) {
+      const v = entries.get(old); entries.delete(old); entries.set(to + old.slice(from.length), v);
+    }
+    moves.push([from, to]);
+  };
+
+  // ---- screen: 25 rows of 80 cells ---------------------------------------
+  const el = document.getElementById("screen");
+  const cells = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => [" ", N]));
+  let col = 0, row = TOP;
+  const put = (c, r, ch, cls) => { cells[r][c] = [ch, cls]; };
+  const bar = (left, right) => {
+    for (let c = 0; c < COLS; c++) put(c, 0, " ", "bar");
+    [...left].forEach((ch, i) => put(1 + i, 0, ch, "bar"));
+    [...right].forEach((ch, i) => put(COLS - 1 - right.length + i, 0, ch, "bar"));
+  };
+  const clear = () => { for (let r = TOP; r < ROWS; r++) for (let c = 0; c < COLS; c++) put(c, r, " ", N); col = 0; row = TOP; };
+  const scroll = () => { for (let r = TOP + 1; r < ROWS; r++) cells[r - 1] = cells[r]; cells[ROWS - 1] = Array.from({ length: COLS }, () => [" ", N]); };
+  const newline = () => { col = 0; if (row === ROWS - 1) scroll(); else row++; };
+  const writeByte = (ch, cls) => {
+    if (ch === "\n") return newline();
+    if (col === COLS) newline();
+    put(col, row, ch, cls); col++;
+  };
+  const write = (s, cls = N) => { for (const ch of s) writeByte(ch, cls); };
+  const line = (s, cls = N) => { write(s, cls); writeByte("\n"); };
+  const backspace = () => {
+    if (col === 0 && row > TOP) { row--; col = COLS; }
+    if (col > 0) { col--; put(col, row, " ", N); }
+  };
+  const render = () => {
+    let html = "";
+    for (let r = 0; r < ROWS; r++) {
+      html += '<div class="row">';
+      let run = "", cls = null;
+      const flush = () => { if (run) html += `<span class="${cls}">${run.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</span>`; run = ""; };
+      for (let c = 0; c < COLS; c++) {
+        const [ch, k] = cells[r][c];
+        const k2 = (r === row && c === col) ? "cur" : k;
+        if (k2 !== cls) { flush(); cls = k2; }
+        run += ch;
+      }
+      flush();
+      html += "</div>";
+    }
+    el.innerHTML = html;
+  };
+
+  // ---- shell -------------------------------------------------------------
+  let here = "", input = "", last = "", tooLong = false;
+  const prompt = () => { write(display(here), A); write(" >> ", A); };
+  const warn = m => line(m, W);
+  const usage = w => warn("Use it like this: " + COMMANDS.find(c => c.name === w).usage);
+  const twoArgs = rest => { const i = rest.indexOf(" "); if (i < 0) return null; const b = rest.slice(i + 1).trim(); return b ? [rest.slice(0, i), b] : null; };
+  const done = fn => { try { line(fn()); } catch (e) { warn(`Could not do that: ${e.message}.`); } };
+  const path = s => resolve(here, s);
+  const pad2 = n => String(n).padStart(2, "0");
+
+  const COMMANDS = [
+    { name: "guide", usage: "guide", about: "list the words this computer understands", run: () => {
+      line("Words this computer understands (<...> = fill in, [...] = optional):", B);
+      for (const c of COMMANDS) { write("  "); write(c.usage, A); write(" ".repeat(Math.max(0, 22 - c.usage.length))); line(c.about); }
+    } },
+    { name: "here", usage: "here", about: "say which drawer you are in", run: () => line(`You are in ${display(here)}`) },
+    { name: "peek", usage: "peek [drawer]", about: "list what is in a drawer", run: rest => {
+      let dir;
+      try { dir = rest ? path(rest) : here; } catch (e) { return warn(e.message); }
+      if (!isDrawer(dir)) return warn(`There is no drawer called ${display(dir)}.`);
+      const items = children(dir);
+      if (!items.length) line(`${display(dir)} is empty.`);
+      for (const [n, d] of items) { if (d) { write("  drawer  "); line(n, A); } else line(`  page    ${n}`); }
+    } },
+    { name: "enter", usage: "enter <drawer>", about: "go into a drawer", run: rest => {
+      if (!rest) return usage("enter");
+      try { const d = path(rest); if (isDrawer(d)) here = d; else warn(`There is no drawer called ${display(d)}.`); } catch (e) { warn(e.message); }
+    } },
+    { name: "leave", usage: "leave", about: "go back out to the drawer above", run: () => { if (here === "") warn("You are already on the desk, the top drawer."); else here = parent(here); } },
+    { name: "read", usage: "read <page>", about: "show what a page says", run: rest => {
+      if (!rest) return usage("read");
+      try { readPage(path(rest)).split("\n").forEach(l => line(l)); } catch (e) { warn(`Could not do that: ${e.message}.`); }
+    } },
+    { name: "write", usage: "write <page> <text>", about: "make a page with this text (replaces it)", run: rest => {
+      const a = twoArgs(rest); if (!a) return usage("write");
+      done(() => { const p = path(a[0]); writePage(p, a[1]); return `Wrote ${display(p)}.`; });
+    } },
+    { name: "add", usage: "add <page> <text>", about: "add a line to the end of a page", run: rest => {
+      const a = twoArgs(rest); if (!a) return usage("add");
+      done(() => { const p = path(a[0]); const old = readPage(p); writePage(p, old ? old + "\n" + a[1] : a[1]); return `Added a line to ${display(p)}.`; });
+    } },
+    { name: "build", usage: "build <drawer>", about: "make a new drawer", run: rest => {
+      if (!rest) return usage("build");
+      done(() => { const p = path(rest); buildDrawer(p); return `Built drawer ${display(p)}.`; });
+    } },
+    { name: "rename", usage: "rename <name> <new>", about: "give a page or drawer a new name", run: rest => {
+      const a = twoArgs(rest); if (!a) return usage("rename");
+      done(() => { const p = path(a[0]); if (!validName(a[1])) fail(`'${a[1]}' is not a valid name`); relocate(p, join(parent(p), a[1])); return `Renamed to ${a[1]}.`; });
+    } },
+    { name: "move", usage: "move <name> <drawer>", about: "put a page or drawer into another drawer", run: rest => {
+      const a = twoArgs(rest); if (!a) return usage("move");
+      done(() => { const p = path(a[0]); const d = path(a[1]); if (!isDrawer(d)) fail(`there is no drawer called ${display(d)}`); relocate(p, join(d, name(p))); return `Moved into ${display(d)}.`; });
+    } },
+    { name: "copy", usage: "copy <page> <new>", about: "make a copy of a page", run: rest => {
+      const a = twoArgs(rest); if (!a) return usage("copy");
+      done(() => { const p = path(a[0]); const n = path(a[1]); const t = readPage(p); if (exists(n)) fail(`${display(n)} already exists`); writePage(n, t); return `Copied to ${display(n)}.`; });
+    } },
+    { name: "toss", usage: "toss <name>", about: "throw away a page or an empty drawer", run: rest => {
+      if (!rest) return usage("toss");
+      done(() => { const p = path(rest); toss(p); return `Tossed ${display(p)}.`; });
+    } },
+    { name: "seek", usage: "seek <word>", about: "find pages whose name or text has a word", run: rest => {
+      if (!rest) return usage("seek");
+      const word = rest.toLowerCase(); let found = 0;
+      for (const [p, t] of [...entries].sort()) {
+        if (t === null) continue;
+        const hit = t.split("\n").find(l => l.toLowerCase().includes(word));
+        if (name(p).toLowerCase().includes(word) || hit) { found++; write(`  ${display(p)}`, A); if (hit) write(`   "${hit.slice(0, 40)}"`); writeByte("\n"); }
+      }
+      if (!found) line(`No pages have '${rest}' in them.`);
+    } },
+    { name: "notes", usage: "notes <page>", about: "open a page in the Notes app", run: () => line("Notes is a full-screen app. It runs in the real OS, shown under Apps below.") },
+    { name: "files", usage: "files", about: "open the Files app", run: () => line("Files is a full-screen app. It runs in the real OS, shown under Apps below.") },
+    { name: "show", usage: "show <text>", about: "write text on the screen", run: rest => line(rest) },
+    { name: "wipe", usage: "wipe", about: "clean the screen", run: () => clear() },
+    { name: "clock", usage: "clock", about: "today's date and time", run: () => { const t = new Date(); line(`${t.getFullYear()}-${pad2(t.getMonth() + 1)}-${pad2(t.getDate())}  ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}`); } },
+    { name: "about", usage: "about", about: "what this computer is", run: () => { line("Unseen OS 0.1", B); line("A small computer that no AI has seen before."); line("Memory: 127 MB"); } },
+  ];
+
+  const run = text => {
+    if (!text) return;
+    const i = text.indexOf(" ");
+    const [word, rest] = i < 0 ? [text, ""] : [text.slice(0, i), text.slice(i + 1).trim()];
+    const cmd = COMMANDS.find(c => c.name === word);
+    if (cmd) cmd.run(rest);
+    else warn(`Unknown word '${word}'. Type guide to see the words this computer understands.`);
+    // Follow the drawer we are in if it was renamed or moved; step out if it was tossed.
+    for (const [from, to] of moves.splice(0)) {
+      if (here === from) here = to;
+      else if (here.startsWith(from + ":")) here = to + here.slice(from.length);
+    }
+    while (!isDrawer(here)) here = parent(here);
+  };
+
+  const key = e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "Enter") {
+      writeByte("\n");
+      const text = input; input = "";
+      if (tooLong) { tooLong = false; warn(`That line was too long (at most ${MAX_LINE} characters). Nothing was done.`); }
+      else { if (text.trim()) last = text; run(text.trim()); }
+      prompt();
+    } else if (e.key === "Backspace") {
+      if (input) { input = input.slice(0, -1); backspace(); }
+    } else if (e.key === "ArrowUp") {
+      for (let i = 0; i < input.length; i++) backspace();
+      tooLong = false; input = last; write(input);
+    } else if (e.key.length === 1 && e.key.charCodeAt(0) >= 32 && e.key.charCodeAt(0) < 127) {
+      if (input.length < MAX_LINE) { input += e.key; writeByte(e.key, N); } else tooLong = true;
+    } else return;
+    e.preventDefault();
+    render();
+  };
+  el.addEventListener("keydown", key);
+
+  // Boot.
+  bar("Unseen OS 0.1", "type guide for help");
+  clear();
+  line("Welcome to Unseen OS.", B);
+  write("Type "); write("guide", A); line(" and press Enter to see what this computer understands.");
+  writeByte("\n");
+  prompt();
+  render();
+
+  // "Try the shell": focus the screen and type guide, so people see it is live.
+  const demo = () => {
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.focus({ preventScroll: true });
+    if (input) return;
+    const keys = [..."guide"].map(k => ({ key: k })).concat([{ key: "Enter" }]);
+    keys.forEach((k, i) => setTimeout(() => key({ ...k, preventDefault() {} }), 400 + i * 70));
+  };
+  document.getElementById("try").addEventListener("click", demo);
+  document.getElementById("try-nav").addEventListener("click", demo);
+
+  // Fit the 80 columns to the page: 14px down to 11px, then scroll sideways.
+  const fit = () => {
+    const w = el.parentElement.clientWidth;
+    el.style.setProperty("--cell", Math.max(11, Math.min(14, w / 48.2)).toFixed(2) + "px");
+  };
+  new ResizeObserver(fit).observe(el.parentElement);
+  fit();
+})();
+</script>
+</body>
+</html>

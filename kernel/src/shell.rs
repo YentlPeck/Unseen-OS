@@ -1,0 +1,438 @@
+//! The shell: reads a line, finds the command word, runs it.
+//! Command names are our own on purpose (not Linux or Windows words), so
+//! AI models can't rely on memory and must figure the system out.
+//!
+//! The shell also owns the open apps (Notes, Files) as a stack: keys go to
+//! the top app, and when the last app closes we are back at the prompt.
+
+use crate::files::{Files, Outcome};
+use crate::fs::{self, Entry, Fs};
+use crate::keyboard::Key;
+use crate::notes::Notes;
+use crate::screen::{Screen, ACCENT, BRIGHT, NORMAL, WARN};
+use alloc::format;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
+use core::fmt::Write;
+
+const MAX_LINE: usize = 200;
+
+struct Command {
+    name: &'static str,
+    usage: &'static str,
+    about: &'static str,
+    run: fn(&mut Shell, &mut Screen, &str),
+}
+
+const COMMANDS: &[Command] = &[
+    Command { name: "guide", usage: "guide", about: "list the words this computer understands", run: cmd_guide },
+    Command { name: "here", usage: "here", about: "say which drawer you are in", run: cmd_here },
+    Command { name: "peek", usage: "peek [drawer]", about: "list what is in a drawer", run: cmd_peek },
+    Command { name: "enter", usage: "enter <drawer>", about: "go into a drawer", run: cmd_enter },
+    Command { name: "leave", usage: "leave", about: "go back out to the drawer above", run: cmd_leave },
+    Command { name: "read", usage: "read <page>", about: "show what a page says", run: cmd_read },
+    Command { name: "write", usage: "write <page> <text>", about: "make a page with this text (replaces it)", run: cmd_write },
+    Command { name: "add", usage: "add <page> <text>", about: "add a line to the end of a page", run: cmd_add },
+    Command { name: "build", usage: "build <drawer>", about: "make a new drawer", run: cmd_build },
+    Command { name: "rename", usage: "rename <name> <new>", about: "give a page or drawer a new name", run: cmd_rename },
+    Command { name: "move", usage: "move <name> <drawer>", about: "put a page or drawer into another drawer", run: cmd_move },
+    Command { name: "copy", usage: "copy <page> <new>", about: "make a copy of a page", run: cmd_copy },
+    Command { name: "toss", usage: "toss <name>", about: "throw away a page or an empty drawer", run: cmd_toss },
+    Command { name: "seek", usage: "seek <word>", about: "find pages whose name or text has a word", run: cmd_seek },
+    Command { name: "notes", usage: "notes <page>", about: "open a page in the Notes app", run: cmd_notes },
+    Command { name: "files", usage: "files", about: "open the Files app", run: cmd_files },
+    Command { name: "show", usage: "show <text>", about: "write text on the screen", run: cmd_show },
+    Command { name: "wipe", usage: "wipe", about: "clean the screen", run: cmd_wipe },
+    Command { name: "clock", usage: "clock", about: "today's date and time", run: cmd_clock },
+    Command { name: "about", usage: "about", about: "what this computer is", run: cmd_about },
+];
+
+enum App {
+    Notes(Notes),
+    Files(Files),
+}
+
+pub struct Shell {
+    line: String,
+    too_long: bool,
+    last: String,
+    here: String,
+    fs: Fs,
+    apps: Vec<App>,
+    memory_mb: u32,
+}
+
+impl Shell {
+    pub fn new(fs: Fs, memory_mb: u32) -> Self {
+        Self { line: String::new(), too_long: false, last: String::new(), here: String::new(), fs, apps: Vec::new(), memory_mb }
+    }
+
+    pub fn fs(&self) -> &Fs {
+        &self.fs
+    }
+
+    pub fn start(&mut self, screen: &mut Screen) {
+        screen.write_colored("Welcome to Unseen OS.\n", BRIGHT);
+        screen.write_colored("Type ", NORMAL);
+        screen.write_colored("guide", ACCENT);
+        screen.write_colored(" and press Enter to see what this computer understands.\n\n", NORMAL);
+        self.prompt(screen);
+    }
+
+    fn prompt(&self, screen: &mut Screen) {
+        screen.write_colored(&fs::display(&self.here), ACCENT);
+        screen.write_colored(" >> ", ACCENT);
+    }
+
+    pub fn key(&mut self, screen: &mut Screen, key: Key) {
+        if !self.apps.is_empty() {
+            self.app_key(screen, key);
+            return;
+        }
+        match key {
+            Key::Char(c) if self.line.len() < MAX_LINE => {
+                self.line.push(c as char);
+                screen.write_byte(c);
+            }
+            Key::Char(_) => self.too_long = true,
+            Key::Backspace if !self.line.is_empty() => {
+                self.line.pop();
+                screen.backspace();
+            }
+            Key::Up => {
+                for _ in 0..self.line.len() {
+                    screen.backspace();
+                }
+                self.too_long = false;
+                self.line = self.last.clone();
+                screen.write_colored(&self.line.clone(), NORMAL);
+            }
+            Key::Enter => {
+                screen.write_byte(b'\n');
+                let line = core::mem::take(&mut self.line);
+                if core::mem::take(&mut self.too_long) {
+                    warn(screen, &format!("That line was too long (at most {MAX_LINE} characters). Nothing was done."));
+                } else {
+                    if !line.trim().is_empty() {
+                        self.last = line.clone();
+                    }
+                    self.run(screen, line.trim());
+                    self.follow_moves();
+                }
+                if self.apps.is_empty() {
+                    self.prompt(screen);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn app_key(&mut self, screen: &mut Screen, key: Key) {
+        enum Next {
+            Redraw,
+            Close,
+            Open(String),
+        }
+        let next = match self.apps.last_mut() {
+            Some(App::Notes(n)) => {
+                if n.key(&mut self.fs, key) { Next::Close } else { Next::Redraw }
+            }
+            Some(App::Files(f)) => match f.key(&mut self.fs, key) {
+                Outcome::Stay => Next::Redraw,
+                Outcome::Leave => Next::Close,
+                Outcome::OpenPage(p) => Next::Open(p),
+            },
+            None => return,
+        };
+        match next {
+            Next::Redraw => {}
+            Next::Close => {
+                self.apps.pop();
+            }
+            Next::Open(path) => match Notes::open(&self.fs, path) {
+                Ok(n) => self.apps.push(App::Notes(n)),
+                Err(e) => {
+                    if let Some(App::Files(f)) = self.apps.last_mut() {
+                        f.message = e;
+                    }
+                }
+            },
+        }
+        self.follow_moves();
+        self.redraw(screen);
+    }
+
+    /// Keep `here` valid: follow the drawer if it was renamed or moved, and
+    /// step out to the nearest drawer that still exists if it was tossed.
+    fn follow_moves(&mut self) {
+        for (from, to) in self.fs.take_moves() {
+            if self.here == from {
+                self.here = to;
+            } else if let Some(rest) = self.here.strip_prefix(&format!("{from}:")) {
+                self.here = format!("{to}:{rest}");
+            }
+        }
+        while !self.fs.is_drawer(&self.here) {
+            self.here = fs::parent(&self.here).to_string();
+        }
+    }
+
+    /// Draw the top app, or go back to the prompt if no app is open.
+    fn redraw(&mut self, screen: &mut Screen) {
+        match self.apps.last_mut() {
+            Some(App::Notes(n)) => n.draw(screen),
+            Some(App::Files(f)) => f.draw(&self.fs, screen),
+            None => {
+                screen.status_bar("Unseen OS 0.1", "type guide for help");
+                screen.clear();
+                self.prompt(screen);
+            }
+        }
+    }
+
+    fn run(&mut self, screen: &mut Screen, line: &str) {
+        if line.is_empty() {
+            return;
+        }
+        let (word, rest) = match line.find(' ') {
+            Some(i) => (&line[..i], line[i + 1..].trim()),
+            None => (line, ""),
+        };
+        crate::log!("command: {}", line);
+        match COMMANDS.iter().find(|c| c.name == word) {
+            Some(cmd) => (cmd.run)(self, screen, rest),
+            None => warn(
+                screen,
+                &format!("Unknown word '{word}'. Type guide to see the words this computer understands."),
+            ),
+        }
+    }
+
+    fn path(&self, input: &str) -> fs::Result<String> {
+        self.fs.resolve(&self.here, input)
+    }
+}
+
+// ---- helpers --------------------------------------------------------------
+
+fn warn(screen: &mut Screen, msg: &str) {
+    screen.write_colored(msg, WARN);
+    screen.write_byte(b'\n');
+}
+
+fn done(screen: &mut Screen, result: fs::Result<String>) {
+    match result {
+        Ok(msg) => {
+            let _ = writeln!(screen, "{msg}");
+        }
+        Err(e) => warn(screen, &format!("Could not do that: {e}.")),
+    }
+}
+
+/// Split "a b c" into ("a", "b c"). None if either part is missing.
+fn two_args(rest: &str) -> Option<(&str, &str)> {
+    let i = rest.find(' ')?;
+    let (a, b) = (&rest[..i], rest[i + 1..].trim());
+    (!b.is_empty()).then_some((a, b))
+}
+
+fn usage(screen: &mut Screen, word: &str) {
+    if let Some(c) = COMMANDS.iter().find(|c| c.name == word) {
+        warn(screen, &format!("Use it like this: {}", c.usage));
+    }
+}
+
+// ---- commands -------------------------------------------------------------
+
+fn cmd_guide(_: &mut Shell, screen: &mut Screen, _: &str) {
+    screen.write_colored("Words this computer understands (<...> = fill in, [...] = optional):\n", BRIGHT);
+    for c in COMMANDS {
+        screen.write_colored("  ", NORMAL);
+        screen.write_colored(c.usage, ACCENT);
+        for _ in c.usage.len()..22 {
+            screen.write_byte(b' ');
+        }
+        screen.write_colored(c.about, NORMAL);
+        screen.write_byte(b'\n');
+    }
+}
+
+fn cmd_here(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    let _ = writeln!(screen, "You are in {}", fs::display(&sh.here));
+}
+
+fn cmd_peek(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let dir = if rest.is_empty() { Ok(sh.here.clone()) } else { sh.path(rest) };
+    let dir = match dir {
+        Ok(d) if sh.fs.is_drawer(&d) => d,
+        Ok(d) => return warn(screen, &format!("There is no drawer called {}.", fs::display(&d))),
+        Err(e) => return warn(screen, &e),
+    };
+    let items = sh.fs.children(&dir);
+    if items.is_empty() {
+        let _ = writeln!(screen, "{} is empty.", fs::display(&dir));
+    }
+    for (name, drawer) in items {
+        if drawer {
+            screen.write_colored("  drawer  ", NORMAL);
+            screen.write_colored(&name, ACCENT);
+            screen.write_byte(b'\n');
+        } else {
+            let _ = writeln!(screen, "  page    {name}");
+        }
+    }
+}
+
+fn cmd_enter(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "enter");
+    }
+    match sh.path(rest) {
+        Ok(d) if sh.fs.is_drawer(&d) => sh.here = d,
+        Ok(d) => warn(screen, &format!("There is no drawer called {}.", fs::display(&d))),
+        Err(e) => warn(screen, &e),
+    }
+}
+
+fn cmd_leave(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    if sh.here.is_empty() {
+        return warn(screen, "You are already on the desk, the top drawer.");
+    }
+    sh.here = fs::parent(&sh.here).to_string();
+}
+
+fn cmd_read(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "read");
+    }
+    let text = sh.path(rest).and_then(|p| sh.fs.read_page(&p).map(|t| t.to_string()));
+    match text {
+        Ok(t) => {
+            for line in t.split('\n') {
+                let _ = writeln!(screen, "{line}");
+            }
+        }
+        Err(e) => warn(screen, &format!("Could not do that: {e}.")),
+    }
+}
+
+fn cmd_write(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, text)) = two_args(rest) else { return usage(screen, "write") };
+    let r = sh.path(page).and_then(|p| sh.fs.write_page(&p, text).map(|_| format!("Wrote {}.", fs::display(&p))));
+    done(screen, r);
+}
+
+fn cmd_add(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, text)) = two_args(rest) else { return usage(screen, "add") };
+    let r = sh.path(page).and_then(|p| {
+        let old = sh.fs.read_page(&p)?.to_string();
+        let new = if old.is_empty() { text.to_string() } else { format!("{old}\n{text}") };
+        sh.fs.write_page(&p, &new).map(|_| format!("Added a line to {}.", fs::display(&p)))
+    });
+    done(screen, r);
+}
+
+fn cmd_build(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "build");
+    }
+    let r = sh.path(rest).and_then(|p| sh.fs.build_drawer(&p).map(|_| format!("Built drawer {}.", fs::display(&p))));
+    done(screen, r);
+}
+
+fn cmd_rename(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((name, new)) = two_args(rest) else { return usage(screen, "rename") };
+    let r = sh.path(name).and_then(|p| sh.fs.rename(&p, new).map(|_| format!("Renamed to {new}.")));
+    done(screen, r);
+}
+
+fn cmd_move(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((name, drawer)) = two_args(rest) else { return usage(screen, "move") };
+    let r = sh.path(name).and_then(|p| {
+        let d = sh.path(drawer)?;
+        sh.fs.move_into(&p, &d).map(|_| format!("Moved into {}.", fs::display(&d)))
+    });
+    done(screen, r);
+}
+
+fn cmd_copy(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, new)) = two_args(rest) else { return usage(screen, "copy") };
+    let r = sh.path(page).and_then(|p| {
+        let n = sh.path(new)?;
+        sh.fs.copy_page(&p, &n).map(|_| format!("Copied to {}.", fs::display(&n)))
+    });
+    done(screen, r);
+}
+
+fn cmd_toss(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "toss");
+    }
+    let r = sh.path(rest).and_then(|p| sh.fs.toss(&p).map(|_| format!("Tossed {}.", fs::display(&p))));
+    done(screen, r);
+}
+
+fn cmd_seek(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "seek");
+    }
+    let word = rest.to_ascii_lowercase();
+    let mut found = 0;
+    for (path, entry) in sh.fs.all() {
+        let Entry::Page(text) = entry else { continue };
+        let in_name = fs::name(path).to_ascii_lowercase().contains(&word);
+        let line = text.split('\n').find(|l| l.to_ascii_lowercase().contains(&word));
+        if in_name || line.is_some() {
+            found += 1;
+            screen.write_colored(&format!("  {}", fs::display(path)), ACCENT);
+            if let Some(l) = line {
+                let _ = write!(screen, "   \"{}\"", &l[..l.len().min(40)]);
+            }
+            screen.write_byte(b'\n');
+        }
+    }
+    if found == 0 {
+        let _ = writeln!(screen, "No pages have '{rest}' in them.");
+    }
+}
+
+fn cmd_notes(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "notes");
+    }
+    match sh.path(rest).and_then(|p| Notes::open(&sh.fs, p)) {
+        Ok(n) => {
+            sh.apps.push(App::Notes(n));
+            sh.redraw(screen);
+        }
+        Err(e) => warn(screen, &format!("Could not do that: {e}.")),
+    }
+}
+
+fn cmd_files(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    sh.apps.push(App::Files(Files::new(sh.here.clone())));
+    sh.redraw(screen);
+}
+
+fn cmd_show(_: &mut Shell, screen: &mut Screen, rest: &str) {
+    let _ = writeln!(screen, "{rest}");
+}
+
+fn cmd_wipe(_: &mut Shell, screen: &mut Screen, _: &str) {
+    screen.clear();
+}
+
+fn cmd_clock(_: &mut Shell, screen: &mut Screen, _: &str) {
+    let t = crate::rtc::now();
+    let _ = writeln!(
+        screen,
+        "{:04}-{:02}-{:02}  {:02}:{:02}:{:02}",
+        t.year, t.month, t.day, t.hour, t.minute, t.second
+    );
+}
+
+fn cmd_about(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    screen.write_colored("Unseen OS 0.1\n", BRIGHT);
+    let _ = writeln!(screen, "A small computer that no AI has seen before.");
+    let _ = writeln!(screen, "Memory: {} MB", sh.memory_mb);
+}

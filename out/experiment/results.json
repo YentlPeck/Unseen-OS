@@ -1,0 +1,79 @@
+{
+  "manifest_sha256": "9b870488ab4be5ef2ced7889dacb64c37a61fa0f9365531947ad86ae616a33bc",
+  "games": 120,
+  "pairs": 60,
+  "main": {
+    "b_manual_only": 12,
+    "c_plain_only": 2,
+    "p": 0.0129,
+    "verdict": "The manual helps"
+  },
+  "main_without_pilot_tasks": {
+    "b_manual_only": 11,
+    "c_plain_only": 2,
+    "p": 0.0225,
+    "verdict": "The manual helps"
+  },
+  "per_player": {
+    "haiku": {
+      "b_manual_only": 9,
+      "c_plain_only": 1,
+      "p": 0.0215,
+      "verdict": "The manual helps"
+    },
+    "luna": {
+      "b_manual_only": 3,
+      "c_plain_only": 1,
+      "p": 0.625,
+      "verdict": "No clear difference"
+    }
+  },
+  "task_level_sign_test": {
+    "tasks_manual_better": 10,
+    "tasks_plain_better": 2,
+    "p": 0.0386
+  },
+  "pass_rates": {
+    "haiku / manual / all": "28/30",
+    "haiku / manual / easy": "10/10",
+    "haiku / manual / hard": "9/10",
+    "haiku / manual / medium": "9/10",
+    "haiku / plain / all": "20/30",
+    "haiku / plain / easy": "9/10",
+    "haiku / plain / hard": "4/10",
+    "haiku / plain / medium": "7/10",
+    "luna / manual / all": "29/30",
+    "luna / manual / easy": "10/10",
+    "luna / manual / hard": "10/10",
+    "luna / manual / medium": "9/10",
+    "luna / plain / all": "27/30",
+    "luna / plain / easy": "9/10",
+    "luna / plain / hard": "9/10",
+    "luna / plain / medium": "9/10"
+  },
+  "actions_when_won_both": {
+    "games": 45,
+    "median_plain": 17,
+    "median_manual": 11
+  },
+  "audit_failures": [
+    "haiku album plain: ['cd \"C:\\\\Users\\\\yentl\\\\AppData\\\\Local\\\\Temp\\\\unseen-games\\\\album-haiku-plain-9c1309\" && python play.py album-haiku-plain-9c1309 look', 'cd \"C:\\\\Users\\\\yentl\\\\AppData\\\\Local\\\\Temp\\\\unseen-games\\\\album-haiku-plain-9c1309\" && python play.py album-haiku-plain-9c1309 type \"guide\" && python play.py album-haiku-plain-9c1309 press enter', 'cd \"C:\\\\Users\\\\yentl\\\\AppData\\\\Local\\\\Temp\\\\unseen-games\\\\album-haiku-plain-9c1309\" && python play.py album-haiku-plain-9c1309 type \"peek\" && python play.py album-haiku-plain-9c1309 press enter', 'cd \"C:\\\\Users\\\\yentl\\\\AppData\\\\Local\\\\Temp\\\\unseen-games\\\\album-haiku-plain-9c1309\" && python play.py album-haiku-plain-9c1309 type \"build album\" && python play.py album-haiku-plain-9c1309 press enter && python play.py album-haiku-plain-9c1309 type \"move photo-beach album\" && python play.py album-haiku-plain-9c1309 press enter && python play.py album-haiku-plain-9c1309 type \"move photo-cat album\" && python play.py album-haiku-plain-9c1309 press enter && python play.py album-haiku-plain-9c1309 type \"move photo-snow album\" && python play.py album-haiku-plain-9c1309 press enter && python play.py album-haiku-plain-9c1309 type \"peek\" && python play.py album-haiku-plain-9c1309 press enter', 'cd \"C:\\\\Users\\\\yentl\\\\AppData\\\\Local\\\\Temp\\\\unseen-games\\\\album-haiku-plain-9c1309\" && python play.py album-haiku-plain-9c1309 type \"peek album\" && python play.py album-haiku-plain-9c1309 press enter']",
+    "haiku clean-junk plain: ['cd . && python play.py clean-junk-haiku-plain-82b1aa type \"toss old-ad\" && python play.py clean-junk-haiku-plain-82b1aa press enter && python play.py clean-junk-haiku-plain-82b1aa type \"toss receipt-2019\" && python play.py clean-junk-haiku-plain-82b1aa press enter && python play.py clean-junk-haiku-plain-82b1aa type \"toss spam\" && python play.py clean-junk-haiku-plain-82b1aa press enter && python play.py clean-junk-haiku-plain-82b1aa type \"peek\" && python play.py clean-junk-haiku-plain-82b1aa press enter', 'cd . && python play.py clean-junk-haiku-plain-82b1aa type \"leave\" && python play.py clean-junk-haiku-plain-82b1aa press enter && python play.py clean-junk-haiku-plain-82b1aa type \"toss junk\" && python play.py clean-junk-haiku-plain-82b1aa press enter && python play.py clean-junk-haiku-plain-82b1aa type \"peek\" && python play.py clean-junk-haiku-plain-82b1aa press enter']",
+    "haiku fix-typo manual: ['cd . && python play.py fix-typo-haiku-manual-60b0ba press down && python play.py fix-typo-haiku-manual-60b0ba press home && python play.py fix-typo-haiku-manual-60b0ba press right right right right right right right right right right && python play.py fix-typo-haiku-manual-60b0ba look']",
+    "haiku insert-line plain: ['python play.py insert-line-haiku-plain-6699d0 peek']",
+    "haiku instructions plain: ['cd . ; python play.py instructions-haiku-plain-6e0679 type \"build done\"; python play.py instructions-haiku-plain-6e0679 press enter; python play.py instructions-haiku-plain-6e0679 type \"move task-a done\"; python play.py instructions-haiku-plain-6e0679 press enter; python play.py instructions-haiku-plain-6e0679 type \"enter done\"; python play.py instructions-haiku-plain-6e0679 press enter; python play.py instructions-haiku-plain-6e0679 type \"write status finished\"; python play.py instructions-haiku-plain-6e0679 press enter; python play.py instructions-haiku-plain-6e0679 type \"peek\"; python play.py instructions-haiku-plain-6e0679 press enter']",
+    "haiku invites plain: ['cd . && python play.py invites-haiku-plain-9771a1 type \"leave\" && python play.py invites-haiku-plain-9771a1 press enter && python play.py invites-haiku-plain-9771a1 type \"build outbox\" && python play.py invites-haiku-plain-9771a1 press enter && python play.py invites-haiku-plain-9771a1 type \"enter templates\" && python play.py invites-haiku-plain-9771a1 press enter && python play.py invites-haiku-plain-9771a1 type \"copy letter letter-ana\" && python play.py invites-haiku-plain-9771a1 press enter && python play.py invites-haiku-plain-9771a1 type \"move letter-ana outbox\" && python play.py invites-haiku-plain-9771a1 press enter']",
+    "haiku locker plain: ['python play.py locker-haiku-plain-f3d1e1 peek']",
+    "haiku read-code plain: ['cd . && python play.py read-code-haiku-plain-403d4b type \"enter vault\" && python play.py read-code-haiku-plain-403d4b press enter && python play.py read-code-haiku-plain-403d4b type \"peek\" && python play.py read-code-haiku-plain-403d4b press enter']",
+    "haiku swap plain: ['cd /d/ 2>/dev/null; cd \"C:/Users/yentl/AppData/Local/Temp/unseen-games/swap-haiku-plain-c8742e\" && python play.py swap-haiku-plain-c8742e type \"rename monday swaptmp\" && python play.py swap-haiku-plain-c8742e press enter && python play.py swap-haiku-plain-c8742e type \"rename tuesday monday\" && python play.py swap-haiku-plain-c8742e press enter && python play.py swap-haiku-plain-c8742e type \"rename swaptmp tuesday\" && python play.py swap-haiku-plain-c8742e press enter && python play.py swap-haiku-plain-c8742e type \"peek\" && python play.py swap-haiku-plain-c8742e press enter']",
+    "haiku triage manual: ['cd . && python play.py triage-haiku-manual-7e089d type \"leave\" && python play.py triage-haiku-manual-7e089d press enter && python play.py triage-haiku-manual-7e089d type \"build invoices\" && python play.py triage-haiku-manual-7e089d press enter && python play.py triage-haiku-manual-7e089d type \"build notes\" && python play.py triage-haiku-manual-7e089d press enter && python play.py triage-haiku-manual-7e089d type \"peek\" && python play.py triage-haiku-manual-7e089d press enter']",
+    "haiku triage plain: ['cd . && python play.py triage-haiku-plain-51c5e5 type \"enter inbox\" && python play.py triage-haiku-plain-51c5e5 press enter && python play.py triage-haiku-plain-51c5e5 type \"peek\" && python play.py triage-haiku-plain-51c5e5 press enter']",
+    "haiku urgent plain: ['cd . && P=\"python play.py urgent-haiku-plain-b0a393\"; $P type \"leave\" && $P press enter && $P type \"build today\" && $P press enter && $P type \"move bills today\" && $P press enter']",
+    "luna copy-list plain: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py type \"guide\"\\'']",
+    "luna nested manual: ['mcp_tool_call: {\"id\": \"item_1\", \"type\": \"mcp_tool_call\", \"server\": \"cua_repl\", \"tool\": \"js\", \"arguments\": {\"code\": \"await cua.getState();\", \"title\": \"Checking available screen\"}, \"result\": null, \"error\": null, \"stat', 'mcp_tool_call: {\"id\": \"item_1\", \"type\": \"mcp_tool_call\", \"server\": \"cua_repl\", \"tool\": \"js\", \"arguments\": {\"code\": \"await cua.getState();\", \"title\": \"Checking available screen\"}, \"result\": {\"content\": [{\"type\": \"tex', 'mcp_tool_call: {\"id\": \"item_16\", \"type\": \"mcp_tool_call\", \"server\": \"cua_repl\", \"tool\": \"js\", \"arguments\": {\"completion_summary\": \"Completed requested page\"}, \"result\": null, \"error\": null, \"status\": \"in_progress\"}', 'mcp_tool_call: {\"id\": \"item_16\", \"type\": \"mcp_tool_call\", \"server\": \"cua_repl\", \"tool\": \"js\", \"arguments\": {\"completion_summary\": \"Completed requested page\"}, \"result\": {\"content\": [{\"type\": \"text\", \"text\": \"Complet']",
+    "luna swap plain: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py type \"guide\"\\'']"
+  ],
+  "timeouts": [],
+  "harness_reruns": [],
+  "pilot_games": "see PREREG.md, section 'Pilot games already played'"
+}
