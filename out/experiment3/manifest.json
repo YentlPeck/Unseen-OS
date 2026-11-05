@@ -1,0 +1,27 @@
+{
+  "experiment": 3,
+  "frozen_at": "2026-11-05 14:26:57 +0100",
+  "files": {
+    "out/unseen.bin": "dd511219a6420e1b57fe23f2dd754ec1a45c112ddabf4ae2210ed3534abc8cb9",
+    "docs/manual.md": "0f322fa967970ff9ad28a5c2dd7f989ee334f3d89759b011ca6aa92ba105b8ce",
+    "tools/tasks.py": "196328b3d5366521788ee7e0cee71b320c799f17d67fe6cef881d7df64350dcd",
+    "tools/expected.json": "49ea0d20012d6410182a33c1c5a49431f3dcae1f00373c4dc653fd16287dd311",
+    "tools/validate_tasks.py": "def6d782e518834072a63d436a5b9a2fb158e7fadb13664adcde3a254cc586c6",
+    "tools/audit.py": "56df697c1bc29b8798f3841c0d5bf2dddf27bca5acc04d4d10904cafa068c1d5",
+    "tools/run_task.py": "9e968b18d27f140ca95753356fb74662714efea72168555cc92d4cd70b639ada",
+    "tools/play.py": "6db48ab815f772c7f7ff18800409ca6d29b15ca0e4fcef875d07dcaa9a34bf5f",
+    "tools/broker.py": "8d6684daf317fc6f68e7f2bb4e9094ebd37b5207f1615a6daf78a3c91079f721",
+    "tools/unseen.py": "a3d889c71c17938f4ba3051192803c496d0917d62c339d22b752b7a6064e93e9",
+    "tools/inspect_eval.py": "7c90a9425a79db04fb2b6548037abe88e7346020bba0ed68d4ab88f573a392d4",
+    "tools/robot_player.py": "970f17e0927a0f4802123cad1c2c7a4103f81302951cc26a6d108f8a3433fe7d",
+    "tools/freeze.py": "7ee428924cbff7b7361576caff233d25e874410a7a1ce256325b67ac476a008a",
+    "PREREG3.md": "4d408a3cc8e22883e186fe468bbfbcc1b5f7bb4c951d5ab218430fc406977f01",
+    "docs/calibration3.md": "c02146d91317f375b943674f6722d96b2a2a6e0852c8b2c8e5335f679ec46715",
+    "tools/tasks_v2.py": "6f513f1b2173f7362e207fdd9fc215dddde48cb06645baa4f71047cbfd85c964",
+    "tools/tasks_v3.py": "0e411085c989324dfc6259178540408ff0fde209dbf224e63975431e7c81ac26",
+    "tools/world_v3.py": "44bfd6909d182d3945e4ebfda753728c415b8b945d554ec57c69c4711b8654c8",
+    "tools/hidden.py": "ae098f1d25d90215b43e1fe193d39d9db7cf1635140cef2f8167e00600e3d22a",
+    "tools/run_experiment3.py": "c5d2c1020fa1fa10160d76b8c7112cfec360a82dbfb51f14c8e23da7611087b8",
+    "tools/analyze3.py": "9a989ea40beaac45c05207a84417887a6edb9c11def1ac4873408b36f5adc1b9"
+  }
+}
