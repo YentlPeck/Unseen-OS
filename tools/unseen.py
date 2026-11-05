@@ -173,12 +173,16 @@ class Machine:
     def run_keys(self, keys):
         """Type a key string like 'notes x{enter}{down*3}hi{ctrl+k}{esc}' (harness only)."""
         alias = {"bksp": "backspace", "del": "delete"}
+        # Wait for the OS after every part, as a player's actions do: hundreds of keys sent
+        # without a pause can overflow the keyboard queue while the OS redraws or runs a chore.
         for part in re.split(r"(\{[^}]*\})", keys):
             if part.startswith("{"):
                 name, _, times = part[1:-1].partition("*")
                 self.press(*[alias.get(name, name)] * int(times or 1))
+                self.settle()
             elif part:
                 self.type(part)
+                self.settle()
 
     # ---- inspector --------------------------------------------------------
 

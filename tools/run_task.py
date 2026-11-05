@@ -38,8 +38,11 @@ from audit import audit  # noqa: E402
 from broker import Broker  # noqa: E402
 from tasks import TASKS, strict_check  # noqa: E402
 from unseen import Machine  # noqa: E402
+from hidden import run_hidden  # noqa: E402
 
 MAX_ACTIONS = 40
+V3_TIP = ("\nWhen the text you type contains quote marks, put double quotes around the whole text and use "
+          "single quotes inside it.")
 TIME_LIMIT = 15 * 60  # seconds
 MODELS = {"haiku": "claude-haiku-5-5", "luna": "gpt-6-luna"}
 GAMES_DIR = Path(tempfile.gettempdir()) / "unseen-games"
@@ -53,7 +56,7 @@ run from the current folder:
                                          left, right, home, end, delete, space, or ctrl+<letter>
 
 Every action shows you the screen afterwards. You have at most {max_actions} actions.
-Do not run any other commands and do not read any files.
+Do not run any other commands and do not read any files.{tips}
 {manual}
 Your task: {request}
 
@@ -239,7 +242,8 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
                 summary = "ran the reference solution"
             else:
                 manual = f"\nHere is the manual for this computer:\n\n{manual_text}\n" if manual_text else ""
-                prompt = PROMPT.format(gid=gid, max_actions=max_actions, request=task["request"], manual=manual)
+                prompt = PROMPT.format(gid=gid, max_actions=max_actions, request=task["request"], manual=manual,
+                                       tips=V3_TIP if task.get("v3") else "")
                 (run_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
                 cmd = player_command(f"robot:{task_id}" if player == "robot" else player, gid, game_dir)
                 cmd[0] = shutil.which(cmd[0]) or cmd[0]
@@ -269,6 +273,12 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
     if player not in ("script", "robot") and not cli_error:
         cli_error = infrastructure_problem(run_dir / "player.log", commands, summary, broker.used)
     passed, rule = strict_check(task_id, files)
+    visible_passed, hidden = passed, None
+    if task.get("hidden"):  # fix/write tasks: the chore must also work on the hidden worlds
+        hidden = run_hidden(task, files.get(task["chore_page"]))
+        if not all(h["ok"] for h in hidden):
+            passed = False
+            rule += " | hidden worlds: " + "; ".join(h["why"] for h in hidden if not h["ok"])
     violations = audit(commands, gid) + others + [f"changed {f}" for f in tampered] if player != "script" else []
     harness_errors = ([f"settle failures: {broker.settle_failures}"] if broker.settle_failures else []) \
         + [f"infra: {e}" for e in broker.infra_errors] + ([cli_error] if cli_error else [])
@@ -276,7 +286,8 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
     if (run_dir / "transcript.jsonl").exists():
         transcript = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text(encoding="utf-8").splitlines()]
     result = {"game": gid, "task": task_id, "level": task["level"], "player": player, "manual": bool(manual_text),
-              "passed": passed, "rule": rule, "actions": broker.used if player != "script" else 1,
+              "passed": passed, "visible_passed": visible_passed, "hidden": hidden, "rule": rule,
+              "actions": broker.used if player != "script" else 1,
               "seconds": round(time.time() - started), "timed_out": timed_out,
               "settle_failures": broker.settle_failures, "harness_errors": harness_errors,
               "audit_ok": not violations, "violations": violations, "summary": summary, "files": files}

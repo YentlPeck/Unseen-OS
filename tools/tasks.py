@@ -76,8 +76,9 @@ def parse_start(text):
 DEFAULT_SETTINGS = "name: friend\ntheme: blue\nstart: shell\nclock: 24h"
 
 
-def by_content(files):
-    """Calendar events are compared by what they say, not by their page number."""
+def by_content(files, mail=False):
+    """Calendar events are compared by what they say, not by their page number.
+    With mail=True (version 3 tasks) sent mails are too, so the order of sending doesn't matter."""
     out, seen = {}, {}
     for k, v in sorted(files.items()):
         if k.startswith("desk:calendar:") and isinstance(v, str):
@@ -85,8 +86,20 @@ def by_content(files):
             key = "desk:calendar:" + "|".join(fields.get(x, "") for x in ("date", "time", "title", "with"))
             seen[key] = seen.get(key, 0) + 1
             k = f"{key}#{seen[key]}"  # identical events are counted, not merged
+        elif mail and k.startswith("desk:mail:sent:") and isinstance(v, str):
+            key = "desk:mail:sent:" + "|".join(norm(v))
+            seen[key] = seen.get(key, 0) + 1
+            k = f"{key}#{seen[key]}"
         out[k] = v
     return out
+
+
+def scoped(t, files):
+    """Version 3: the scratch drawer desk:chores is ignored, except the task's own chore page."""
+    if not t.get("v3"):
+        return files
+    keep = t.get("chore_page")
+    return {k: v for k, v in files.items() if not k.startswith("desk:chores:") or k == keep}
 
 
 def canon(files):
@@ -110,9 +123,13 @@ def strict_check(task_id, files):
     want = expected(task_id)
     if want is None:
         return False, "no expected end state recorded (run validate_tasks.py)"
-    start, files, want = by_content(parse_start(t["start"])), by_content(files), by_content(want)
+    mail = bool(t.get("v3"))
+    raw = files
+    start = by_content(scoped(t, parse_start(t["start"])), mail)
+    files, want = by_content(scoped(t, files), mail), by_content(scoped(t, want), mail)
     problems = []
-    if t.get("extra") and not t["extra"](files):
+    # version 3 checkers read the real pages; older ones were written for the by-content form
+    if t.get("extra") and not t["extra"](raw if mail else files):
         problems.append("the pages together don't match the task")
     for path in sorted(set(files) | set(want)):
         got, exp = files.get(path, "<missing>"), want.get(path, "<missing>")
@@ -697,11 +714,16 @@ Call mom on Sunday.
 
 # ---- version 2 tasks (tasks_v2.py) and the task sets ----------------------------
 import tasks_v2  # noqa: E402  (imported here: it uses the helpers above)
+import tasks_v3  # noqa: E402
 
 TASK_SETS = {
     "v1": [k for k in TASKS],
     "v2": list(tasks_v2.TASKS_V2),
     "practice2": list(tasks_v2.PRACTICE_V2),
+    "v3": list(tasks_v3.TASKS_V3),
+    "practice3": list(tasks_v3.PRACTICE_V3),
 }
 TASKS.update(tasks_v2.TASKS_V2)
 TASKS.update(tasks_v2.PRACTICE_V2)
+TASKS.update(tasks_v3.TASKS_V3)
+TASKS.update(tasks_v3.PRACTICE_V3)

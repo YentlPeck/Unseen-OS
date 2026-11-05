@@ -18,6 +18,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import tasks as T  # noqa: E402
+from hidden import run_hidden, steps_on  # noqa: E402
+
+STEP_MARGIN = 25_000  # reference chores must use at most half of the 50000-step limit
 from unseen import Machine  # noqa: E402
 
 
@@ -35,8 +38,17 @@ def run_reference(task_id):
     return start, end
 
 
-def planted_mistakes(start, end, flex):
+def planted_mistakes(start, end, flex, task=None):
     """Wrong end states that a strict scorer must reject."""
+    if task and task.get("v3"):  # the scratch drawer's pages are ignored on purpose
+        keep = task.get("chore_page")
+        scratch = {p for p in set(start) | set(end) if p.startswith("desk:chores:") and p != keep}
+        start = {k: v for k, v in start.items() if k not in scratch}
+        end = {k: v for k, v in end.items() if k not in scratch}
+        for p, v in end.items():
+            if p.startswith("desk:mail:sent:") and p not in start:
+                yield f"mail {p} sent twice", {**end, p + "x": v}
+                break
     yield "extra page", {**end, "desk:zz-extra": "x"}
     for p, v in end.items():
         if isinstance(v, str) and p not in flex and start.get(p) != v and v.strip():
@@ -50,16 +62,57 @@ def planted_mistakes(start, end, flex):
     for p, v in end.items():
         if p.startswith("desk:calendar:") and isinstance(v, str):
             yield f"event {p} added twice", {**end, p + "x": v}
+    untouched = 0
     for p, v in end.items():
         if isinstance(v, str) and p not in flex:
-            yield f"page {p} replaced by a drawer", {**end, p: None}
             if start.get(p) == v:
+                untouched += 1
+                if task and task.get("v3") and untouched % 25:  # big worlds: a sample of untouched pages
+                    continue
                 yield f"blank line added to untouched {p}", {**end, p: v + "\n"}
+            yield f"page {p} replaced by a drawer", {**end, p: None}
+
+
+def check_v3(tid, task, problems):
+    """Version 3: reference chores stay well inside the step limit; fix/write chores work on
+    every hidden world, and every wrong chore fails on at least one."""
+    page = task.get("chore_page", "desk:chores:job")
+    long = [line for line in task["ref_chore"].split("\n") if len(line) > 78]
+    if long:
+        problems.append(f"{tid}: reference chore has lines Notes can't hold (over 78): {long}")
+    start = task["start"]
+    if page[len("desk:"):] in start:  # a fix task: run the fixed chore instead of the broken one
+        start = start.split(f"#page {page[len('desk:'):]}\n")[0]
+    finished, steps, screen = steps_on(start, page, task["ref_chore"])
+    if not finished:
+        problems.append(f"{tid}: reference chore did not finish on the visible world: {screen[:300]}")
+    elif steps > STEP_MARGIN:
+        problems.append(f"{tid}: reference chore needs {steps} steps (more than {STEP_MARGIN})")
+    info = f"{steps} steps"
+    if task.get("hidden"):
+        res = run_hidden(task, task["ref_chore"])
+        if not all(r["ok"] for r in res):
+            problems.append(f"{tid}: reference chore fails a hidden world: {[r['why'] for r in res]}")
+        if any(r["steps"] and r["steps"] > STEP_MARGIN for r in res):
+            problems.append(f"{tid}: reference chore too slow on a hidden world")
+        caught = 0
+        for name, src in task["wrong_chores"]:
+            if all(r["ok"] for r in run_hidden(task, src)):
+                problems.append(f"{tid}: wrong chore passes every hidden world: {name}")
+            else:
+                caught += 1
+        info += f", hidden worlds ok, {caught}/{len(task['wrong_chores'])} wrong chores caught"
+    print(f"  {tid}: {info}")
+    return len(task.get("wrong_chores", [])), caught if task.get("hidden") else 0
 
 
 def main():
-    problems, expected, starts = [], {}, {}
-    for tid, task in T.TASKS.items():
+    only = sys.argv[1] if len(sys.argv) > 1 else None
+    todo = T.TASK_SETS[only] if only else list(T.TASKS)
+    problems, starts = [], {}
+    expected = json.loads(T.EXPECTED_FILE.read_text()) if only and T.EXPECTED_FILE.exists() else {}
+    for tid in todo:
+        task = T.TASKS[tid]
         lines = task["start"].splitlines()
         if not task["start"].isascii() or any(len(l) > 76 for l in lines):
             problems.append(f"{tid}: start files must be plain ASCII with lines of at most 76 characters")
@@ -77,13 +130,14 @@ def main():
     T._expected = None  # reload
 
     caught = total = 0
-    for tid, task in T.TASKS.items():
+    for tid in todo:
+        task = T.TASKS[tid]
         start, end = starts[tid], expected[tid]
         if not T.strict_check(tid, end)[0]:
             problems.append(f"{tid}: strict check rejects the reference end state")
         if T.strict_check(tid, start)[0]:
             problems.append(f"{tid}: strict check accepts the start state")
-        for name, wrong in planted_mistakes(start, end, task["flex"]):
+        for name, wrong in planted_mistakes(start, end, task["flex"], task):
             total += 1
             if T.strict_check(tid, wrong)[0]:
                 problems.append(f"{tid}: planted mistake not caught: {name}")
@@ -101,13 +155,23 @@ def main():
                 caught += 1
 
     # Answer-wording cases for the one free-text answer page.
-    locker = T.TASKS["locker"]["flex"]["desk:letters:reply-mira"]
-    for text, ok in [("2391", True), ("The code is 2391.", True), ("2391\nYour bike lock is 5520.", True),
-                     ("12391", False), ("23910", False), ("5520 or 2391", False), ("", False)]:
-        if locker(text) != ok:
-            problems.append(f"locker answer {text!r} should be {'accepted' if ok else 'rejected'}")
+    if "locker" in todo:
+        locker = T.TASKS["locker"]["flex"]["desk:letters:reply-mira"]
+        for text, ok in [("2391", True), ("The code is 2391.", True), ("2391\nYour bike lock is 5520.", True),
+                         ("12391", False), ("23910", False), ("5520 or 2391", False), ("", False)]:
+            if locker(text) != ok:
+                problems.append(f"locker answer {text!r} should be {'accepted' if ok else 'rejected'}")
 
-    print(f"{len(T.TASKS)} tasks, {caught}/{total} planted mistakes caught")
+    # Version 3: step limits, hidden worlds and wrong chores.
+    v3 = [tid for tid in todo if T.TASKS[tid].get("v3")]
+    if v3:
+        print("version 3 chores:")
+    for tid in v3:
+        n, c = check_v3(tid, T.TASKS[tid], problems)
+        total += n
+        caught += c
+
+    print(f"{len(todo)} tasks, {caught}/{total} planted mistakes caught")
     for p in problems:
         print("PROBLEM:", p)
     print("ALL GOOD" if not problems else f"{len(problems)} problem(s)")
