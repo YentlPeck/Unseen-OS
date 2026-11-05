@@ -1,0 +1,9 @@
+[package]
+name = "chore-tests"
+version = "0.1.0"
+edition = "2021"
+
+# Host-side tests for the chore language. The kernel's own source files are
+# compiled here unchanged (see src/lib.rs), so the tests run on the PC.
+
+[dependencies]

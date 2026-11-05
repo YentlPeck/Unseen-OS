@@ -8,6 +8,8 @@ extern crate alloc;
 mod boot;
 mod calc;
 mod calendar;
+#[allow(dead_code)] // wired into the shell in v0.3 step 2
+mod chore;
 mod contacts;
 mod files;
 mod fs;
