@@ -62,6 +62,39 @@ fn messages(fs: &Fs, b: Box_) -> Vec<Message> {
         .collect()
 }
 
+const BAD_TO: &str = "To must be one mail address: one word like mira (see Contacts).";
+const SUBJECT_MAX: usize = 60;
+const BODY_MAX: usize = 4096;
+
+/// Put a message in the Sent box (used by the Mail app and by chores).
+pub fn deliver(fs: &mut Fs, to: &str, subject: &str, body: &str) -> String {
+    let mut n = 1;
+    while fs.exists(&format!("mail:sent:s{n}")) {
+        n += 1;
+    }
+    let path = format!("mail:sent:s{n}");
+    fs.app_write(&path, &format!("from: me\nto: {to}\nsubject: {subject}\n\n{}", body.trim_end()));
+    path
+}
+
+/// The checks a chore's send(to, subject, text) must pass. Stricter than the
+/// app: there is no "send anyway" for addresses that are not in Contacts.
+pub fn check_send(fs: &Fs, to: &str, subject: &str, body: &str) -> Result<(), String> {
+    if !fs::valid_name(to) {
+        return Err(format!("'{to}' is not a mail address (one word like mira, see Contacts)"));
+    }
+    if !fs.exists(&fs::join("contacts", to)) {
+        return Err(format!("no contact has the address '{to}' (addresses must match exactly)"));
+    }
+    if subject.contains('\n') || subject.len() > SUBJECT_MAX {
+        return Err(format!("a subject must be one line of at most {SUBJECT_MAX} characters"));
+    }
+    if body.len() > BODY_MAX {
+        return Err(format!("a message can be at most {BODY_MAX} characters"));
+    }
+    Ok(())
+}
+
 struct Compose {
     form: Form, // To, Subject
     body: TextArea,
@@ -92,7 +125,7 @@ impl Mail {
 
     fn compose(to: &str, subject: &str, body: &str) -> Compose {
         Compose {
-            form: Form::new(&[("To", to, 24), ("Subject", subject, 60)]),
+            form: Form::new(&[("To", to, 24), ("Subject", subject, SUBJECT_MAX)]),
             body: TextArea::new(body),
             in_body: false,
             warned: false,
@@ -110,7 +143,7 @@ impl Mail {
         }
         let to = c.form.value(0);
         if !fs::valid_name(to) {
-            return Err("To must be one mail address: one word like mira (see Contacts).".into());
+            return Err(BAD_TO.into());
         }
         if !fs.exists(&fs::join("contacts", to)) && c.unknown_ok.as_deref() != Some(to) {
             c.unknown_ok = Some(to.to_string());
@@ -118,12 +151,7 @@ impl Mail {
                 "No contact has the address '{to}' (addresses must match exactly). Ctrl+K again sends anyway."
             ));
         }
-        let mut n = 1;
-        while fs.exists(&format!("mail:sent:s{n}")) {
-            n += 1;
-        }
-        let text = format!("from: me\nto: {to}\nsubject: {}\n\n{}", c.form.value(1), c.body.text().trim_end());
-        fs.app_write(&format!("mail:sent:s{n}"), &text);
+        deliver(fs, to, c.form.value(1), &c.body.text());
         Ok(format!("Sent to {to}."))
     }
 

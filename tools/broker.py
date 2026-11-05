@@ -91,6 +91,8 @@ class Broker:
             try:
                 self.machine.send_combos(combos)
                 screen = self.machine.settle()
+                row, col = self.machine.cursor()
+                cursor = f"row {row}, column {col}"
             except SettleError as e:
                 self.settle_failures += 1
                 self._log({"n": n, "settle_error": str(e)})
@@ -99,8 +101,8 @@ class Broker:
                 self.infra_errors.append(repr(e))
                 self._log({"n": n, "infra_error": repr(e)})
                 return {"ok": False, "error": "The computer did not respond (harness error)."}
-            self._log({"n": n, "action": action, "args": args, "screen": screen})
-            return {"ok": True, "n": n, "max": self.max_actions, "screen": screen}
+            self._log({"n": n, "action": action, "args": args, "screen": screen, "cursor": cursor})
+            return {"ok": True, "n": n, "max": self.max_actions, "screen": screen, "cursor": cursor}
 
     def close(self):
         """No more actions after this (called before scoring)."""

@@ -235,6 +235,11 @@ class Machine:
         if "error" in reply:
             raise RuntimeError(reply["error"]["desc"])
 
+    def cursor(self):
+        """Where the cursor is: (row, column), counted from 1 like the screen rows."""
+        row, col = self._ask("CURSOR").split()
+        return int(row), int(col)
+
     def look(self):
         """The screen as 25 lines of text."""
         return self._ask("SCREEN").rstrip("\n")

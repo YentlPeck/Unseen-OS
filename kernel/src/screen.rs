@@ -163,6 +163,11 @@ impl Screen {
         }
     }
 
+    /// Where the cursor is: (column, row), both counted from 0.
+    pub fn cursor(&self) -> (usize, usize) {
+        (self.col.min(COLS - 1), self.row)
+    }
+
     pub fn set_cursor(&mut self, col: usize, row: usize) {
         self.col = col.min(COLS - 1);
         self.row = row.min(ROWS - 1);

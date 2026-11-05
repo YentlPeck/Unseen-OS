@@ -8,6 +8,7 @@
 //!   PING    -> PONG  <session code from the start files>
 //!   KEYS    -> KEYS  <number of key presses handled so far>
 //!   SCREEN  -> SCREEN <the 25 screen rows as text>
+//!   CURSOR  -> CURSOR <row> <column> (counted from 1, like the screen rows)
 //!   DUMP    -> DUMP  <every drawer and page, for scoring a task>
 
 use crate::fs::{self, Entry, Fs};
@@ -67,6 +68,10 @@ fn answer(cmd: &str, state: &State) {
                 text.push('\n');
             }
             reply("SCREEN", &text);
+        }
+        "CURSOR" => {
+            let (col, row) = state.screen.cursor();
+            reply("CURSOR", &format!("{} {}", row + 1, col + 1));
         }
         "DUMP" => {
             // "D <path>" for a drawer; "P <path> <n>" then n bytes of text for a page.

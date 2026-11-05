@@ -96,7 +96,7 @@ gdt64_ptr:
 pml4: .skip 4096
 pdpt: .skip 4096
 pd:   .skip 4096
-boot_stack: .skip 65536
+boot_stack: .skip 262144  # 256 KB: chores need up to ~96 KB in the worst case
 boot_stack_top:
 "#,
     options(att_syntax)

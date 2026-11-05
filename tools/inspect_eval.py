@@ -21,6 +21,7 @@ of that game, as PREREG.md says; a second failure counts as FAIL.
 """
 
 import json
+import os
 import sys
 import threading
 import time
@@ -45,12 +46,16 @@ class HarnessError(RuntimeError):
     """Our side failed twice: Inspect marks the sample as errored (re-run later with eval-retry)."""
 
 
-LEDGER = TOOLS.parent / "out" / "attempts-ledger.jsonl"
+# Experiment runners set UNSEEN_LEDGER to their experiment's ledger. Everything else
+# (robot tests, calibration) goes to out/dev, so it can never mix with an experiment's
+# record. (Experiments 1-2 used out/attempts-ledger.jsonl; see the experiment-2 tag.)
+LEDGER = Path(os.environ.get("UNSEEN_LEDGER") or TOOLS.parent / "out" / "dev" / "attempts-ledger.jsonl")
 _ledger_lock = threading.Lock()
 
 
 def record_attempt(entry):
     """Append-only list of every attempt, kept across eval-retry runs (never rewritten)."""
+    LEDGER.parent.mkdir(parents=True, exist_ok=True)
     with _ledger_lock, open(LEDGER, "a", encoding="utf-8") as f:
         f.write(json.dumps({"time": time.strftime("%Y-%m-%d %H:%M:%S"), **entry}) + "\n")
 
@@ -87,7 +92,8 @@ def unseen_player(player: str, manual_text: str | None, max_actions: int):
                                                 state.metadata["condition"], state.epoch)
         for step in result.pop("transcript"):
             state.messages.append(ChatMessageAssistant(content=f"{step['action']} {' '.join(step['args'])}".strip()))
-            state.messages.append(ChatMessageUser(content=f"```\n{step['screen']}\n```"))
+            cursor = f"\n(cursor: {step['cursor']})" if step.get("cursor") else ""
+            state.messages.append(ChatMessageUser(content=f"```\n{step['screen']}\n```{cursor}"))
         state.output = ModelOutput.from_content(model=MODELS.get(player, player), content=result["summary"] or "(no summary)")
         state.metadata["result"] = result
         return state

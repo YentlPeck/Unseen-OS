@@ -15,6 +15,7 @@ pub enum Entry {
     Page(String),
 }
 
+#[derive(Clone)]
 pub struct Fs {
     entries: BTreeMap<String, Entry>,
     /// (old path, new path) of every rename/move, so the shell can follow

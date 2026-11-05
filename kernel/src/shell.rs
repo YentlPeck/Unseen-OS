@@ -6,6 +6,7 @@
 //! when the last app closes we are back at the prompt.
 
 use crate::calc::Calc;
+use crate::chores::{self, Viewer};
 use crate::calendar::Calendar;
 use crate::contacts::Contacts;
 use crate::files::{Files, Outcome};
@@ -51,6 +52,7 @@ const COMMANDS: &[Command] = &[
     Command { name: "calendar", usage: "calendar", about: "open the Calendar app (events)", run: cmd_calendar },
     Command { name: "settings", usage: "settings", about: "open the Settings app", run: cmd_settings },
     Command { name: "calc", usage: "calc", about: "open the Calculator app", run: cmd_calc },
+    Command { name: "do", usage: "do <page>", about: "carry out the chore written on a page (guide do explains chores)", run: cmd_do },
     Command { name: "show", usage: "show <text>", about: "write text on the screen", run: cmd_show },
     Command { name: "wipe", usage: "wipe", about: "clean the screen", run: cmd_wipe },
     Command { name: "clock", usage: "clock", about: "today's date and time", run: cmd_clock },
@@ -65,6 +67,7 @@ enum App {
     Calendar(Calendar),
     Settings(Settings),
     Calc(Calc),
+    Viewer(Viewer),
 }
 
 pub struct Shell {
@@ -75,11 +78,24 @@ pub struct Shell {
     fs: Fs,
     apps: Vec<App>,
     memory_mb: u32,
+    /// The date from the start files, if the experiment froze it.
+    today: Option<String>,
 }
 
 impl Shell {
-    pub fn new(fs: Fs, memory_mb: u32) -> Self {
-        Self { line: String::new(), too_long: false, last: String::new(), here: String::new(), fs, apps: Vec::new(), memory_mb }
+    pub fn new(fs: Fs, memory_mb: u32, today: Option<String>) -> Self {
+        Self { line: String::new(), too_long: false, last: String::new(), here: String::new(), fs, apps: Vec::new(), memory_mb, today }
+    }
+
+    /// Today's date as YYYY-MM-DD (frozen by the start files, or the clock's).
+    fn today(&self) -> String {
+        match &self.today {
+            Some(d) => d.clone(),
+            None => {
+                let t = crate::rtc::now();
+                format!("{:04}-{:02}-{:02}", t.year, t.month, t.day)
+            }
+        }
     }
 
     pub fn fs(&self) -> &Fs {
@@ -88,7 +104,7 @@ impl Shell {
 
     fn status(&self, screen: &mut Screen) {
         let name = settings::get(&self.fs, "name");
-        screen.status_bar(&format!("Unseen OS 0.2 - {name}"), "type guide for help");
+        screen.status_bar(&format!("Unseen OS 0.3 - {name}"), "type guide for help");
     }
 
     pub fn start(&mut self, screen: &mut Screen) {
@@ -181,6 +197,7 @@ impl Shell {
             Some(App::Calendar(a)) => if a.key(&mut self.fs, key) { Next::Close } else { Next::Redraw },
             Some(App::Settings(a)) => if a.key(&mut self.fs, key) { Next::Close } else { Next::Redraw },
             Some(App::Calc(a)) => if a.key(key) { Next::Close } else { Next::Redraw },
+            Some(App::Viewer(v)) => if v.key(key) { Next::Close } else { Next::Redraw },
             None => return,
         };
         match next {
@@ -226,6 +243,7 @@ impl Shell {
             Some(App::Calendar(a)) => a.draw(&self.fs, screen),
             Some(App::Settings(a)) => a.draw(screen),
             Some(App::Calc(a)) => a.draw(screen),
+            Some(App::Viewer(v)) => v.draw(screen),
             None => {
                 self.status(screen);
                 screen.clear();
@@ -288,14 +306,21 @@ fn usage(screen: &mut Screen, word: &str) {
 
 // ---- commands -------------------------------------------------------------
 
-const GROUPS: [(&str, &[&str]); 4] = [
+const GROUPS: [(&str, &[&str]); 5] = [
     ("Drawers", &["here", "peek", "enter", "leave", "build"]),
     ("Pages", &["read", "write", "add", "copy", "rename", "move", "toss", "seek"]),
     ("Apps", &["notes", "files", "mail", "contacts", "calendar", "settings", "calc"]),
+    ("Chores", &["do"]),
     ("Other", &["show", "wipe", "clock", "about", "guide"]),
 ];
 
-fn cmd_guide(_: &mut Shell, screen: &mut Screen, rest: &str) {
+fn cmd_guide(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest == "do" {
+        // chores have a full reference of their own
+        sh.apps.push(App::Viewer(Viewer::guide()));
+        sh.redraw(screen);
+        return;
+    }
     if !rest.is_empty() {
         match COMMANDS.iter().find(|c| c.name == rest) {
             Some(c) => {
@@ -471,6 +496,24 @@ fn cmd_files(sh: &mut Shell, screen: &mut Screen, _: &str) {
     sh.redraw(screen);
 }
 
+fn cmd_do(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "do");
+    }
+    let page = match sh.path(rest) {
+        Ok(p) => p,
+        Err(e) => return warn(screen, &format!("Could not do that: {e}.")),
+    };
+    if let Err(e) = sh.fs.read_page(&page) {
+        return warn(screen, &format!("Could not do that: {e}."));
+    }
+    crate::log!("chore: {}", fs::display(&page));
+    let today = sh.today();
+    let viewer = chores::run(&mut sh.fs, &page, today);
+    sh.apps.push(App::Viewer(viewer));
+    sh.redraw(screen);
+}
+
 fn cmd_show(_: &mut Shell, screen: &mut Screen, rest: &str) {
     let _ = writeln!(screen, "{rest}");
 }
@@ -483,8 +526,7 @@ fn cmd_clock(sh: &mut Shell, screen: &mut Screen, _: &str) {
     let t = crate::rtc::now();
     let time = format!("{:02}:{:02}", t.hour, t.minute);
     let twelve = settings::get(&sh.fs, "clock") == "12h";
-    let _ = writeln!(screen, "{:04}-{:02}-{:02}  {}", t.year, t.month, t.day,
-                     crate::calendar::show_time(&time, twelve));
+    let _ = writeln!(screen, "{}  {}", sh.today(), crate::calendar::show_time(&time, twelve));
 }
 
 fn open_app(sh: &mut Shell, screen: &mut Screen, app: App) {
@@ -514,7 +556,7 @@ fn cmd_calc(sh: &mut Shell, screen: &mut Screen, _: &str) {
 }
 
 fn cmd_about(sh: &mut Shell, screen: &mut Screen, _: &str) {
-    screen.write_colored("Unseen OS 0.2\n", BRIGHT);
+    screen.write_colored("Unseen OS 0.3\n", BRIGHT);
     let _ = writeln!(screen, "A small computer that no AI has seen before.");
     let _ = writeln!(screen, "Memory: {} MB", sh.memory_mb);
 }

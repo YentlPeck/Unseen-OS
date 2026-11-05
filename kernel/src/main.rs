@@ -8,8 +8,8 @@ extern crate alloc;
 mod boot;
 mod calc;
 mod calendar;
-#[allow(dead_code)] // wired into the shell in v0.3 step 2
 mod chore;
+mod chores;
 mod contacts;
 mod files;
 mod fs;
@@ -84,6 +84,12 @@ extern "C" fn kernel_main(multiboot_info: u32) -> ! {
     let session = start
         .and_then(|t| t.lines().find_map(|l| l.strip_prefix("#session ")))
         .map_or("none", |s| s.trim());
+    // A frozen date for the experiment ("#today 2026-11-12"); else the PC's clock.
+    let today = start
+        .and_then(|t| t.lines().find_map(|l| l.strip_prefix("#today ")))
+        .map(|s| s.trim())
+        .filter(|s| calendar::parse_date(s).is_some())
+        .map(|s| alloc::string::String::from(s));
     let desk = match start {
         Some(text) => {
             log!("loading start files ({} bytes)", text.len());
@@ -93,7 +99,7 @@ extern "C" fn kernel_main(multiboot_info: u32) -> ! {
     };
     let mut desk = desk;
     desk.ensure_system();
-    let mut shell = shell::Shell::new(desk, memory_mb(multiboot_info));
+    let mut shell = shell::Shell::new(desk, memory_mb(multiboot_info), today);
     let mut inspector = inspector::Inspector::new();
     let mut keys_handled: u64 = 0;
     shell.start(&mut screen);

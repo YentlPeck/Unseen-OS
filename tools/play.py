@@ -6,7 +6,8 @@
                                         down, left, right, home, end, delete,
                                         space, or ctrl+<letter> (e.g. ctrl+k)
 
-Every action prints the screen afterwards. Actions are limited per game.
+Every action prints the screen afterwards, and where the cursor is.
+Actions are limited per game.
 """
 
 import json
@@ -30,7 +31,7 @@ def main():
         return 1
     print(f"--- screen after action {reply['n']}/{reply['max']} ---")
     print(reply["screen"])
-    print("--- end of screen ---")
+    print(f"--- end of screen (cursor: {reply['cursor']}) ---")
     return 0
 
 

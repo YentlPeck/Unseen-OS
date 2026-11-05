@@ -71,6 +71,48 @@ fn weekday(y: i32, m: u32, d: u32) -> &'static str {
     ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][w as usize]
 }
 
+const TITLE_MAX: usize = 50;
+const WITH_MAX: usize = 40;
+
+/// The checks every event must pass (the app's form and chores' event(...)).
+pub fn check_event(date: &str, time: &str, title: &str, with: &str) -> Result<(), String> {
+    if parse_date(date).is_none() {
+        return Err("Date must be a real date written YYYY-MM-DD, e.g. 2026-11-12".into());
+    }
+    if !valid_time(time) {
+        return Err("Time must be written HH:MM in 24-hour form, e.g. 19:30".into());
+    }
+    if title.trim().is_empty() {
+        return Err("Title can't be empty".into());
+    }
+    if title.contains('\n') || title.len() > TITLE_MAX {
+        return Err(format!("Title must be one line of at most {TITLE_MAX} characters"));
+    }
+    if with.contains('\n') || with.len() > WITH_MAX {
+        return Err(format!("With must be one line of at most {WITH_MAX} characters"));
+    }
+    Ok(())
+}
+
+fn new_event_path(fs: &Fs) -> String {
+    let mut n = 1;
+    while fs.exists(&format!("calendar:e{n}")) {
+        n += 1;
+    }
+    format!("calendar:e{n}")
+}
+
+fn event_text(date: &str, time: &str, title: &str, with: &str) -> String {
+    format!("date: {date}\ntime: {time}\ntitle: {title}\nwith: {with}")
+}
+
+/// Add a new event (used by chores; the app uses the same checks and format).
+pub fn add_event(fs: &mut Fs, date: &str, time: &str, title: &str, with: &str) -> String {
+    let path = new_event_path(fs);
+    fs.app_write(&path, &event_text(date, time, title, with));
+    path
+}
+
 /// A time for display, following the clock setting.
 pub fn show_time(time: &str, twelve: bool) -> String {
     if !twelve || !valid_time(time) {
@@ -106,35 +148,20 @@ impl Calendar {
 
     fn form(e: Option<&Event>) -> Form {
         let (d, t, ti, w) = e.map_or(("", "", "", ""), |e| (&*e.date, &*e.time, &*e.title, &*e.with));
-        Form::new(&[("Date", d, 10), ("Time", t, 5), ("Title", ti, 50), ("With", w, 40)])
+        Form::new(&[("Date", d, 10), ("Time", t, 5), ("Title", ti, TITLE_MAX), ("With", w, WITH_MAX)])
     }
 
     fn save(fs: &mut Fs, form: &Form, old: &Option<String>) -> Result<String, String> {
         if form.overflow() {
             return Err(ui::OVERFLOW_MSG.into());
         }
-        let (date, time, title) = (form.value(0), form.value(1), form.value(2));
-        if parse_date(date).is_none() {
-            return Err("Date must be a real date written YYYY-MM-DD, e.g. 2026-11-12.".into());
-        }
-        if !valid_time(time) {
-            return Err("Time must be written HH:MM in 24-hour form, e.g. 19:30.".into());
-        }
-        if title.is_empty() {
-            return Err("Title can't be empty.".into());
-        }
+        let (date, time, title, with) = (form.value(0), form.value(1), form.value(2), form.value(3));
+        check_event(date, time, title, with).map_err(|e| e + ".")?;
         let path = match old {
             Some(p) => p.clone(),
-            None => {
-                let mut n = 1;
-                while fs.exists(&format!("calendar:e{n}")) {
-                    n += 1;
-                }
-                format!("calendar:e{n}")
-            }
+            None => new_event_path(fs),
         };
-        let text = format!("date: {date}\ntime: {time}\ntitle: {title}\nwith: {}", form.value(3));
-        fs.app_write(&path, &text);
+        fs.app_write(&path, &event_text(date, time, title, with));
         Ok(format!("Kept: {title}."))
     }
 
