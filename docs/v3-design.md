@@ -191,6 +191,22 @@ save, run, read the error, one repair, run again), and the limit is set to that 
 Starting guess: 100 actions. A multi-key `press` counts as one action, as in experiments 1-2,
 and that will be written into the rules.
 
+*Measured 5 Nov* (`tools/measure_chores.py`, a perfect player):
+
+| Workflow | Actions |
+|---|---|
+| Write and run a 9-line chore (open Notes, type, keep, `do`, Esc) | 23 |
+| Write and run a 5-line chore | 15 |
+| One repair cycle (open Notes, go to the line, clear and retype it, keep, run again) | 8 |
+
+A realistic run is about 45-50 actions for a perfect player: reading `guide do` (about 6),
+looking at the data (about 5), writing and running (23), and two repairs (16). So 100 actions
+gives roughly 2x headroom for tasks with chores of about 10 lines. Tasks needing longer chores
+must be re-measured.
+
+Building the reference workflows found one API trap: `field` takes a page, not a text. So a
+value inside a mail's body needs `words`/`item`, and the manual now says so.
+
 **Shell quoting:** both quote styles work in the language. The prompt gives the same short,
 task-independent note on typing quotes in both conditions. Representative chore-typing commands
 are tested through both players' real shells and `audit.py` before freezing.
