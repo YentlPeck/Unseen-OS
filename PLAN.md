@@ -46,6 +46,34 @@ Written 4 Nov 2026. Side project (main project: Pixelforge Guard duty).
 
 Codex reviews after phase 2 and after phase 4.
 
+## Version 2 (decided 4 Nov, after the first experiment)
+
+The first 30 tasks were too easy (both models near 30/30). Version 2 grows the OS so tasks can
+need **several apps together**.
+
+**Finish line (fixed):**
+1. Five new apps: **Mail, Contacts, Calendar, Settings, Calculator**.
+2. About **20 new tasks** that need 2-3 apps together, tuned only on separate **practice tasks**
+   (never on the test tasks).
+3. Experiment 2: Haiku and Luna, with vs without the (updated) manual, **3 games per cell**
+   (2 x 20 x 2 x 3 = 240 games), new pre-registration and freeze.
+4. Update write-up, site and repo.
+
+**Design rules for the new apps:**
+- App data lives in the file system as ordinary pages, so start files can set it up and the
+  inspector can score it: `mail:inbox`, `mail:sent`, `contacts`, `calendar`, `system:settings`.
+- These **app drawers are read-only outside their app**: the shell can `peek`, `read` and `seek`
+  them, but only the app can change them (so "send a mail" really means using Mail).
+- Same keys everywhere: arrows choose, Enter opens, Esc goes back, **Ctrl+K confirms** (keep /
+  send / save), letter keys for actions shown in the bottom bar.
+- Text screen only (80x25), so models read it exactly.
+
+## Version 3 idea (after experiment 2)
+
+A tiny scripting language inside Unseen OS: scripts are pages, `run <page>` carries them out
+(variables, if, loops, print, read keys, read/write pages). Then a new test: can small models
+write a working program in a language that exists nowhere else, using only the manual?
+
 ## Pilot log (before experiment rules are written)
 
 - 4 Nov: `copy-list` played by Haiku and Luna (both PASS); `copy-list` + `change-word` by Haiku through Inspect (both PASS). These were plumbing checks, no manual. Flag them in the write-up.

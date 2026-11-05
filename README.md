@@ -1,26 +1,91 @@
 # Unseen OS
 
-**A 20 KB operating system no AI has ever seen, built to test whether small AI models can
+**A tiny operating system no AI has ever seen, built to test whether small AI models can
 operate an unfamiliar computer, and whether reading the manual helps.**
 
-Unseen OS is a tiny x86-64 operating system written in Rust. It boots in QEMU and has its own
+Unseen OS is a small x86-64 operating system written in Rust. It boots in QEMU and has its own
 vocabulary on purpose: folders are *drawers*, files are *pages*, the top drawer is the *desk*,
-paths use `:` and saving in the editor is Ctrl+K. Because it didn't exist before November 2026,
-no model has it in its training data. A model has to figure it out from the screen.
+paths use `:` and saving is Ctrl+K. Because it didn't exist before November 2026, no model has
+it in its training data. A model has to figure it out from the screen.
 
-![The Files app](site/img/files.png)
+Version 0.2 has eight apps: a shell, **Notes**, **Files**, **Mail**, **Contacts**, **Calendar**,
+**Settings** and a **Calculator**.
 
-## The experiment
+![The Mail app](docs/img/v2-mail.png)
 
-Two small models, **Claude Haiku** and **GPT Luna**, each played **30 tasks** (10 easy, 10
-medium, 10 hard), once **without** and once **with** the [manual](docs/manual.md): 120 games.
-They could only look at the 80x25 text screen and press keys, at most 40 actions per game.
-Each game was scored on the real end state of the OS's files, never on what the model claimed.
+## Two experiments, two answers
 
-The rules (test, decision rule, what counts as cheating) were written down and the files
-frozen **before** any game with the manual was played: see [PREREG.md](PREREG.md).
+| | Experiment 1 (v0.1) | Experiment 2 (v0.2) |
+|---|---|---|
+| Apps | shell, Notes, Files | + Mail, Contacts, Calendar, Settings, Calculator |
+| Tasks | 30 single-app tasks | 20 tasks, most needing 2-3 apps |
+| Games | 120 (1 per task, player and condition) | 240 (3 per task, player and condition) |
+| Pre-registered verdict | **The manual helps** (p = 0.013) | **No clear difference** (p = 1.0) |
+| What really happened | models nearly always won; the verdict came from the audit | models nearly always won, with or without the manual |
+| Clear effect *(exploratory)* | manual = ~25-30% fewer actions | manual = ~35% fewer actions |
+
+Both experiments point to the same conclusion: **small models can operate a computer they have
+never seen, and a manual mostly makes them faster rather than more successful.** Both also hit
+a ceiling: the tasks were too easy to show whether a manual turns failures into wins.
+
+## Experiment 2: multi-app tasks
+
+Two small models, **Claude Haiku** and **GPT Luna**, played **20 tasks** that need several apps
+together (e.g. "Lina asked to move a lesson (see your mail). Change it in the calendar, then reply
+to Lina with the new date."). Each task was played **3 times without and 3 times with** the
+[manual](docs/manual.md): 240 games, at most 60 actions each. Players could only look at the
+80x25 text screen and press keys. Every game was scored on the real end state of the OS's files.
+
+The rules were written down and all files frozen (SHA-256 manifest) **before** the first game:
+see [PREREG2.md](PREREG2.md).
 
 ### Results
+
+| | Without manual | With manual |
+|---|---|---|
+| Haiku wins | 59/60 | 58/60 |
+| Luna wins | 59/60 | 58/60 |
+| Median actions in won games *(not part of the verdict)* | Haiku 29 · Luna 22 | Haiku 19 · Luna 14.5 |
+
+**Pre-registered verdict: "No clear difference."** Per-task sign test: 1 task scored better with
+the manual, 2 better without, 17 tied (p = 1.0). The same holds for each player separately.
+
+Only 6 of 240 games were lost:
+
+- **4 failed the audit** (the player used shell features the rules don't allow, such as
+  `$(printf ...)` or a PowerShell wrapper with nested quotes). All 4 are listed in
+  [results.json](out/experiment2/results.json).
+- **2 were real mistakes, and both were the same mistake.** In `move-lesson` (with the manual),
+  Haiku and Luna both pressed R to reply, then pressed Tab twice to get from "To" to the
+  message. But a reply starts with the cursor *already in the message*, and the text screen shows
+  no cursor. So both models typed their reply into the To or Subject field. The manual didn't
+  say where a reply starts. **A hidden piece of screen state tripped up two different models in
+  exactly the same way**, which is the most useful finding of this run for anyone building
+  agent-friendly interfaces.
+
+No game timed out and no game needed a harness re-run. Results:
+[out/experiment2/results.json](out/experiment2/results.json). Every step of every game:
+`inspect view --log-dir out/experiment2/logs`.
+
+### Honest notes
+
+- **Ceiling effect:** 97.5% of games were won in both conditions, so this experiment could not
+  show a benefit on success even if one exists. Harder tasks are the next step (see below).
+- **Pause:** the run was paused overnight on purpose (the PC was switched off) and resumed with
+  Inspect `eval-retry`, as PREREG2 allows. 71 Luna games were finished and kept; the 2 games in
+  progress were never scored and were played again. Details:
+  [RUN-NOTES.md](out/experiment2/RUN-NOTES.md).
+- During the second half, another experiment (a different project, also using Haiku and Luna) ran
+  on the same PC.
+- No placebo (length-matched) control: "manual" adds information and prompt length together.
+- The harness was reviewed three times by a second model (GPT Sol) before launch, and every issue
+  found was fixed before freezing.
+
+## Experiment 1: single-app tasks
+
+Haiku and Luna each played **30 tasks** (10 easy, 10 medium, 10 hard) in Notes, Files and the
+shell, once without and once with the manual: 120 games, at most 40 actions each. Rules:
+[PREREG.md](PREREG.md).
 
 | | Without manual | With manual |
 |---|---|---|
@@ -35,53 +100,49 @@ frozen **before** any game with the manual was played: see [PREREG.md](PREREG.md
 the game tool counted as a loss. 15 games were flagged, 12 of them without the manual, and 14 of
 the 15 were harmless shell habits (mostly Haiku writing `cd . && python play.py ...`). Only one
 was real tool misuse (Luna called Codex's built-in computer-use tool once). Counting only real
-misuse, success is near the ceiling in both conditions and the difference is not significant
-(3 vs 1 pairs, p = 0.63).
+misuse, the difference is not significant (3 vs 1 pairs, p = 0.63). Experiment 2 used a fairer
+audit that was written down in advance.
 
-**What holds up most clearly** *(exploratory)*: the manual made both models **faster**. Among tasks
-won in both conditions, the manual version needed fewer actions in 47 of the 49 pairs where the
-count differed: about 25-30% fewer actions.
+**What holds up most clearly** *(exploratory)*: among tasks won in both conditions, the manual
+version needed fewer actions in 47 of the 49 pairs where the count differed.
 
-**Takeaways**
+Results: [out/experiment/results.json](out/experiment/results.json). Logs: `out/experiment/logs/`.
 
-1. Small models can operate a computer they have never seen: 28-30 of 30 tasks solved, by reading
-   the screen, typing `guide` and exploring.
-2. A manual mostly saves effort rather than turning failures into successes.
-3. How you define cheating can decide a verdict. Our own pre-registered audit was stricter than
-   intended, and that is what produced the official "helps" verdict.
+### Honest notes (experiment 1)
 
-Full numbers: [out/experiment/results.json](out/experiment/results.json). Inspect logs with every
-step of every game: `out/experiment/logs/` (open with `inspect view --log-dir out/experiment/logs`).
-
-### Honest notes
-
-- One game per cell; no placebo (length-matched) control. See *Limitations* in PREREG.md.
+- One game per cell; no placebo control. See *Limitations* in PREREG.md.
 - 6 pilot games were played while building the harness; they are listed in PREREG.md and the
   result also holds without the 2 pilot tasks (p = 0.023).
 - Two start attempts failed before any game was scored (a path format error, then a clean-up bug
   that killed the OS before scoring). Both are documented in PREREG.md; the experiment was
   restarted from scratch with a new freeze each time.
-- The harness was reviewed three times by a second model (GPT Sol) before launch; 27 issues were
-  found and fixed (leaks, too-lenient checks, race conditions, analysis loopholes).
+- **Players were not fully isolated.** Haiku ran with the owner's Claude Code plugins loaded,
+  including a memory plugin (claude-mem) that added the same start-up text to all 60 Haiku games.
+  That text contained no task words, but it is extra context we did not intend. Luna had Codex's
+  computer-use tool available. Both were fixed for experiment 2: every game runs from a fresh,
+  empty setup folder that holds only the login.
 
 ## How it works
 
 ```
  AI player ──► play.py ──► referee (broker.py) ──► QEMU ──► Unseen OS
- (Haiku/Luna)  look/type/   token, 1 action at a     keyboard    shell, Notes, Files,
+ (Haiku/Luna)  look/type/   token, 1 action at a     keyboard    shell + 7 apps,
                press only   time, limits, audit      + inspector in-memory file system
 ```
 
 - **The OS** (`kernel/`): multiboot start-up code that switches the CPU to 64-bit mode, a VGA text
-  screen, a polled PS/2 keyboard, an in-memory file system, a shell with 20 commands, a text
-  editor (Notes) and a file manager (Files). A hidden serial "inspector" lets the harness read the
-  screen as text and dump all files for scoring.
+  screen, a polled PS/2 keyboard, an in-memory file system, a shell and seven apps built on a
+  small shared UI kit (`ui.rs`: text fields, forms, lists). A hidden serial "inspector" lets the
+  harness read the screen as text and dump all files for scoring.
 - **The referee** (`tools/broker.py`) is the only thing connected to the OS. The player's folder
-  holds nothing but the game tool and a secret token, and every player command is audited.
-- **The tasks** (`tools/tasks.py`): each has start files, a plain-words request, and a reference
-  solution. `tools/validate_tasks.py` proves every task is solvable and that the strict scorer
-  rejects 244 planted mistakes.
-- **The harness** is [Inspect](https://inspect.aisi.org.uk/) (`tools/inspect_eval.py`).
+  holds nothing but the game tool and a secret token, and every player command is audited
+  (`tools/audit.py`, with its own allowed/rejected test cases).
+- **The tasks** (`tools/tasks.py`, `tools/tasks_v2.py`): each has start files, a plain-words
+  request, a reference solution, and right and wrong example answers.
+  `tools/validate_tasks.py` proves all 55 tasks are solvable and that the strict scorer catches
+  1086 planted mistakes.
+- **The harness** is [Inspect](https://inspect.aisi.org.uk/) (`tools/inspect_eval.py`), with an
+  append-only ledger of every attempt and frozen-file checks before running and analysing.
 
 ## Run it yourself (Windows)
 
@@ -89,9 +150,16 @@ Needs Rust, QEMU (`C:\Program Files\qemu`) and Python 3.12 with `inspect-ai`.
 
 ```powershell
 .\run.ps1                                  # build the OS and open it in a QEMU window
-python tools/validate_tasks.py             # prove all 30 tasks are fair
-inspect eval tools/inspect_eval.py -T player=robot -T conditions=plain,manual --model mockllm/model
-python tools/run_task.py copy-list haiku   # one real game (needs the claude CLI)
+python tools/validate_tasks.py             # prove all tasks are fair
+inspect eval tools/inspect_eval.py -T player=robot -T taskset=v2 --model mockllm/model
+python tools/analyze2.py                   # re-check experiment 2's verdict from the logs
 ```
 
-Built in one day (4 Nov 2026) by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
+## Next: a scripting language inside Unseen OS
+
+Both experiments hit a ceiling, so version 3 adds a tiny scripting language that runs inside the
+OS. That allows tasks too big to do by hand within the action limit (for example, process every
+mail or contact), and a new question: **can a small model write working code in a language it
+has never seen**, with and without the manual?
+
+Built 4-5 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).

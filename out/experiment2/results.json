@@ -1,0 +1,126 @@
+{
+  "manifest_sha256": "55e0f7103ff863a8b7d5934556913991e2fd0e034d62b4442a822cddb811fba5",
+  "games": 240,
+  "main": {
+    "tasks_manual_better": 1,
+    "tasks_plain_better": 2,
+    "p": 1.0,
+    "verdict": "No clear difference"
+  },
+  "task_scores": {
+    "dinner": -1,
+    "plumber-number": 0,
+    "new-neighbour": 0,
+    "move-lesson": -2,
+    "cancel-lunch": 0,
+    "setup-sam": 0,
+    "invoice": 0,
+    "forward-bakery": 0,
+    "birthday": 0,
+    "week-list": 0,
+    "omar-phone": 0,
+    "party": 0,
+    "haircut-plan": 1,
+    "jo-retired": 0,
+    "price-total": 0,
+    "who-called": 0,
+    "start-mail": 0,
+    "lesson-time": 0,
+    "mira-likes": 0,
+    "keep-bakery": 0
+  },
+  "per_player": {
+    "haiku": {
+      "tasks_manual_better": 1,
+      "tasks_plain_better": 2,
+      "p": 1.0,
+      "verdict": "No clear difference"
+    },
+    "luna": {
+      "tasks_manual_better": 1,
+      "tasks_plain_better": 2,
+      "p": 1.0,
+      "verdict": "No clear difference"
+    }
+  },
+  "win_rates": {
+    "haiku / manual": "58/60",
+    "haiku / plain": "59/60",
+    "luna / manual": "58/60",
+    "luna / plain": "59/60"
+  },
+  "win_rates_per_task": {
+    "birthday / manual": "6/6",
+    "birthday / plain": "6/6",
+    "cancel-lunch / manual": "6/6",
+    "cancel-lunch / plain": "6/6",
+    "dinner / manual": "5/6",
+    "dinner / plain": "6/6",
+    "forward-bakery / manual": "6/6",
+    "forward-bakery / plain": "6/6",
+    "haircut-plan / manual": "6/6",
+    "haircut-plan / plain": "5/6",
+    "invoice / manual": "6/6",
+    "invoice / plain": "6/6",
+    "jo-retired / manual": "6/6",
+    "jo-retired / plain": "6/6",
+    "keep-bakery / manual": "6/6",
+    "keep-bakery / plain": "6/6",
+    "lesson-time / manual": "6/6",
+    "lesson-time / plain": "6/6",
+    "mira-likes / manual": "6/6",
+    "mira-likes / plain": "6/6",
+    "move-lesson / manual": "4/6",
+    "move-lesson / plain": "6/6",
+    "new-neighbour / manual": "6/6",
+    "new-neighbour / plain": "6/6",
+    "omar-phone / manual": "6/6",
+    "omar-phone / plain": "6/6",
+    "party / manual": "6/6",
+    "party / plain": "6/6",
+    "plumber-number / manual": "5/6",
+    "plumber-number / plain": "5/6",
+    "price-total / manual": "6/6",
+    "price-total / plain": "6/6",
+    "setup-sam / manual": "6/6",
+    "setup-sam / plain": "6/6",
+    "start-mail / manual": "6/6",
+    "start-mail / plain": "6/6",
+    "week-list / manual": "6/6",
+    "week-list / plain": "6/6",
+    "who-called / manual": "6/6",
+    "who-called / plain": "6/6"
+  },
+  "repeat_consistency": {
+    "haiku / plain": {
+      "2": 1,
+      "3": 19
+    },
+    "haiku / manual": {
+      "2": 2,
+      "3": 18
+    },
+    "luna / plain": {
+      "2": 1,
+      "3": 19
+    },
+    "luna / manual": {
+      "2": 2,
+      "3": 18
+    }
+  },
+  "actions_in_won_games": {
+    "haiku / plain": 29,
+    "haiku / manual": 19.0,
+    "luna / plain": 22,
+    "luna / manual": 14.5
+  },
+  "audit_failures": [
+    "haiku dinner manual #1: [\"python play.py dinner-haiku-manual-673c6d press $(printf 'backspace %.0s' $(seq 40)) && python play.py dinner-haiku-manual-673c6d look\"]",
+    "haiku plumber-number plain #1: ['cd . && python play.py plumber-number-haiku-plain-e4a08b press backspace && for k in down down down down; do python play.py plumber-number-haiku-plain-e4a08b press $k >/dev/null; done && python play.py plumber-number-haiku-plain-e4a08b press enter']",
+    "luna plumber-number manual #2: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py plumber-number-luna-manual-5dd88f type \\\\\"Our plumber Jo\\'s number is 555-0606.\\\\\"\"']",
+    "luna haircut-plan plain #3: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py haircut-plan-luna-plain-264658 type \\\\\"I\\'m booking a haircut on 2026-11-18 at 10:00. You wanted to come too\"\\'!\"\\'']"
+  ],
+  "timeouts": [],
+  "discarded_attempts": {}
+}

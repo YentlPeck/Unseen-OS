@@ -1,0 +1,181 @@
+[11/04/26 23:16:37] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_os (40 x 3 samples): mockllm/model                                      
+epochs: 3, fail_on_error: False, max_samples: 2, player: haiku, conditions:    
+plain,manual, seed: 20261105, manifest: ..., taskset: v2, max_actions: 60,     
+dataset: (samples)                                                             
+---------------------------------------------------------                      
+                                                                               
+unseen_pl... | Steps:   1/120   0% | Samples:   0/120 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   2/120   1% | Samples:   1/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   4/120   3% | Samples:   3/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   5/120   4% | Samples:   4/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   6/120   5% | Samples:   5/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   7/120   5% | Samples:   7/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   8/120   6% | Samples:   7/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  10/120   8% | Samples:   9/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  11/120   9% | Samples:  10/120 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  12/120  10% | Samples:  11/120 | accuracy: 0.91 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  13/120  10% | Samples:  13/120 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  14/120  11% | Samples:  13/120 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  15/120  12% | Samples:  14/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  16/120  13% | Samples:  15/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  17/120  14% | Samples:  16/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  18/120  15% | Samples:  18/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  19/120  15% | Samples:  18/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  20/120  16% | Samples:  19/120 | accuracy: 0.89 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  21/120  17% | Samples:  20/120 | accuracy: 0.90 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  22/120  18% | Samples:  21/120 | accuracy: 0.90 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  23/120  19% | Samples:  23/120 | accuracy: 0.87 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  24/120  20% | Samples:  23/120 | accuracy: 0.87 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  25/120  20% | Samples:  24/120 | accuracy: 0.88 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  26/120  21% | Samples:  25/120 | accuracy: 0.88 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  27/120  22% | Samples:  26/120 | accuracy: 0.88 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  28/120  23% | Samples:  28/120 | accuracy: 0.89 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  29/120  24% | Samples:  28/120 | accuracy: 0.89 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  30/120  25% | Samples:  29/120 | accuracy: 0.90 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  31/120  25% | Samples:  30/120 | accuracy: 0.90 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  32/120  26% | Samples:  31/120 | accuracy: 0.90 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  33/120  27% | Samples:  33/120 | accuracy: 0.91 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  34/120  28% | Samples:  33/120 | accuracy: 0.91 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  35/120  29% | Samples:  34/120 | accuracy: 0.91 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  36/120  30% | Samples:  35/120 | accuracy: 0.91 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  37/120  30% | Samples:  36/120 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  38/120  31% | Samples:  37/120 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  39/120  32% | Samples:  39/120 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  40/120  33% | Samples:  39/120 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  41/120  34% | Samples:  41/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  42/120  35% | Samples:  41/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  43/120  35% | Samples:  43/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  44/120  36% | Samples:  43/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  45/120  37% | Samples:  44/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  46/120  38% | Samples:  45/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  47/120  39% | Samples:  46/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  48/120  40% | Samples:  47/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  49/120  40% | Samples:  48/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  50/120  41% | Samples:  49/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  51/120  42% | Samples:  50/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  52/120  43% | Samples:  51/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  53/120  44% | Samples:  52/120 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  54/120  45% | Samples:  53/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  55/120  45% | Samples:  54/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  56/120  46% | Samples:  55/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  57/120  47% | Samples:  56/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  58/120  48% | Samples:  57/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  59/120  49% | Samples:  58/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  60/120  50% | Samples:  59/120 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  61/120  50% | Samples:  60/120 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  62/120  51% | Samples:  61/120 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  63/120  52% | Samples:  62/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  64/120  53% | Samples:  63/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  65/120  54% | Samples:  64/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  66/120  55% | Samples:  65/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  67/120  55% | Samples:  66/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  68/120  56% | Samples:  67/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  69/120  57% | Samples:  68/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  70/120  58% | Samples:  69/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  71/120  59% | Samples:  71/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  72/120  60% | Samples:  71/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  74/120  61% | Samples:  73/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  75/120  62% | Samples:  74/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  76/120  63% | Samples:  76/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  77/120  64% | Samples:  76/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  78/120  65% | Samples:  77/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  79/120  65% | Samples:  78/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  80/120  66% | Samples:  80/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  81/120  67% | Samples:  80/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  82/120  68% | Samples:  81/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  83/120  69% | Samples:  83/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  84/120  70% | Samples:  83/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  85/120  70% | Samples:  84/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  86/120  71% | Samples:  86/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  87/120  72% | Samples:  86/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  88/120  73% | Samples:  87/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  89/120  74% | Samples:  88/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  90/120  75% | Samples:  89/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  91/120  75% | Samples:  90/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  92/120  76% | Samples:  91/120 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  93/120  77% | Samples:  92/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  94/120  78% | Samples:  93/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  95/120  79% | Samples:  95/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  96/120  80% | Samples:  95/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  97/120  80% | Samples:  97/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  98/120  81% | Samples:  97/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  99/120  82% | Samples:  99/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 100/120  83% | Samples:  99/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 101/120  84% | Samples: 100/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 102/120  85% | Samples: 102/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 103/120  85% | Samples: 102/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 104/120  86% | Samples: 103/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 105/120  87% | Samples: 104/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 106/120  88% | Samples: 105/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 107/120  89% | Samples: 107/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 108/120  90% | Samples: 107/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 109/120  90% | Samples: 108/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 110/120  91% | Samples: 109/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 111/120  92% | Samples: 110/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 112/120  93% | Samples: 111/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 113/120  94% | Samples: 112/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 114/120  95% | Samples: 113/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 116/120  96% | Samples: 115/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 117/120  97% | Samples: 116/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 118/120  98% | Samples: 117/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 119/120  99% | Samples: 119/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 120/120 100% | Samples: 119/120 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_os (40 x 3 samples): mockllm/model                                      
+epochs: 3, fail_on_error: False, max_samples: 2, player: haiku, conditions:    
+plain,manual, seed: 20261105, manifest: ..., taskset: v2, max_actions: 60,     
+dataset: (samples)                                                             
+                                                                               
+total time:                                   0:38:44                          
+end_state                                                                      
+accuracy   0.975                                                               
+stderr     0.014                                                               
+manual     0.967                                                               
+plain      0.983                                                               
+all        0.975                                                               
+v2         0.975                                                               
+all2       0.975                                                               
+Log:                                                                           
+out/experiment2/logs/2026-11-04T22-16-37-00-00_unseen-os_QmTLuDfr3h7JNNjjBNqjH…
+---------------------------------------------------------                      
+                                                                               
+[11/05/26 09:58:52] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_os (40 x 3 samples): mockllm/model                                      
+epochs: 3, fail_on_error: False, max_samples: 2, player: haiku, conditions:    
+plain,manual, seed: 20261105, manifest: ..., taskset: v2, max_actions: 60,     
+dataset: (samples)                                                             
+---------------------------------------------------------                      
+                                                                               
+unseen_pl... | Steps: 120/120 100% | Samples: 120/120 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_os (40 x 3 samples): mockllm/model                                      
+epochs: 3, fail_on_error: False, max_samples: 2, player: haiku, conditions:    
+plain,manual, seed: 20261105, manifest: ..., taskset: v2, max_actions: 60,     
+dataset: (samples)                                                             
+                                                                               
+total time:                                   0:00:01                          
+end_state                                                                      
+accuracy   0.975                                                               
+stderr     0.014                                                               
+manual     0.967                                                               
+plain      0.983                                                               
+all        0.975                                                               
+v2         0.975                                                               
+all2       0.975                                                               
+Log:                                                                           
+out/experiment2/logs/2026-11-05T08-58-53-00-00_unseen-os_QmTLuDfr3h7JNNjjBNqjH…
+---------------------------------------------------------                      
+                                                                               

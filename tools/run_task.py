@@ -20,11 +20,13 @@ Harness records go to out/runs/<game id>/. `play_game` is also used by Inspect.
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -32,6 +34,7 @@ from pathlib import Path
 TOOLS = Path(__file__).resolve().parent
 ROOT = TOOLS.parent
 sys.path.insert(0, str(TOOLS))
+from audit import audit  # noqa: E402
 from broker import Broker  # noqa: E402
 from tasks import TASKS, strict_check  # noqa: E402
 from unseen import Machine  # noqa: E402
@@ -59,16 +62,60 @@ extra pages or drawers behind. When the task is done (or you cannot finish it), 
 one-line summary."""
 
 
+# Every game gets a FRESH setup folder for the player's CLI, holding only the login:
+# none of the owner's plugins, hooks, memory, personal instructions or MCP servers
+# (claude-mem, Codex computer use, ...) and nothing left over from earlier games. The login
+# is kept in one place (LOGINS) and copied in; if the CLI refreshed it during the game, the
+# newer login is copied back. The game's folder is deleted afterwards.
+CLEAN_HOMES = Path(os.environ.get("LOCALAPPDATA", tempfile.gettempdir())) / "unseen-os"
+LOGINS = CLEAN_HOMES / "logins"
+LOGIN_FILES = {"haiku": (Path.home() / ".claude" / ".credentials.json", "CLAUDE_CONFIG_DIR"),
+               "luna": (Path.home() / ".codex" / "auth.json", "CODEX_HOME")}
+LUNA_CONFIG = ('model = "gpt-6-luna"\nmodel_reasoning_effort = "high"\n\n'
+               '[windows]\nsandbox = "unelevated"\n\n[features]\nmemories = false\n')
+LUNA_TOOLS_OFF = ["--disable", "computer_use", "--disable", "apps", "--disable", "memories"]
+_login_lock = threading.Lock()
+
+
+def fresh_home(player, gid):
+    """A new, empty setup folder for this game, with only the login (and Luna's two settings).
+    Returns (env for the player process, folder)."""
+    source, var = LOGIN_FILES[player]
+    master = LOGINS / player / source.name
+    with _login_lock:
+        if not master.exists():
+            master.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(source, master)
+    home = CLEAN_HOMES / "games" / gid
+    home.mkdir(parents=True)
+    shutil.copy(master, home / source.name)
+    if player == "luna":
+        (home / "config.toml").write_text(LUNA_CONFIG)
+    return {**os.environ, var: str(home)}, home
+
+
+def end_home(player, home):
+    """Keep a refreshed login, then delete the game's setup folder."""
+    name = LOGIN_FILES[player][0].name
+    used, master = home / name, LOGINS / player / name
+    with _login_lock:
+        if used.exists() and used.read_bytes() != master.read_bytes() and used.stat().st_mtime > master.stat().st_mtime:
+            shutil.copy(used, master)
+    shutil.rmtree(home, ignore_errors=True)
+
+
 def player_command(player, gid, game_dir):
     if player == "haiku":
         return ["claude", "-p", "--model", MODELS["haiku"], "--tools", "Bash",
                 "--allowedTools", f"Bash(python play.py {gid}:*)",
                 "--disallowedTools", "Read,Glob,Grep,WebFetch,WebSearch,Agent,Task",
                 "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}',
-                "--permission-mode", "dontAsk", "--output-format", "stream-json", "--verbose"]
+                "--permission-mode", "dontAsk", "--no-session-persistence",
+                "--output-format", "stream-json", "--verbose"]
     if player == "luna":
         return ["codex", "exec", "-m", MODELS["luna"], "-C", str(game_dir), "--skip-git-repo-check",
-                "-s", "workspace-write", "-c", "sandbox_workspace_write.network_access=true", "--json", "-"]
+                "-s", "workspace-write", "-c", "sandbox_workspace_write.network_access=true",
+                *LUNA_TOOLS_OFF, "--json", "-"]
     if player.startswith("robot:"):  # test player: plays a task's reference solution through play.py
         return [sys.executable, str(TOOLS / "robot_player.py"), player.split(":", 1)[1]]
     raise ValueError(f"unknown player {player}")
@@ -84,12 +131,12 @@ def kill_leftovers(gid):
     subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True)
 
 
-def run_player(cmd, prompt, cwd, log_path):
+def run_player(cmd, prompt, cwd, log_path, env=None):
     """Run the player. Returns (timed_out, exit code). Kills the process tree on time-out."""
     flags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) | getattr(subprocess, "CREATE_NO_WINDOW", 0)
     with open(log_path, "w", encoding="utf-8") as out:
         proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=out, stderr=subprocess.STDOUT,
-                                cwd=cwd, text=True, encoding="utf-8", creationflags=flags)
+                                cwd=cwd, text=True, encoding="utf-8", creationflags=flags, env=env)
         try:
             proc.communicate(prompt, timeout=TIME_LIMIT)
             return False, proc.returncode
@@ -143,65 +190,30 @@ def player_events(player, log_text):
     return list(commands.values()), others, final, cli_error
 
 
-def unwrap_shell(command):
-    """Codex wraps commands as: powershell.exe -Command '...'. Return the inner command."""
-    inner = command.strip()
-    m = re.match(r'^"?[^"]*powershell(\.exe)?"? -Command (.*)$', inner, re.I | re.S)
-    if m:
-        inner = m.group(2).strip()
-        if len(inner) >= 2 and inner[0] == inner[-1] and inner[0] in "'\"":
-            inner = inner[1:-1]
-    return inner
-
-
-def split_chain(command):
-    """Split on ; && and newlines that are outside quotes."""
-    parts, cur, quote, i = [], "", None, 0
-    while i < len(command):
-        ch = command[i]
-        if quote:
-            quote = None if ch == quote else quote
-        elif ch in "'\"":
-            quote = ch
-        elif ch in ";\n" or command.startswith("&&", i):
-            parts.append(cur)
-            cur = ""
-            i += 2 if ch == "&" else 1
+def infrastructure_problem(log_path, commands, summary, actions):
+    """A reason if the game never really ran because of the player's CLI (not the model):
+    - the CLI itself (not the model's text) logged that a command was blocked by its policy,
+      or that it is not logged in. Only lines that are NOT JSON events are searched: those
+      are the CLI's own messages; everything the model writes is inside JSON events;
+    - or nothing happened at all: no command, no message, no game action.
+    A model that refuses, or only makes mistyped calls, simply loses: that is behaviour."""
+    if not log_path.exists():
+        return "player CLI wrote no log"
+    for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if line.lstrip().startswith("{"):
             continue
-        cur += ch
-        i += 1
-    parts.append(cur)
-    return [p.strip() for p in parts if p.strip()]
-
-
-SHELL_TRICKS = re.compile(r"[;&|`<>\n]|\$\(")
-
-
-def is_game_call(part, gid):
-    """True only for one plain call of the game tool."""
-    m = re.match(rf"^python play\.py {re.escape(gid)} (look|type|press)(?: (.*))?$", part, re.S)
-    if not m:
-        return False
-    action, rest = m.group(1), (m.group(2) or "").strip()
-    if action == "type":
-        if re.fullmatch(r"'[^'\n]*'", rest):          # single quotes: taken literally
-            return True
-        if re.fullmatch(r'"[^"\n]*"', rest):          # double quotes: no command substitution
-            return not re.search(r"`|\$\(", rest)
-    return not SHELL_TRICKS.search(rest)
-
-
-def audit(commands, gid):
-    """Commands that are not made up only of game-tool calls (chains of them are fine:
-    each call still goes through the referee and costs one action)."""
-    return [c for c in commands if not all(is_game_call(p, gid) for p in split_chain(unwrap_shell(c)))]
+        if re.search(r"blocked by policy|not logged in|not authenticated|please log in|login required", line, re.I):
+            return f"player CLI: {line.strip()[:200]}"
+    if actions == 0 and not commands and not summary.strip():
+        return "player CLI did nothing (no command, no message, no game action)"
+    return None
 
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest() if Path(path).exists() else None
 
 
-def play_game(task_id, player, manual_text=None):
+def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
     """Play one game. Returns a result dict (also saved as result.json)."""
     task = TASKS[task_id]
     gid = f"{task_id}-{player}-{'manual' if manual_text else 'plain'}-{uuid.uuid4().hex[:6]}"
@@ -215,7 +227,7 @@ def play_game(task_id, player, manual_text=None):
     with open(run_dir / "qemu.log", "w") as qlog:
         machine = Machine.start(task["start"], workdir=run_dir, log=qlog)
         started = time.time()
-        broker = Broker(machine, MAX_ACTIONS, run_dir / "transcript.jsonl", deadline=started + TIME_LIMIT)
+        broker = Broker(machine, max_actions, run_dir / "transcript.jsonl", deadline=started + TIME_LIMIT)
         (game_dir / "game.json").write_text(json.dumps({"game": gid, "port": broker.port, "token": broker.token}))
         protected = {f: sha(game_dir / f) for f in ("play.py", "game.json")}
         try:
@@ -227,11 +239,18 @@ def play_game(task_id, player, manual_text=None):
                 summary = "ran the reference solution"
             else:
                 manual = f"\nHere is the manual for this computer:\n\n{manual_text}\n" if manual_text else ""
-                prompt = PROMPT.format(gid=gid, max_actions=MAX_ACTIONS, request=task["request"], manual=manual)
+                prompt = PROMPT.format(gid=gid, max_actions=max_actions, request=task["request"], manual=manual)
                 (run_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
                 cmd = player_command(f"robot:{task_id}" if player == "robot" else player, gid, game_dir)
                 cmd[0] = shutil.which(cmd[0]) or cmd[0]
-                timed_out, exit_code = run_player(cmd, prompt, game_dir, run_dir / "player.log")
+                if player in LOGIN_FILES:
+                    env, home = fresh_home(player, gid)
+                    try:
+                        timed_out, exit_code = run_player(cmd, prompt, game_dir, run_dir / "player.log", env)
+                    finally:
+                        end_home(player, home)
+                else:
+                    timed_out, exit_code = run_player(cmd, prompt, game_dir, run_dir / "player.log")
                 commands, others, summary, cli_error = player_events(
                     player, (run_dir / "player.log").read_text(encoding="utf-8", errors="replace"))
             broker.close()                          # no more actions from here on
@@ -247,6 +266,8 @@ def play_game(task_id, player, manual_text=None):
 
     if exit_code not in (0, None) and not timed_out and not cli_error:
         cli_error = f"player CLI exited with code {exit_code}"
+    if player not in ("script", "robot") and not cli_error:
+        cli_error = infrastructure_problem(run_dir / "player.log", commands, summary, broker.used)
     passed, rule = strict_check(task_id, files)
     violations = audit(commands, gid) + others + [f"changed {f}" for f in tampered] if player != "script" else []
     harness_errors = ([f"settle failures: {broker.settle_failures}"] if broker.settle_failures else []) \

@@ -46,6 +46,15 @@ impl Files {
 
     pub fn key(&mut self, fs: &mut Fs, key: Key) -> Outcome {
         if let Some((ask, mut input)) = self.ask.take() {
+            if ask == Ask::Toss {
+                // Same as every app: Ctrl+K confirms tossing, Esc keeps it.
+                match key {
+                    Key::Ctrl(b'k') => self.answer(fs, ask, "y"),
+                    Key::Escape => self.message = "Kept it.".into(),
+                    _ => self.ask = Some((ask, input)),
+                }
+                return Outcome::Stay;
+            }
             match key {
                 Key::Escape => self.message = "Cancelled.".into(),
                 Key::Enter if core::mem::take(&mut self.too_long) => {
@@ -168,7 +177,7 @@ impl Files {
             let q = match ask {
                 Ask::Rename => "New name: ",
                 Ask::Move => "Move into which drawer? ",
-                Ask::Toss => "Toss it (throw away)? Type y and press Enter: ",
+                Ask::Toss => "Toss it (throw away)? Ctrl+K tosses, Esc keeps it. ",
                 Ask::Build => "Name of the new drawer: ",
             };
             screen.put_str(1, PROMPT_ROW, q, ACCENT);

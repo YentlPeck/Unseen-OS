@@ -2,10 +2,15 @@
 //! Command names are our own on purpose (not Linux or Windows words), so
 //! AI models can't rely on memory and must figure the system out.
 //!
-//! The shell also owns the open apps (Notes, Files) as a stack: keys go to
-//! the top app, and when the last app closes we are back at the prompt.
+//! The shell also owns the open apps as a stack: keys go to the top app, and
+//! when the last app closes we are back at the prompt.
 
+use crate::calc::Calc;
+use crate::calendar::Calendar;
+use crate::contacts::Contacts;
 use crate::files::{Files, Outcome};
+use crate::mail::Mail;
+use crate::settings::{self, Settings};
 use crate::fs::{self, Entry, Fs};
 use crate::keyboard::Key;
 use crate::notes::Notes;
@@ -25,7 +30,7 @@ struct Command {
 }
 
 const COMMANDS: &[Command] = &[
-    Command { name: "guide", usage: "guide", about: "list the words this computer understands", run: cmd_guide },
+    Command { name: "guide", usage: "guide [word]", about: "list the words this computer understands, or explain one", run: cmd_guide },
     Command { name: "here", usage: "here", about: "say which drawer you are in", run: cmd_here },
     Command { name: "peek", usage: "peek [drawer]", about: "list what is in a drawer", run: cmd_peek },
     Command { name: "enter", usage: "enter <drawer>", about: "go into a drawer", run: cmd_enter },
@@ -41,6 +46,11 @@ const COMMANDS: &[Command] = &[
     Command { name: "seek", usage: "seek <word>", about: "find pages whose name or text has a word", run: cmd_seek },
     Command { name: "notes", usage: "notes <page>", about: "open a page in the Notes app", run: cmd_notes },
     Command { name: "files", usage: "files", about: "open the Files app", run: cmd_files },
+    Command { name: "mail", usage: "mail", about: "open the Mail app (inbox, sent, write)", run: cmd_mail },
+    Command { name: "contacts", usage: "contacts", about: "open the Contacts app (address book)", run: cmd_contacts },
+    Command { name: "calendar", usage: "calendar", about: "open the Calendar app (events)", run: cmd_calendar },
+    Command { name: "settings", usage: "settings", about: "open the Settings app", run: cmd_settings },
+    Command { name: "calc", usage: "calc", about: "open the Calculator app", run: cmd_calc },
     Command { name: "show", usage: "show <text>", about: "write text on the screen", run: cmd_show },
     Command { name: "wipe", usage: "wipe", about: "clean the screen", run: cmd_wipe },
     Command { name: "clock", usage: "clock", about: "today's date and time", run: cmd_clock },
@@ -50,6 +60,11 @@ const COMMANDS: &[Command] = &[
 enum App {
     Notes(Notes),
     Files(Files),
+    Mail(Mail),
+    Contacts(Contacts),
+    Calendar(Calendar),
+    Settings(Settings),
+    Calc(Calc),
 }
 
 pub struct Shell {
@@ -71,12 +86,31 @@ impl Shell {
         &self.fs
     }
 
+    fn status(&self, screen: &mut Screen) {
+        let name = settings::get(&self.fs, "name");
+        screen.status_bar(&format!("Unseen OS 0.2 - {name}"), "type guide for help");
+    }
+
     pub fn start(&mut self, screen: &mut Screen) {
+        crate::screen::set_theme(&settings::get(&self.fs, "theme"));
+        self.status(screen);
+        screen.clear();
         screen.write_colored("Welcome to Unseen OS.\n", BRIGHT);
         screen.write_colored("Type ", NORMAL);
         screen.write_colored("guide", ACCENT);
         screen.write_colored(" and press Enter to see what this computer understands.\n\n", NORMAL);
         self.prompt(screen);
+        let app = match settings::get(&self.fs, "start").as_str() {
+            "files" => Some(App::Files(Files::new(String::new()))),
+            "mail" => Some(App::Mail(Mail::new())),
+            "calendar" => Some(App::Calendar(Calendar::new())),
+            "contacts" => Some(App::Contacts(Contacts::new())),
+            _ => None,
+        };
+        if let Some(app) = app {
+            self.apps.push(app);
+            self.redraw(screen);
+        }
     }
 
     fn prompt(&self, screen: &mut Screen) {
@@ -142,6 +176,11 @@ impl Shell {
                 Outcome::Leave => Next::Close,
                 Outcome::OpenPage(p) => Next::Open(p),
             },
+            Some(App::Mail(a)) => if a.key(&mut self.fs, key) { Next::Close } else { Next::Redraw },
+            Some(App::Contacts(a)) => if a.key(&mut self.fs, key) { Next::Close } else { Next::Redraw },
+            Some(App::Calendar(a)) => if a.key(&mut self.fs, key) { Next::Close } else { Next::Redraw },
+            Some(App::Settings(a)) => if a.key(&mut self.fs, key) { Next::Close } else { Next::Redraw },
+            Some(App::Calc(a)) => if a.key(key) { Next::Close } else { Next::Redraw },
             None => return,
         };
         match next {
@@ -182,8 +221,13 @@ impl Shell {
         match self.apps.last_mut() {
             Some(App::Notes(n)) => n.draw(screen),
             Some(App::Files(f)) => f.draw(&self.fs, screen),
+            Some(App::Mail(a)) => a.draw(&self.fs, screen),
+            Some(App::Contacts(a)) => a.draw(&self.fs, screen),
+            Some(App::Calendar(a)) => a.draw(&self.fs, screen),
+            Some(App::Settings(a)) => a.draw(screen),
+            Some(App::Calc(a)) => a.draw(screen),
             None => {
-                screen.status_bar("Unseen OS 0.1", "type guide for help");
+                self.status(screen);
                 screen.clear();
                 self.prompt(screen);
             }
@@ -244,15 +288,28 @@ fn usage(screen: &mut Screen, word: &str) {
 
 // ---- commands -------------------------------------------------------------
 
-fn cmd_guide(_: &mut Shell, screen: &mut Screen, _: &str) {
-    screen.write_colored("Words this computer understands (<...> = fill in, [...] = optional):\n", BRIGHT);
-    for c in COMMANDS {
-        screen.write_colored("  ", NORMAL);
-        screen.write_colored(c.usage, ACCENT);
-        for _ in c.usage.len()..22 {
-            screen.write_byte(b' ');
+const GROUPS: [(&str, &[&str]); 4] = [
+    ("Drawers", &["here", "peek", "enter", "leave", "build"]),
+    ("Pages", &["read", "write", "add", "copy", "rename", "move", "toss", "seek"]),
+    ("Apps", &["notes", "files", "mail", "contacts", "calendar", "settings", "calc"]),
+    ("Other", &["show", "wipe", "clock", "about", "guide"]),
+];
+
+fn cmd_guide(_: &mut Shell, screen: &mut Screen, rest: &str) {
+    if !rest.is_empty() {
+        match COMMANDS.iter().find(|c| c.name == rest) {
+            Some(c) => {
+                screen.write_colored(c.usage, ACCENT);
+                let _ = writeln!(screen, "   {}", c.about);
+            }
+            None => warn(screen, &format!("There is no word '{rest}'. Type guide to see them all.")),
         }
-        screen.write_colored(c.about, NORMAL);
+        return;
+    }
+    screen.write_colored("Words this computer understands (guide <word> explains one, e.g. guide write):\n", BRIGHT);
+    for (group, words) in GROUPS {
+        screen.write_colored(&format!("  {group:<9}"), NORMAL);
+        screen.write_colored(&words.join("  "), ACCENT);
         screen.write_byte(b'\n');
     }
 }
@@ -422,17 +479,42 @@ fn cmd_wipe(_: &mut Shell, screen: &mut Screen, _: &str) {
     screen.clear();
 }
 
-fn cmd_clock(_: &mut Shell, screen: &mut Screen, _: &str) {
+fn cmd_clock(sh: &mut Shell, screen: &mut Screen, _: &str) {
     let t = crate::rtc::now();
-    let _ = writeln!(
-        screen,
-        "{:04}-{:02}-{:02}  {:02}:{:02}:{:02}",
-        t.year, t.month, t.day, t.hour, t.minute, t.second
-    );
+    let time = format!("{:02}:{:02}", t.hour, t.minute);
+    let twelve = settings::get(&sh.fs, "clock") == "12h";
+    let _ = writeln!(screen, "{:04}-{:02}-{:02}  {}", t.year, t.month, t.day,
+                     crate::calendar::show_time(&time, twelve));
+}
+
+fn open_app(sh: &mut Shell, screen: &mut Screen, app: App) {
+    sh.apps.push(app);
+    sh.redraw(screen);
+}
+
+fn cmd_mail(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    open_app(sh, screen, App::Mail(Mail::new()));
+}
+
+fn cmd_contacts(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    open_app(sh, screen, App::Contacts(Contacts::new()));
+}
+
+fn cmd_calendar(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    open_app(sh, screen, App::Calendar(Calendar::new()));
+}
+
+fn cmd_settings(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    let s = Settings::new(&sh.fs);
+    open_app(sh, screen, App::Settings(s));
+}
+
+fn cmd_calc(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    open_app(sh, screen, App::Calc(Calc::new()));
 }
 
 fn cmd_about(sh: &mut Shell, screen: &mut Screen, _: &str) {
-    screen.write_colored("Unseen OS 0.1\n", BRIGHT);
+    screen.write_colored("Unseen OS 0.2\n", BRIGHT);
     let _ = writeln!(screen, "A small computer that no AI has seen before.");
     let _ = writeln!(screen, "Memory: {} MB", sh.memory_mb);
 }

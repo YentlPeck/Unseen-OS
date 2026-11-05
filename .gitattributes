@@ -1,0 +1,3 @@
+# Keep every file byte-for-byte as committed: the experiment manifests hash exact file
+# contents, so line endings must not be converted on checkout.
+* -text

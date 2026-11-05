@@ -1,4 +1,5 @@
 /kernel/target
+/chore-tests/target
 /out/*.log
 /out/*.png
 /out/runs

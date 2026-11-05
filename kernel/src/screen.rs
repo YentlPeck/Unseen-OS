@@ -24,7 +24,25 @@ pub struct Screen {
     pub color: u8,
 }
 
+/// Background colour of the theme (VGA colour 0-7). Everything drawn on the
+/// normal dark-blue background gets this background instead.
+static THEME_BG: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::new(1);
+
+/// Theme names and their background colours.
+pub const THEMES: [(&str, u8); 4] = [("blue", 1), ("black", 0), ("brown", 6), ("purple", 5)];
+
+pub fn set_theme(name: &str) {
+    if let Some((_, bg)) = THEMES.iter().find(|(n, _)| *n == name) {
+        THEME_BG.store(*bg, core::sync::atomic::Ordering::Relaxed);
+    }
+}
+
 pub fn put(col: usize, row: usize, ch: u8, color: u8) {
+    let color = if color >> 4 == 1 {
+        (THEME_BG.load(core::sync::atomic::Ordering::Relaxed) << 4) | (color & 0x0F)
+    } else {
+        color
+    };
     unsafe { VGA.add(row * COLS + col).write_volatile(((color as u16) << 8) | ch as u16) }
 }
 

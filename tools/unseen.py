@@ -94,7 +94,7 @@ class Machine:
         module = None
         if start_text is not None:
             module = Path(workdir) / "start.txt"
-            module.write_text(f"#session {session}\n{start_text}", newline="\n")
+            module.write_text(f"#session {session}\n{start_text}", newline="\n", encoding="utf-8")
         last_error = None
         for _ in range(5):  # retry with fresh ports if start-up fails
             m = cls()
@@ -227,6 +227,13 @@ class Machine:
                 raise SettleError(f"OS handled {self.keys_handled()} of {self.sent} keys")
             time.sleep(0.02)
         return self.look()
+
+    def screenshot(self, path):
+        """Save the screen as a PNG (for the write-up; players only get text)."""
+        with self.lock:
+            reply = self._qmp_call("screendump", filename=str(path), format="png")
+        if "error" in reply:
+            raise RuntimeError(reply["error"]["desc"])
 
     def look(self):
         """The screen as 25 lines of text."""

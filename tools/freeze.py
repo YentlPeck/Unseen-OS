@@ -1,10 +1,11 @@
-"""Freeze (or check) the files that decide the experiment's result.
+"""Freeze (or check) the files that decide an experiment's result.
 
-  python tools/freeze.py           write out/experiment/manifest.json (refuses if it exists)
-  python tools/freeze.py --check   compare the files with the manifest
+  python tools/freeze.py [--exp 2]           write the manifest (refuses if it exists)
+  python tools/freeze.py [--exp 2] --check   compare the files with the manifest
 
-The manifest's own hash is recorded in every experiment log (task arg
-`manifest`), and analyze.py refuses to run if any frozen file has changed.
+Experiment 1 (default): out/experiment/manifest.json. Experiment 2: out/experiment2/manifest.json.
+The manifest's hash is recorded in every experiment log (task arg `manifest`), and the
+runner and analysis refuse to run if any frozen file has changed.
 """
 
 import hashlib
@@ -15,38 +16,57 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MANIFEST = ROOT / "out" / "experiment" / "manifest.json"
-FILES = ["out/unseen.bin", "PREREG.md", "docs/manual.md", "tools/tasks.py", "tools/expected.json",
-         "tools/validate_tasks.py", "tools/run_task.py", "tools/play.py", "tools/broker.py", "tools/unseen.py",
-         "tools/inspect_eval.py", "tools/robot_player.py", "tools/run_experiment.py", "tools/analyze.py", "tools/freeze.py"]
+
+COMMON = ["out/unseen.bin", "docs/manual.md", "tools/tasks.py", "tools/expected.json", "tools/validate_tasks.py", "tools/audit.py",
+          "tools/run_task.py", "tools/play.py", "tools/broker.py", "tools/unseen.py", "tools/inspect_eval.py",
+          "tools/robot_player.py", "tools/freeze.py"]
+EXPERIMENTS = {
+    1: {"dir": "out/experiment", "files": COMMON + ["PREREG.md", "tools/run_experiment.py", "tools/analyze.py"]},
+    2: {"dir": "out/experiment2", "files": COMMON + ["PREREG2.md", "tools/tasks_v2.py", "tools/run_experiment2.py",
+                                                     "tools/analyze2.py"]},
+}
 
 
-def hashes():
-    return {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in FILES}
+def _exp(n=None):
+    if n is None:
+        n = int(sys.argv[sys.argv.index("--exp") + 1]) if "--exp" in sys.argv else 1
+    return n, EXPERIMENTS[n]
 
 
-def manifest_hash():
-    return hashlib.sha256(MANIFEST.read_bytes()).hexdigest()
+def manifest_path(n=None):
+    return ROOT / _exp(n)[1]["dir"] / "manifest.json"
 
 
-def check():
-    """List of frozen files that changed (empty = all good). Raises if not frozen yet."""
-    frozen = json.loads(MANIFEST.read_text())["files"]
-    return [f for f, h in hashes().items() if frozen.get(f) != h] + [f for f in frozen if f not in FILES]
+def hashes(n=None):
+    return {f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in _exp(n)[1]["files"]}
+
+
+def manifest_hash(n=None):
+    return hashlib.sha256(manifest_path(n).read_bytes()).hexdigest()
+
+
+def check(n=None):
+    """Frozen files that changed (empty = all good). Raises if not frozen yet."""
+    frozen = json.loads(manifest_path(n).read_text())["files"]
+    now = hashes(n)
+    return [f for f, h in now.items() if frozen.get(f) != h] + [f for f in frozen if f not in now]
 
 
 def main():
+    n, _ = _exp()
     if "--check" in sys.argv:
-        changed = check()
+        changed = check(n)
         print("all frozen files unchanged" if not changed else f"CHANGED: {changed}")
         return 1 if changed else 0
-    if MANIFEST.exists():
-        print(f"refusing: {MANIFEST} already exists (the experiment is frozen)")
+    path = manifest_path(n)
+    if path.exists():
+        print(f"refusing: {path} already exists (experiment {n} is frozen)")
         return 1
-    MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    MANIFEST.write_text(json.dumps({"frozen_at": time.strftime("%Y-%m-%d %H:%M:%S %z"), "files": hashes()}, indent=2))
-    shutil.copy(MANIFEST, ROOT / "docs" / f"manifest-{time.strftime('%Y%m%d-%H%M%S')}.json")
-    print(f"wrote {MANIFEST}\nmanifest sha256: {manifest_hash()}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"experiment": n, "frozen_at": time.strftime("%Y-%m-%d %H:%M:%S %z"),
+                                "files": hashes(n)}, indent=2))
+    shutil.copy(path, ROOT / "docs" / f"manifest-exp{n}-{time.strftime('%Y%m%d-%H%M%S')}.json")
+    print(f"wrote {path}\nmanifest sha256: {manifest_hash(n)}")
     return 0
 
 

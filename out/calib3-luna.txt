@@ -1,0 +1,39 @@
+[11/04/26 22:32:51] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_os (10 samples): mockllm/model                                          
+fail_on_error: False, max_samples: 2, player: luna, conditions: plain,manual,  
+taskset: practice2, max_actions: 60, dataset: (samples)                        
+---------------------------------------------------------                      
+                                                                               
+unseen_pl... | Steps:   1/10  10% | Samples:   1/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   2/10  20% | Samples:   1/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   3/10  30% | Samples:   3/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   4/10  40% | Samples:   4/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   6/10  60% | Samples:   6/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   7/10  70% | Samples:   6/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   8/10  80% | Samples:   8/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:   9/10  90% | Samples:   8/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  10/10 100% | Samples:  10/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_os (10 samples): mockllm/model                                          
+fail_on_error: False, max_samples: 2, player: luna, conditions: plain,manual,  
+taskset: practice2, max_actions: 60, dataset: (samples)                        
+                                                                               
+total time:                                   0:00:59                          
+end_state                                                                      
+accuracy   0.000                                                               
+stderr     0.000                                                               
+plain      0.000                                                               
+manual     0.000                                                               
+all        0.000                                                               
+practice   0.000                                                               
+all2       0.000                                                               
+Log:                                                                           
+out/calibration3/2026-11-04T21-32-51-00-00_unseen-os_hHsd5BFgcmYSaZDhK328QA.ev…
+---------------------------------------------------------                      
+                                                                               

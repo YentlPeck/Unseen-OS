@@ -48,9 +48,52 @@ pub fn valid_name(n: &str) -> bool {
         && n.bytes().all(|b| b.is_ascii_alphanumeric() || b"-_.".contains(&b))
 }
 
+/// Drawers looked after by an app: (top drawer, app name, command that opens it).
+/// Outside their app they can be read but not changed.
+pub const APP_DRAWERS: [(&str, &str, &str); 4] = [
+    ("mail", "Mail", "mail"),
+    ("contacts", "Contacts", "contacts"),
+    ("calendar", "Calendar", "calendar"),
+    ("system", "Settings", "settings"),
+];
+
+pub const DEFAULT_SETTINGS: &str = "name: friend\ntheme: blue\nstart: shell\nclock: 24h";
+
+/// The app that looks after this path, if any: (app name, command).
+pub fn owner(path: &str) -> Option<(&'static str, &'static str)> {
+    let top = path.split(':').next().unwrap_or("");
+    APP_DRAWERS.iter().find(|(d, _, _)| *d == top).map(|(_, app, cmd)| (*app, *cmd))
+}
+
+fn guard(path: &str) -> Result<()> {
+    match owner(path) {
+        Some((app, cmd)) => Err(format!("{} is looked after by the {app} app (open it with: {cmd})", display(path))),
+        None => Ok(()),
+    }
+}
+
 impl Fs {
     pub fn new() -> Self {
         Self { entries: BTreeMap::new(), moves: Vec::new() }
+    }
+
+    /// Make sure the app drawers and the settings page exist.
+    pub fn ensure_system(&mut self) {
+        for d in ["mail", "mail:inbox", "mail:sent", "contacts", "calendar", "system"] {
+            self.ensure_drawers(d);
+        }
+        self.entries.entry("system:settings".into()).or_insert_with(|| Entry::Page(DEFAULT_SETTINGS.into()));
+    }
+
+    /// For apps only: write a page inside an app drawer (no protection check).
+    pub fn app_write(&mut self, path: &str, text: &str) {
+        self.ensure_drawers(parent(path));
+        self.entries.insert(path.to_string(), Entry::Page(text.to_string()));
+    }
+
+    /// For apps only: remove a page inside an app drawer.
+    pub fn app_toss(&mut self, path: &str) {
+        self.entries.remove(path);
     }
 
     pub fn take_moves(&mut self) -> Vec<(String, String)> {
@@ -80,6 +123,9 @@ impl Fs {
         let mut page: Option<(String, Vec<&str>)> = None;
         for line in text.lines() {
             let line = line.trim_end_matches('\r');
+            if !line.bytes().all(|b| (0x20..0x7f).contains(&b)) {
+                continue; // only plain ASCII text is allowed in start files
+            }
             if let Some((path, body)) = &mut page {
                 if line == "#end" {
                     let path = core::mem::take(path);
@@ -99,7 +145,7 @@ impl Fs {
         fs
     }
 
-    fn ensure_drawers(&mut self, path: &str) {
+    pub fn ensure_drawers(&mut self, path: &str) {
         if path.is_empty() || self.entries.contains_key(path) {
             return;
         }
@@ -170,6 +216,7 @@ impl Fs {
     }
 
     pub fn write_page(&mut self, path: &str, text: &str) -> Result<()> {
+        guard(path)?;
         if self.is_drawer(path) {
             return Err(format!("{} is a drawer, not a page", display(path)));
         }
@@ -179,6 +226,7 @@ impl Fs {
     }
 
     pub fn build_drawer(&mut self, path: &str) -> Result<()> {
+        guard(path)?;
         if self.exists(path) {
             return Err(format!("{} already exists", display(path)));
         }
@@ -191,6 +239,7 @@ impl Fs {
         if path.is_empty() {
             return Err("the desk cannot be thrown away".into());
         }
+        guard(path)?;
         if !self.exists(path) {
             return Err(format!("there is nothing called {}", display(path)));
         }
@@ -206,6 +255,8 @@ impl Fs {
         if from.is_empty() {
             return Err("the desk cannot be moved".into());
         }
+        guard(from)?;
+        guard(to)?;
         if !self.exists(from) {
             return Err(format!("there is nothing called {}", display(from)));
         }

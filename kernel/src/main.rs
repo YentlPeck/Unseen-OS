@@ -6,16 +6,22 @@
 extern crate alloc;
 
 mod boot;
+mod calc;
+mod calendar;
+mod contacts;
 mod files;
 mod fs;
 mod inspector;
 mod keyboard;
+mod mail;
 mod notes;
 mod port;
 mod rtc;
 mod screen;
 mod serial;
+mod settings;
 mod shell;
+mod ui;
 
 use core::panic::PanicInfo;
 use linked_list_allocator::LockedHeap;
@@ -83,6 +89,8 @@ extern "C" fn kernel_main(multiboot_info: u32) -> ! {
         }
         None => fs::Fs::sample(),
     };
+    let mut desk = desk;
+    desk.ensure_system();
     let mut shell = shell::Shell::new(desk, memory_mb(multiboot_info));
     let mut inspector = inspector::Inspector::new();
     let mut keys_handled: u64 = 0;

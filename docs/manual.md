@@ -18,12 +18,12 @@ To mean a place starting from the top, begin the path with `desk:`, like `desk:l
 
 ## Typing commands
 
-Type a command and press Enter. `guide` lists all commands. The Up arrow brings back the
+Type a command and press Enter. `guide` lists all commands; `guide <word>` explains one. The Up arrow brings back the
 last command. Commands can be at most 200 characters long.
 
 | Command | What it does |
 |---|---|
-| `guide` | list all commands |
+| `guide [word]` | list all commands, or explain one |
 | `here` | show which drawer you are in |
 | `peek [drawer]` | list what is in a drawer (the current one if none is given) |
 | `enter <drawer>` | go into a drawer |
@@ -43,6 +43,11 @@ last command. Commands can be at most 200 characters long.
 | `wipe` | clear the screen |
 | `clock` | show the date and time |
 | `about` | about this computer |
+| `mail` | open the Mail app |
+| `contacts` | open the Contacts app |
+| `calendar` | open the Calendar app |
+| `settings` | open the Settings app |
+| `calc` | open the Calculator app |
 
 If a command can't be done, the computer explains why in yellow, and nothing is changed.
 
@@ -69,9 +74,59 @@ the bottom bar shows the keys.
 | Backspace | go up to the drawer above |
 | N | rename the chosen item (type the new name, then Enter) |
 | M | move the chosen item (type the drawer, then Enter) |
-| T | toss the chosen item (type `y`, then Enter, to confirm) |
+| T | toss the chosen item (then Ctrl+K to confirm, Esc to keep) |
 | B | build a new drawer here (type the name, then Enter) |
 | Esc | leave the Files app; while a question is shown at the bottom, Esc only cancels the question |
+
+## Apps that look after their own drawers
+
+Mail, Contacts, Calendar and Settings keep their data as pages in their own drawers:
+`mail:inbox`, `mail:sent`, `contacts`, `calendar` and `system:settings`. You can `peek`, `read`,
+`seek` and `copy` from these drawers in the shell, but **only the app can change them** (for
+example, a mail is only sent by the Mail app).
+
+The same keys work in every app: Up/Down choose, Enter opens, Esc goes back, **Ctrl+K confirms**
+(keep, send, toss), and letter keys do the actions shown in the bottom bar. To throw something
+away: press T, then Ctrl+K (Esc keeps it). In a form, Up/Down/Tab move between fields.
+If typing didn't fit in a field or line, the app refuses to keep or send until you fix it with
+Backspace.
+
+### Mail (`mail`)
+
+- The list shows the **Inbox**; Tab switches to **Sent**. Enter opens a message.
+- While reading: **R** reply, **F** forward, **T** toss, Up/Down scroll, Esc back.
+- **W** writes a new message. Fields: To (one mail address, like `mira`), Subject, and the
+  message itself. Tab moves between them. **Ctrl+K sends.** Esc twice throws the draft away.
+- A reply fills in To and "Re: subject"; a forward fills in "Fwd: subject" and the old text.
+- If To is not the mail address of one of your contacts, the first Ctrl+K only warns you
+  (addresses must match exactly); a second Ctrl+K sends anyway.
+
+### Contacts (`contacts`)
+
+- A list of people with name, mail address and phone; the note of the chosen person is shown
+  below. **A** adds a person, **Enter** opens the chosen person to change them, **T** tosses.
+- Fields: Name, Mail (one word, it is the person's address on this computer), Phone, Note.
+  **Ctrl+K keeps.** Esc twice goes back without keeping.
+
+### Calendar (`calendar`)
+
+- A list of events sorted by date and time. **A** adds, **Enter** opens to change, **T** tosses.
+- Fields: Date (`YYYY-MM-DD`), Time (`HH:MM`, 24-hour), Title, With (who it is with).
+  **Ctrl+K keeps.** Esc twice goes back without keeping.
+
+### Settings (`settings`)
+
+- **name** (shown in the top bar), **theme** (blue, black, brown, purple), **start** (the app
+  that opens when the computer starts: shell, files, mail, calendar, contacts) and **clock**
+  (24h or 12h).
+- Up/Down choose a setting; Left/Right (or Enter) change a choice; Enter edits the name (Enter
+  again when done). **Ctrl+K keeps.**
+
+### Calculator (`calc`)
+
+- Type a sum with `+ - * / ( )` and press Enter; Up brings back the last sum. Esc leaves.
+- Whole answers are exact. Others show up to 6 decimals, with "about" if they were rounded.
+  Numbers must be below 1000000000000.
 
 ## Tips
 

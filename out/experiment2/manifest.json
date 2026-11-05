@@ -1,0 +1,23 @@
+{
+  "experiment": 2,
+  "frozen_at": "2026-11-04 23:16:22 +0100",
+  "files": {
+    "out/unseen.bin": "e7648de412596a88ce5f89a02cc264bd882a7c0c4d656142c01bd911899a4e40",
+    "docs/manual.md": "2749f8c16981145847549d11af0dbde977510bde48e55ac89c68b586266ae144",
+    "tools/tasks.py": "4a5f195fa4259374a87ba10c7413aceb23485a02e4339a98ed9339c0a2b7e307",
+    "tools/expected.json": "ed8ea8690df1888e1f1bd20ca74d565506d24c16e7dbe366cce3f408d7fb771e",
+    "tools/validate_tasks.py": "6b6c0d14b9e9efe9a054eb1a280b73bae11d704b1df088fe8d30bf3f04b70451",
+    "tools/audit.py": "9bb9a32b189ba7b1033a7a1569d1fd5e43c8a22bb99cd630cacf1f98091a62ac",
+    "tools/run_task.py": "df6ab91127c8c327429b5814e74f5d34f21518874b20cab6e16ce4a0d165cdb0",
+    "tools/play.py": "d2db8671cb29f4c4babe91c93827cadc91a06bb07d2b9b558c08403f7f6e5a3e",
+    "tools/broker.py": "3049cb1160c537c0e240002f5cbf9f1a243e8e376babd517e0d8b89ccb489538",
+    "tools/unseen.py": "90992ca926ee97276356c23492ddc7a9668a839184d83d3a6e5bd368b19b020a",
+    "tools/inspect_eval.py": "f10d5afbead48ed3cf1d6f95e7c77f9486f686f0a378d5f1af84c60f21855cba",
+    "tools/robot_player.py": "970f17e0927a0f4802123cad1c2c7a4103f81302951cc26a6d108f8a3433fe7d",
+    "tools/freeze.py": "e916dd1f2bc955f52ae5668ba9c17f01eb5d85e1daffa80a9c368e842b35990f",
+    "PREREG2.md": "2829e3c92d486846dfca5453afcacfab481f64a6c2af3ce3e30b394c997f0480",
+    "tools/tasks_v2.py": "6f513f1b2173f7362e207fdd9fc215dddde48cb06645baa4f71047cbfd85c964",
+    "tools/run_experiment2.py": "5c1ea27c48b6c32d4c07a8dc5a6567b31c0209933b5d8c43fb088f9318721025",
+    "tools/analyze2.py": "52d406a2fd0faafaadbefeeb08b1b6679f7f4b9be003292f6e605b91572808e4"
+  }
+}

@@ -66,7 +66,27 @@ def parse_start(text):
             drawers(line[8:].strip())
         elif line.startswith("#page "):
             page = line[6:].strip()
+    # The OS always adds the app drawers and default settings (fs.rs ensure_system).
+    for d in ("mail", "mail:inbox", "mail:sent", "contacts", "calendar", "system"):
+        drawers(d)
+    files.setdefault("desk:system:settings", DEFAULT_SETTINGS)
     return files
+
+
+DEFAULT_SETTINGS = "name: friend\ntheme: blue\nstart: shell\nclock: 24h"
+
+
+def by_content(files):
+    """Calendar events are compared by what they say, not by their page number."""
+    out, seen = {}, {}
+    for k, v in sorted(files.items()):
+        if k.startswith("desk:calendar:") and isinstance(v, str):
+            fields = {l.split(":", 1)[0].strip(): l.split(":", 1)[1].strip() for l in v.splitlines() if ":" in l}
+            key = "desk:calendar:" + "|".join(fields.get(x, "") for x in ("date", "time", "title", "with"))
+            seen[key] = seen.get(key, 0) + 1
+            k = f"{key}#{seen[key]}"  # identical events are counted, not merged
+        out[k] = v
+    return out
 
 
 def canon(files):
@@ -90,8 +110,10 @@ def strict_check(task_id, files):
     want = expected(task_id)
     if want is None:
         return False, "no expected end state recorded (run validate_tasks.py)"
-    start = parse_start(t["start"])
+    start, files, want = by_content(parse_start(t["start"])), by_content(files), by_content(want)
     problems = []
+    if t.get("extra") and not t["extra"](files):
+        problems.append("the pages together don't match the task")
     for path in sorted(set(files) | set(want)):
         got, exp = files.get(path, "<missing>"), want.get(path, "<missing>")
         if path in t["flex"]:
@@ -115,9 +137,12 @@ def strict_check(task_id, files):
     return False, f"{t['rule']} | " + "; ".join(problems[:5])
 
 
-def task(level, request, start, intent, rule, solution, flex=None):
+def task(level, request, start, intent, rule, solution, flex=None, extra=None, right=None, wrong=None):
+    """right / wrong: lists of (path, text) answer variants that the validator checks the
+    scorer accepts / rejects (put into the expected end state in place of that page)."""
     return {"level": level, "request": request, "start": start.strip() + "\n", "intent": intent,
-            "rule": rule, "solution": solution, "flex": flex or {}}
+            "rule": rule, "solution": solution, "flex": flex or {}, "extra": extra,
+            "right": right or [], "wrong": wrong or []}
 
 
 def first_line_has_code(code, others=()):
@@ -364,7 +389,8 @@ Piano lesson
 Gym
 #end""",
         lambda f: f.get("desk:monday") == "Gym" and f.get("desk:tuesday") == "Piano lesson"
-        and sorted(f) == ["desk:monday", "desk:tuesday"],
+        and sorted(k for k in f if k.split(":")[1] not in ("mail", "contacts", "calendar", "system"))
+        == ["desk:monday", "desk:tuesday"],
         "monday = Gym, tuesday = Piano lesson, nothing else on the desk",
         "rename monday temp{enter}rename tuesday monday{enter}rename temp tuesday{enter}",
     ),
@@ -667,3 +693,15 @@ Call mom on Sunday.
         "move inbox:note-call-mom notes{enter}toss inbox{enter}",
     ),
 }
+
+
+# ---- version 2 tasks (tasks_v2.py) and the task sets ----------------------------
+import tasks_v2  # noqa: E402  (imported here: it uses the helpers above)
+
+TASK_SETS = {
+    "v1": [k for k in TASKS],
+    "v2": list(tasks_v2.TASKS_V2),
+    "practice2": list(tasks_v2.PRACTICE_V2),
+}
+TASKS.update(tasks_v2.TASKS_V2)
+TASKS.update(tasks_v2.PRACTICE_V2)

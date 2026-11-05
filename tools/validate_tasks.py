@@ -48,6 +48,9 @@ def planted_mistakes(start, end, flex):
         if p not in start and p not in flex:
             yield f"missing {p}", {k: v for k, v in end.items() if k != p and not k.startswith(p + ":")}
     for p, v in end.items():
+        if p.startswith("desk:calendar:") and isinstance(v, str):
+            yield f"event {p} added twice", {**end, p + "x": v}
+    for p, v in end.items():
         if isinstance(v, str) and p not in flex:
             yield f"page {p} replaced by a drawer", {**end, p: None}
             if start.get(p) == v:
@@ -57,6 +60,9 @@ def planted_mistakes(start, end, flex):
 def main():
     problems, expected, starts = [], {}, {}
     for tid, task in T.TASKS.items():
+        lines = task["start"].splitlines()
+        if not task["start"].isascii() or any(len(l) > 76 for l in lines):
+            problems.append(f"{tid}: start files must be plain ASCII with lines of at most 76 characters")
         start, end = run_reference(tid)
         starts[tid] = start
         expected[tid] = end
@@ -81,6 +87,16 @@ def main():
             total += 1
             if T.strict_check(tid, wrong)[0]:
                 problems.append(f"{tid}: planted mistake not caught: {name}")
+            else:
+                caught += 1
+        # Hand-written answer variants: these must be accepted / rejected.
+        for path, text in task.get("right", []):
+            if not T.strict_check(tid, {**end, path: text})[0]:
+                problems.append(f"{tid}: correct answer rejected: {text!r}")
+        for path, text in task.get("wrong", []):
+            total += 1
+            if T.strict_check(tid, {**end, path: text})[0]:
+                problems.append(f"{tid}: wrong answer accepted: {text!r}")
             else:
                 caught += 1
 
