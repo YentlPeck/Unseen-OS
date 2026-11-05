@@ -1,0 +1,237 @@
+{
+  "manifest_sha256": "ca246f782382db43bb62a63654a88bc6756638f0dd9fb1d95f08174da12ac9fc",
+  "games": 192,
+  "main": {
+    "tasks_manual_better": 15,
+    "tasks_plain_better": 0,
+    "p": 0.0001,
+    "verdict": "The manual helps"
+  },
+  "task_scores": {
+    "contact-invoices": 2,
+    "biggest-invoice": 1,
+    "weekend-due": 4,
+    "overdue": 1,
+    "december-due": 4,
+    "invite-neighbours": 5,
+    "invoice-thanks": 1,
+    "meeting-events": 5,
+    "reminders": 4,
+    "phonebook": 2,
+    "fix-late": 2,
+    "fix-hello": 0,
+    "fix-total": 2,
+    "write-digest": 2,
+    "write-birthdays": 3,
+    "write-stats": 3
+  },
+  "per_player": {
+    "haiku": {
+      "tasks_manual_better": 12,
+      "tasks_plain_better": 0,
+      "p": 0.0005,
+      "verdict": "The manual helps"
+    },
+    "luna": {
+      "tasks_manual_better": 13,
+      "tasks_plain_better": 0,
+      "p": 0.0002,
+      "verdict": "The manual helps"
+    }
+  },
+  "win_rates": {
+    "haiku / manual": "25/48",
+    "haiku / plain": "5/48",
+    "luna / manual": "34/48",
+    "luna / plain": "13/48"
+  },
+  "win_rates_per_task": {
+    "biggest-invoice / manual": "1/6",
+    "biggest-invoice / plain": "0/6",
+    "contact-invoices / manual": "2/6",
+    "contact-invoices / plain": "0/6",
+    "december-due / manual": "4/6",
+    "december-due / plain": "0/6",
+    "fix-hello / manual": "4/6",
+    "fix-hello / plain": "4/6",
+    "fix-late / manual": "5/6",
+    "fix-late / plain": "3/6",
+    "fix-total / manual": "6/6",
+    "fix-total / plain": "4/6",
+    "invite-neighbours / manual": "5/6",
+    "invite-neighbours / plain": "0/6",
+    "invoice-thanks / manual": "1/6",
+    "invoice-thanks / plain": "0/6",
+    "meeting-events / manual": "5/6",
+    "meeting-events / plain": "0/6",
+    "overdue / manual": "1/6",
+    "overdue / plain": "0/6",
+    "phonebook / manual": "2/6",
+    "phonebook / plain": "0/6",
+    "reminders / manual": "4/6",
+    "reminders / plain": "0/6",
+    "weekend-due / manual": "4/6",
+    "weekend-due / plain": "0/6",
+    "write-birthdays / manual": "6/6",
+    "write-birthdays / plain": "3/6",
+    "write-digest / manual": "3/6",
+    "write-digest / plain": "1/6",
+    "write-stats / manual": "6/6",
+    "write-stats / plain": "3/6"
+  },
+  "repeat_consistency": {
+    "haiku / plain": {
+      "0": 12,
+      "1": 3,
+      "2": 1
+    },
+    "haiku / manual": {
+      "0": 3,
+      "1": 5,
+      "2": 4,
+      "3": 4
+    },
+    "luna / plain": {
+      "0": 10,
+      "1": 1,
+      "2": 3,
+      "3": 2
+    },
+    "luna / manual": {
+      "0": 1,
+      "1": 4,
+      "2": 3,
+      "3": 8
+    }
+  },
+  "actions_in_won_games": {
+    "haiku / plain": 91,
+    "haiku / manual": 51,
+    "luna / plain": 47,
+    "luna / manual": 34.5
+  },
+  "audit_failures": [
+    "haiku biggest-invoice manual #1: ['cd C:/Users/yentl/AppData/Local/Temp/unseen-games/biggest-invoice-haiku-manual-0fb31e && P=\"python play.py biggest-invoice-haiku-manual-0fb31e\"; $P type \"build desk:chores\"; $P press enter; $P type \"notes desk:chores:find\"; $P press enter; for l in \"set best to 0\" \"for each m in pages(\\'mail:inbox\\')\" \"when field(m, \\'subject\\') is \\'Invoice\\'\" \"for each c in pages(\\'contacts\\')\" \"when field(c, \\'mail\\') is field(m, \\'from\\')\" \"for each line in lines(body(m))\" \"when lower(line) has \\'total:\\'\" \"set amt to number(item(words(line), 2))\" \"say field(m, \\'from\\') & \\' \\' & amt\" \"when amt > best\" \"set best to amt\" \"done\" \"done\" \"done\" \"done\" \"done\" \"done\" \"done\" \"say \\'best: \\' & best\" \"write(\\'desk:answer\\', best)\"; do $P type \"$l\"; $P press enter; done']",
+    "haiku december-due manual #1: ['cd . ; P=december-due-haiku-manual-bf9945; python play.py $P press esc; python play.py $P press esc; python play.py $P type \"notes desk:chores:sum\"; python play.py $P press enter; python play.py $P type \"set total to 0\"; python play.py $P press enter; python play.py $P type \"set n to 0\"; python play.py $P press enter; python play.py $P type \"for each m in pages(\\'mail:inbox\\')\"; python play.py $P press enter; python play.py $P type \"when field(m, \\'subject\\') is \\'Invoice\\'\"; python play.py $P press enter; python play.py $P type \"set amt to \\'\\'\"; python play.py $P press enter; python play.py $P type \"set due to \\'\\'\"; python play.py $P press enter; python play.py $P type \"for each ln in lines(body(m))\"; python play.py $P press enter; python play.py $P type \"when lower(ln) has \\'total:\\'\"; python play.py $P press enter; python play.py $P type \"set amt to item(words(ln), 2)\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"when lower(ln) has \\'due:\\'\"; python play.py $P press enter; python play.py $P type \"set due to item(words(ln), 2)\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"when due has \\'2026-12\\'\"; python play.py $P press enter; python play.py $P type \"set total to total + number(amt)\"; python play.py $P press enter; python play.py $P type \"set n to n + 1\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"say \\'count: \\' & n & \\' total: \\' & total\"; python play.py $P press enter; python play.py $P type \"write(\\'desk:answer\\', total)\"; python play.py $P press ctrl+k']",
+    "haiku fix-hello plain #1: ['cd . && for i in $(seq 1 10); do python play.py fix-hello-haiku-plain-ebbf08 press up | tail -n 26; done']",
+    "haiku invite-neighbours plain #1: ['python play.py invite-neighbours-haiku-plain-69597f type \"W\"; python play.py invite-neighbours-haiku-plain-69597f type $\\'karl\\\\tStreet party\\\\tStreet party on Saturday at 15:00. Hope you can come!\\'']",
+    "haiku meeting-events plain #1: ['cd . && for k in down down down down enter; do python play.py meeting-events-haiku-plain-6366aa press $k; done']",
+    "haiku phonebook manual #1: ['cd . ; P=phonebook-haiku-manual-a860fc; python play.py $P type \"build chores\"; python play.py $P press enter; python play.py $P type \"notes chores:diag\"; python play.py $P press enter; python play.py $P type \"for each c in pages(\\'contacts\\')\"; python play.py $P press enter; python play.py $P type \"  say field(c, \\'mail\\') & \\' | \\' & field(c, \\'city\\') & \\' | \\' & field(c, \\'name\\') & \\' | \\' & field(c, \\'phone\\')\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press ctrl+k; python play.py $P press esc']",
+    "haiku fix-hello manual #2: ['cd . ; for k in right right right right right right right; do python play.py fix-hello-haiku-manual-91e7fe press $k >/dev/null; done; python play.py fix-hello-haiku-manual-91e7fe type \"lower(\"; python play.py fix-hello-haiku-manual-91e7fe look']",
+    "haiku fix-late plain #2: ['cd /d 2>/dev/null; for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do python play.py fix-late-haiku-plain-fe59a5 press down | tail -n 25; done']",
+    "haiku overdue manual #2: [\"python play.py overdue-haiku-manual-7d43e6 press down down down down down down down down down down down home $(printf 'delete %.0s' $(seq 99))\"]",
+    "haiku phonebook manual #2: ['python play.py phonebook-haiku-manual-1f8768 press $(for i in $(seq 78); do echo backspace; done)']",
+    "haiku reminders plain #2: [\"python play.py reminders-haiku-plain-de691c type $'mira\\\\tReminder\\\\tSee you at Gym on 2026-11-12 at 18:00!'\"]",
+    "haiku write-birthdays plain #2: ['cd . && for i in $(seq 1 19); do python play.py write-birthdays-haiku-plain-69f7ea press down; done | tail -n 25']",
+    "haiku write-digest plain #2: ['cd . ; for w in chore do write mail contacts here enter build; do python play.py write-digest-haiku-plain-86cf67 type \"guide $w\"; python play.py write-digest-haiku-plain-86cf67 press enter; done']",
+    "haiku write-stats plain #2: ['cd . ; for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do python play.py write-stats-haiku-plain-3f51a4 press down; done | tail -n 60']",
+    "haiku fix-hello manual #3: ['python play.py fix-hello-haiku-manual-19dd0b press $(printf \\'backspace %.0s\\' $(seq 38)); python play.py fix-hello-haiku-manual-19dd0b type \"   when lower(field(c, \\'note\\')) has \\'neighbour\\'\"']",
+    "haiku fix-late plain #3: ['cd . && P=fix-late-haiku-plain-a7908f; python play.py $P type \"write desk:chores:late set n to 0\"; python play.py $P press enter; python play.py $P type \"add desk:chores:late for each e in pages(\\'calendar\\')\"; python play.py $P press enter; python play.py $P type \"add desk:chores:late when (count(field(e, \\'time\\')) is 5) and (field(e, \\'time\\') >= \\'18:00\\')\"; python play.py $P press enter; python play.py $P type \"add desk:chores:late set n to n + 1\"; python play.py $P press enter; python play.py $P type \"add desk:chores:late done\"; python play.py $P press enter; python play.py $P type \"add desk:chores:late done\"; python play.py $P press enter; python play.py $P type \"add desk:chores:late write(\\'desk:late-count\\', n)\"; python play.py $P press enter; python play.py $P type \"read desk:chores:late\"; python play.py $P press enter']",
+    "haiku fix-total plain #3: ['for i in $(seq 1 21); do python play.py fix-total-haiku-plain-aba674 press down | tail -n 30 | head -n 25; done']",
+    "haiku meeting-events manual #3: [\"python play.py meeting-events-haiku-manual-0bd606 press up up up up end $(printf 'backspace %.0s' {1..78})\"]",
+    "haiku overdue manual #3: ['python play.py overdue-haiku-manual-1719a7 press up end $(for i in $(seq 78); do echo -n \"backspace \"; done)']",
+    "haiku reminders plain #3: [\"python play.py reminders-haiku-plain-2ed25d type $'mira\\\\tReminder\\\\tSee you at Gym on 2026-11-12 at 18:00!'\"]",
+    "haiku write-birthdays plain #3: ['cd . && P=write-birthdays-haiku-plain-2b092f; python play.py $P press esc; python play.py $P press esc; python play.py $P type \"write desk:chores:birthdays for each p in pages(\\'contacts\\')\" && python play.py $P press enter && python play.py $P type \"add desk:chores:birthdays say p & \\' | \\' & field(p, \\'birthday\\') & \\' | \\' & field(p, \\'mail\\') & \\' | \\' & field(p, \\'name\\')\" && python play.py $P press enter && python play.py $P type \"add desk:chores:birthdays done\" && python play.py $P press enter && python play.py $P type \"do desk:chores:birthdays\" && python play.py $P press enter']",
+    "haiku write-digest plain #3: ['cd . ; for w in chores do write; do python play.py write-digest-haiku-plain-60d988 type \"guide $w\"; python play.py write-digest-haiku-plain-60d988 press enter; done']",
+    "haiku write-stats plain #3: ['cd . ; for w in chores do write mail; do :; done; python play.py write-stats-haiku-plain-5e17cf type \"guide do\"; python play.py write-stats-haiku-plain-5e17cf press enter']",
+    "luna biggest-invoice manual #2: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py biggest-invoice-luna-manual-0396dd type for each m in pages(\\'mail:inbox\\')\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py biggest-invoice-luna-manual-0396dd type  when lower(field(m, \\'subject\\')) has \\'invoice\\'\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py biggest-invoice-luna-manual-0396dd type   say field(m, \\'from\\') & \\' | \\' & body(m)\"']",
+    "luna phonebook plain #2: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py phonebook-luna-plain-b3ed3c type \\\\\"write desk:phonebook \\\\\\\\\\\\\"Alan Nagy: 555-5810\\\\\\\\\\\\\\\\nAldo Nagy: 555-3513\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna write-digest plain #2: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py write-digest-luna-plain-dab996 type \\\\\"write desk:chores:digest \\\\\\\\\\\\\"\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna fix-late plain #3: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py fix-late-luna-plain-921220 type \\\\\"write desk:chores:late \\\\\\\\\\\\\"set n to 0\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna write-birthdays plain #3: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py write-birthdays-luna-plain-1c7378 type \\\\\"write desk:chores:birthdays \\\\\\\\\\\\\"for each c in pages(\\'contacts\\')\\\\\\\\\\\\\"\\\\\" \"']"
+  ],
+  "timeouts": [
+    "luna phonebook plain #3",
+    "luna write-digest manual #3"
+  ],
+  "os_crashes": [],
+  "visible_only": [],
+  "win_rates_per_kind": {
+    "bulk / haiku / manual": "7/15",
+    "bulk / haiku / plain": "0/15",
+    "bulk / luna / manual": "10/15",
+    "bulk / luna / plain": "0/15",
+    "count / haiku / manual": "5/15",
+    "count / haiku / plain": "0/15",
+    "count / luna / manual": "7/15",
+    "count / luna / plain": "0/15",
+    "fix / haiku / manual": "6/9",
+    "fix / haiku / plain": "4/9",
+    "fix / luna / manual": "9/9",
+    "fix / luna / plain": "7/9",
+    "write / haiku / manual": "7/9",
+    "write / haiku / plain": "1/9",
+    "write / luna / manual": "8/9",
+    "write / luna / plain": "6/9"
+  },
+  "discarded_attempts": {
+    "haiku overdue plain #2": [
+      {
+        "time": "2026-11-05 15:00:38",
+        "player": "haiku",
+        "task": "overdue",
+        "condition": "plain",
+        "epoch": 2,
+        "game": null,
+        "harness_errors": [
+          "crash: SettleError('OS handled 1025 of 1293 keys')"
+        ],
+        "terminal": false
+      },
+      {
+        "time": "2026-11-05 15:04:07",
+        "player": "haiku",
+        "task": "overdue",
+        "condition": "plain",
+        "epoch": 2,
+        "game": null,
+        "harness_errors": [
+          "crash: SettleError('OS handled 581 of 613 keys')"
+        ],
+        "terminal": false
+      }
+    ],
+    "haiku write-birthdays plain #2": [
+      {
+        "time": "2026-11-05 15:23:23",
+        "player": "haiku",
+        "task": "write-birthdays",
+        "condition": "plain",
+        "epoch": 2,
+        "game": null,
+        "harness_errors": [
+          "crash: SettleError('OS handled 902 of 982 keys')"
+        ],
+        "terminal": false
+      }
+    ],
+    "haiku write-digest manual #3": [
+      {
+        "time": "2026-11-05 15:39:31",
+        "player": "haiku",
+        "task": "write-digest",
+        "condition": "manual",
+        "epoch": 3,
+        "game": null,
+        "harness_errors": [
+          "crash: SettleError('OS handled 1037 of 1144 keys')"
+        ],
+        "terminal": false
+      }
+    ],
+    "luna write-stats plain #3": [
+      {
+        "time": "2026-11-05 17:56:49",
+        "player": "luna",
+        "task": "write-stats",
+        "condition": "plain",
+        "epoch": 3,
+        "game": null,
+        "harness_errors": [
+          "crash: SettleError('OS handled 448 of 485 keys')"
+        ],
+        "terminal": false
+      }
+    ]
+  }
+}

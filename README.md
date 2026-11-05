@@ -8,25 +8,105 @@ vocabulary on purpose: folders are *drawers*, files are *pages*, the top drawer 
 paths use `:` and saving is Ctrl+K. Because it didn't exist before November 2026, no model has
 it in its training data. A model has to figure it out from the screen.
 
-Version 0.2 has eight apps: a shell, **Notes**, **Files**, **Mail**, **Contacts**, **Calendar**,
-**Settings** and a **Calculator**.
+Version 0.3 has eight apps: a shell, **Notes**, **Files**, **Mail**, **Contacts**, **Calendar**,
+**Settings** and a **Calculator**, plus **chores**: a tiny scripting language of its own.
 
 ![The Mail app](docs/img/v2-mail.png)
 
-## Two experiments, two answers
+## Three experiments
 
-| | Experiment 1 (v0.1) | Experiment 2 (v0.2) |
+| | Experiment 1 (v0.1) | Experiment 2 (v0.2) | Experiment 3 (v0.3) |
+|---|---|---|---|
+| Apps | shell, Notes, Files | + Mail, Contacts, Calendar, Settings, Calculator | + chores (scripting) |
+| Tasks | 30 single-app tasks | 20 tasks, most needing 2-3 apps | 16 tasks too big to do by hand |
+| Games | 120 | 240 | 192 |
+| Pre-registered verdict | **The manual helps** (p = 0.013) | **No clear difference** (p = 1.0) | **The manual helps** (p = 0.0001) |
+| What really happened | models nearly always won; the verdict came from the audit | models nearly always won, with or without the manual | without the manual, the big tasks were never solved |
+
+Experiments 1 and 2 showed that **small models can operate a computer they have never seen**,
+and that on easy tasks a manual mostly makes them faster. Experiment 3 made the tasks hard enough
+to need a program in a language that exists nowhere else, and there **the manual made the
+difference between failing and succeeding**: wins went from 18/96 to 59/96.
+
+## Experiment 3: writing code in an unseen language
+
+Unseen OS 0.3 adds **chores**: small programs typed into a page and run with `do <page>`. The
+language uses familiar ideas (variables, loops, conditions), but its syntax, built-ins and page
+model are new. Its complete reference is on the computer itself (`guide do`).
+
+```text
+set total to 0
+for each m in pages('mail:inbox')
+  when field(m, 'subject') is 'Invoice'
+    set total to total + number(item(words(body(m)), 2))
+  done
+done
+write('desk:answer', total)
+```
+
+The world has 100 contacts, 400 mails, 30 sent mails and 150 events. Each of the **16 tasks**
+needs at least 130 actions without a chore, but players get only 100:
+
+- **5 count** tasks (for example, "how many invoices are due on a weekend?"),
+- **5 bulk** tasks (send many mails, add many events, write a phone book),
+- **3 fix** tasks (repair a broken chore and run it),
+- **3 write** tasks (write a reusable chore and run it).
+
+A fix or write game only wins if the player's chore *also* works on 3 hidden worlds it never saw
+(different sizes, nothing to find, another date). As before, each task was played 3 times
+without and 3 times with the manual. The manual holds the same reference word for word, plus
+explanations and 5 worked examples. Rules frozen before the first game: [PREREG3.md](PREREG3.md).
+Language design and reviews: [docs/v3-design.md](docs/v3-design.md).
+
+### Results
+
+| | Without manual | With manual |
 |---|---|---|
-| Apps | shell, Notes, Files | + Mail, Contacts, Calendar, Settings, Calculator |
-| Tasks | 30 single-app tasks | 20 tasks, most needing 2-3 apps |
-| Games | 120 (1 per task, player and condition) | 240 (3 per task, player and condition) |
-| Pre-registered verdict | **The manual helps** (p = 0.013) | **No clear difference** (p = 1.0) |
-| What really happened | models nearly always won; the verdict came from the audit | models nearly always won, with or without the manual |
-| Clear effect *(exploratory)* | manual = ~25-30% fewer actions | manual = ~35% fewer actions |
+| Haiku wins | 5/48 | 25/48 |
+| Luna wins | 13/48 | 34/48 |
+| Median actions in won games *(not part of the verdict)* | Haiku 91 · Luna 47 | Haiku 51 · Luna 34.5 |
 
-Both experiments point to the same conclusion: **small models can operate a computer they have
-never seen, and a manual mostly makes them faster rather than more successful.** Both also hit
-a ceiling: the tasks were too easy to show whether a manual turns failures into wins.
+| Task kind (both players) | Without manual | With manual |
+|---|---|---|
+| count | 0/30 | 12/30 |
+| bulk | 0/30 | 17/30 |
+| fix | 11/18 | 15/18 |
+| write | 7/18 | 15/18 |
+
+**Pre-registered verdict: "The manual helps."** Per-task sign test: 15 tasks scored better with
+the manual, none better without, 1 tied (p = 0.0001). The same holds for each player separately
+(Haiku p = 0.0005, Luna p = 0.0002).
+
+- **Without the manual, no count or bulk task was ever solved** (0 of 60 games). The models
+  could find the reference on screen (`guide do`), but reading it 25 lines at a time and then
+  writing a working chore didn't fit in 100 actions.
+- **Fixing a chore is easier than writing one.** With a broken chore in front of them, the models
+  won 11 of 18 fix games without the manual.
+- No game crashed the OS, and no fix or write game worked on the visible world but failed a
+  hidden one.
+
+Results: [out/experiment3/results.json](out/experiment3/results.json). Every step of every game:
+`inspect view --log-dir out/experiment3/logs`.
+
+### Honest notes
+
+- **28 games failed the audit** and count as losses. 23 were Haiku, all real rule breaks
+  (`$(...)`, `$'...'`, shell variables), in both conditions. 5 were Luna: 2 real (unquoted
+  brackets and `&` in PowerShell). The other 3 (all without the manual) reached the correct end
+  state but were refused only for a backslash in an unquoted word. PowerShell treats a backslash
+  as an ordinary character, so these are arguably **audit false positives**. They stay losses
+  under the frozen rules. Counted as wins, Luna would be 16/48 without the manual, and the
+  verdict would not change (still 15 tasks to 0).
+- **2 games timed out** (15 minutes). **5 attempts were discarded** and re-played under the rules
+  because the OS lost keystrokes in long games (a harness error, not the player's fault). One
+  game hit this twice and was re-played with `eval-retry`. All are listed in results.json.
+- The 5 count tasks all read invoice mails, so they are not independent of each other.
+- No placebo (length-matched) control: "manual" adds the reference in the prompt, worked examples
+  and prompt length together. Without it, the reference was only on the screen.
+- Calibration on 5 separate practice tasks found and fixed an audit bug before the experiment
+  ([docs/calibration3.md](docs/calibration3.md)). GPT Sol reviewed the language, the tasks and the
+  harness before freezing.
+- Another project ran AI experiments with the same accounts on the same PC during the run.
 
 ## Experiment 2: multi-app tasks
 
@@ -139,8 +219,11 @@ Results: [out/experiment/results.json](out/experiment/results.json). Logs: `out/
   (`tools/audit.py`, with its own allowed/rejected test cases).
 - **The tasks** (`tools/tasks.py`, `tools/tasks_v2.py`): each has start files, a plain-words
   request, a reference solution, and right and wrong example answers.
-  `tools/validate_tasks.py` proves all 55 tasks are solvable and that the strict scorer catches
-  1086 planted mistakes.
+  `tools/validate_tasks.py` proves every task is solvable and that the strict scorer catches
+  planted mistakes.
+- **Chores** (`kernel/src/chore.rs`): a tokenizer, parser and interpreter in `no_std` Rust, with
+  hard limits on steps, text, lists and depth. A chore's changes apply all at once, and only if
+  it succeeds. Host tests (`chore-tests/`) include 40,000 fuzzed programs.
 - **The harness** is [Inspect](https://inspect.aisi.org.uk/) (`tools/inspect_eval.py`), with an
   append-only ledger of every attempt and frozen-file checks before running and analysing.
 
@@ -153,13 +236,7 @@ Needs Rust, QEMU (`C:\Program Files\qemu`) and Python 3.12 with `inspect-ai`.
 python tools/validate_tasks.py             # prove all tasks are fair
 inspect eval tools/inspect_eval.py -T player=robot -T taskset=v2 --model mockllm/model
 python tools/analyze2.py                   # re-check experiment 2's verdict from the logs
+python tools/analyze3.py                   # re-check experiment 3's verdict from the logs
 ```
-
-## Next: a scripting language inside Unseen OS
-
-Both experiments hit a ceiling, so version 3 adds a tiny scripting language that runs inside the
-OS. That allows tasks too big to do by hand within the action limit (for example, process every
-mail or contact), and a new question: **can a small model write working code in a language it
-has never seen**, with and without the manual?
 
 Built 4-5 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
