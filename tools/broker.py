@@ -87,6 +87,8 @@ class Broker:
         with self.lock:
             if self.os_crash:
                 return {"ok": False, "error": "The game is over (the computer stopped responding)."}
+            if self.settle_failures or self.infra_errors:
+                return {"ok": False, "error": "The game is over (harness error)."}
             if not self.open or (self.deadline and time.time() > self.deadline):
                 return {"ok": False, "error": "The game is over (time is up)."}
             if self.used >= self.max_actions:
@@ -106,13 +108,17 @@ class Broker:
                     self.open = False
                     self._log({"n": n, "os_crash": repr(e)})
                     return {"ok": False, "error": "The computer stopped responding. The game is over."}
+                # Our side failed (keys not delivered, QMP / serial / QEMU trouble): the game ends
+                # here, because the OS may now be in a state the player never asked for. The
+                # attempt is a harness error (re-run), but its commands are still audited.
+                self.open = False
                 if isinstance(e, SettleError):
                     self.settle_failures += 1
                     self._log({"n": n, "settle_error": str(e)})
-                    return {"ok": False, "error": "The computer did not respond (harness error)."}
-                self.infra_errors.append(repr(e))  # QMP / serial / QEMU trouble: our fault
-                self._log({"n": n, "infra_error": repr(e)})
-                return {"ok": False, "error": "The computer did not respond (harness error)."}
+                else:
+                    self.infra_errors.append(repr(e))
+                    self._log({"n": n, "infra_error": repr(e)})
+                return {"ok": False, "error": "The computer did not respond (harness error). The game is over."}
             self._log({"n": n, "action": action, "args": args, "screen": screen, "cursor": cursor})
             return {"ok": True, "n": n, "max": self.max_actions, "screen": screen, "cursor": cursor}
 

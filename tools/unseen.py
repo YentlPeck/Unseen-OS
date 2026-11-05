@@ -154,15 +154,32 @@ class Machine:
             if "return" in reply or "error" in reply:
                 return reply
 
+    # QEMU queues key events behind each key's hold time and silently drops events once its
+    # input queue is full (about 10 key presses). Sending a long action in one go lost up to
+    # 45% of the keys (tools/stress_keys.py). So keys go in small batches, and the next batch
+    # is only sent once the OS has handled every key so far. Keys are never sent twice: if a
+    # batch is not handled in time, SettleError ends the action (a harness error).
+    BATCH = 6
+
     def send_combos(self, combos):
         with self.lock:
-            for keys in combos:
+            for i, keys in enumerate(combos):
+                if i and i % self.BATCH == 0:
+                    self.wait_handled()
                 reply = self._qmp_call("send-key", keys=[{"type": "qcode", "data": k} for k in keys],
                                        **{"hold-time": 20})
                 if "error" in reply:
                     raise RuntimeError(f"QEMU refused keys {keys}: {reply['error']['desc']}")
                 self.sent += 1  # every combo is exactly one key press for the OS
                 time.sleep(0.015)
+
+    def wait_handled(self, limit=15.0):
+        """Wait until the OS has handled every key sent so far (SettleError if it doesn't)."""
+        deadline = time.time() + limit
+        while self.keys_handled() < self.sent:
+            if time.time() > deadline:
+                raise SettleError(f"OS handled {self.keys_handled()} of {self.sent} keys")
+            time.sleep(0.01)
 
     def type(self, text):
         self.send_combos(keys_for_text(text))
@@ -225,11 +242,7 @@ class Machine:
 
     def settle(self, limit=15.0):
         """Wait until the OS has handled every key we sent, then return the screen."""
-        deadline = time.time() + limit
-        while self.keys_handled() < self.sent:
-            if time.time() > deadline:
-                raise SettleError(f"OS handled {self.keys_handled()} of {self.sent} keys")
-            time.sleep(0.02)
+        self.wait_handled(limit)
         return self.look()
 
     def screenshot(self, path):

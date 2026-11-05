@@ -29,6 +29,13 @@ EXPERIMENTS = {
                                                      "tools/tasks_v3.py",
                                                      "tools/world_v3.py", "tools/hidden.py",
                                                      "tools/run_experiment3.py", "tools/analyze3.py"]},
+    4: {"dir": "out/experiment4", "files": COMMON + ["PREREG4.md", "PREREG3.md", "docs/calibration4.md",
+                                                     "docs/v4-design.md",
+                                                     "tools/tasks_v2.py", "tools/tasks_v3.py",
+                                                     "tools/world_v3.py", "tools/hidden.py", "tools/reference.py",
+                                                     "kernel/src/chores.rs", "tools/run_experiment4.py",
+                                                     "tools/analyze4.py", "tools/power4.py", "tools/stress_keys.py",
+                                                     "tools/test_audit_argv.py", "tools/test_harness_errors.py"]},
 }
 
 

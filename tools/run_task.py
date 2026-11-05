@@ -39,11 +39,15 @@ from broker import Broker  # noqa: E402
 from tasks import TASKS, strict_check  # noqa: E402
 from unseen import Machine, SettleError  # noqa: E402
 from hidden import run_hidden  # noqa: E402
+from reference import INTRO as REFERENCE_INTRO  # noqa: E402
 
 MAX_ACTIONS = 40
 V3_TIP = ("\nWhen the text you type contains quote marks, put double quotes around the whole text and use "
           "single quotes inside it.")
 TIME_LIMIT = 15 * 60  # seconds
+# What a condition puts in the prompt (before the task). plain: nothing.
+CONDITIONS = ("plain", "reference", "manual")
+INTROS = {"manual": "Here is the manual for this computer:", "reference": REFERENCE_INTRO}
 MODELS = {"haiku": "claude-haiku-5-5", "luna": "gpt-6-luna"}
 GAMES_DIR = Path(tempfile.gettempdir()) / "unseen-games"
 
@@ -176,43 +180,74 @@ LUNA_HARMLESS = {"agent_message", "reasoning", "todo_list"}
 
 
 def player_events(player, log_text):
-    """From the player's JSON log: (commands run, other tool uses, final message, CLI error)."""
-    commands, others, final, cli_error = {}, [], "", None
+    """From the player's JSON log: (commands run, other tool uses, final message, CLI error).
+    Every distinct command text seen anywhere in the log is kept (a later, incomplete event for
+    the same command never replaces it). Anything of an unexpected shape is a CLI error (a
+    harness error), but never removes a command that was seen: those are always audited."""
+    seen, others, odd = {}, [], []
+    state = {"final": "", "cli_error": None}
+
+    def command(value, where):
+        if isinstance(value, str):
+            if value:
+                seen[value] = True
+        elif value is not None:
+            odd.append(f"{where}: command is not text: {json.dumps(value)[:80]}")
+
     for line in log_text.splitlines():
         try:
             e = json.loads(line)
         except ValueError:
             continue
-        if player == "haiku":
-            if e.get("type") == "assistant":
-                for c in e.get("message", {}).get("content", []):
+        if not isinstance(e, dict):
+            odd.append(f"event is not an object: {line[:80]}")
+            continue
+        try:
+            _one_event(player, e, command, others, state, odd)
+        except Exception as ex:
+            odd.append(f"{ex!r} in {line[:120]}")
+    cli_error = state["cli_error"]
+    if odd and not cli_error:
+        cli_error = f"player log has {len(odd)} unexpected event(s): {odd[0]}"
+    return list(seen), others, state["final"], cli_error
+
+
+def _one_event(player, e, command, others, state, odd):
+    """Read one JSON event of the player's log. Each content item is read on its own, so one
+    item of an unexpected shape can't hide the others."""
+    if player == "haiku":
+        if e.get("type") == "assistant":
+            content = (e.get("message") or {}).get("content") or []
+            for c in content if isinstance(content, list) else []:
+                try:
                     if c.get("type") == "tool_use":
                         if c.get("name") == "Bash":
-                            commands[c.get("id") or len(commands)] = c.get("input", {}).get("command", "")
+                            command((c.get("input") or {}).get("command"), "Bash")
                         else:
                             others.append(f"{c.get('name')}: {json.dumps(c.get('input'))[:200]}")
-            elif e.get("type") == "result":
-                final = e.get("result") or final
-                if e.get("is_error"):
-                    cli_error = f"claude result error: {e.get('subtype')} {str(e.get('result'))[:200]}"
-        elif player.startswith("robot"):
-            if e.get("type") == "robot_command":
-                commands[len(commands)] = e["command"]
-            elif e.get("type") == "robot_result":
-                final = e.get("text", "")
-        elif player == "luna":
-            if e.get("type") in ("error", "turn.failed"):
-                cli_error = f"codex {e.get('type')}: {json.dumps(e)[:300]}"
-            item = e.get("item") or {}
-            kind = item.get("type")
-            if e.get("type") in ("item.started", "item.completed") and kind:
-                if kind == "command_execution":
-                    commands[item.get("id") or len(commands)] = item.get("command", "")
-                elif kind == "agent_message":
-                    final = item.get("text") or final
-                elif kind not in LUNA_HARMLESS:
-                    others.append(f"{kind}: {json.dumps(item)[:200]}")
-    return list(commands.values()), others, final, cli_error
+                except Exception as ex:
+                    odd.append(f"content item {json.dumps(c)[:80]}: {ex!r}")
+        elif e.get("type") == "result":
+            state["final"] = e.get("result") or state["final"]
+            if e.get("is_error"):
+                state["cli_error"] = f"claude result error: {e.get('subtype')} {str(e.get('result'))[:200]}"
+    elif player.startswith("robot"):
+        if e.get("type") == "robot_command":
+            command(e.get("command"), "robot")
+        elif e.get("type") == "robot_result":
+            state["final"] = e.get("text", "")
+    elif player == "luna":
+        if e.get("type") in ("error", "turn.failed"):
+            state["cli_error"] = f"codex {e.get('type')}: {json.dumps(e)[:300]}"
+        item = e.get("item") or {}
+        kind = item.get("type") if isinstance(item, dict) else None
+        if e.get("type") in ("item.started", "item.completed") and kind:
+            if kind == "command_execution":
+                command(item.get("command"), "command_execution")
+            elif kind == "agent_message":
+                state["final"] = item.get("text") or state["final"]
+            elif kind not in LUNA_HARMLESS:
+                others.append(f"{kind}: {json.dumps(item)[:200]}")
 
 
 def infrastructure_problem(log_path, commands, summary, actions):
@@ -234,14 +269,71 @@ def infrastructure_problem(log_path, commands, summary, actions):
     return None
 
 
+def changed_files(folder, protected):
+    """Protected files that changed; one that can't be read (or is no longer a file) counts as changed."""
+    out = []
+    for f, h in protected.items():
+        try:
+            same = sha(folder / f) == h
+        except Exception:
+            same = False
+        if not same:
+            out.append(f)
+    return out
+
+
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest() if Path(path).exists() else None
 
 
-def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
-    """Play one game. Returns a result dict (also saved as result.json)."""
+def check_condition(condition, text):
+    """The condition is always explicit and must match the text it puts in the prompt."""
+    if condition not in CONDITIONS:
+        raise ValueError(f"unknown condition {condition!r}")
+    if (condition == "plain") != (text is None) or (text is not None and not text.strip()):
+        raise ValueError(f"condition {condition!r} needs {'no' if condition == 'plain' else 'its'} text")
+
+
+def context_block(condition, text):
+    return f"\n{INTROS[condition]}\n\n{text}\n" if condition != "plain" else ""
+
+
+def new_game_id(task_id, player, condition):
+    return f"{task_id}-{player}-{condition}-{uuid.uuid4().hex[:6]}"
+
+
+def load_transcript(gid):
+    """The game's actions and screens, from its run folder (also for recovered games)."""
+    try:
+        path = ROOT / "out" / "runs" / gid / "transcript.jsonl"
+        rows = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+        return [t for t in rows if isinstance(t, dict) and "action" in t]
+    except Exception:  # missing or damaged: only the viewer's replay is lost, never the result
+        return []
+
+
+def saved_result(gid):
+    """A finished game's saved result (result.json is written whole), or None."""
+    path = ROOT / "out" / "runs" / gid / "result.json"
+    if not path.exists():
+        return None
+    result = json.loads(path.read_text())  # complete if it exists (written whole, then renamed)
+    result["transcript"] = load_transcript(gid)
+    return result
+
+
+def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS, condition=None, gid=None):
+    """Play one game. Returns a result dict (also saved as result.json).
+    manual_text is the text the condition puts in the prompt (the manual or the reference).
+    condition: plain | reference | manual (None = manual if a text is given, else plain).
+    gid: the game id, if the caller booked it in advance (new_game_id)."""
+    if condition is None:
+        condition = "manual" if manual_text else "plain"
+    check_condition(condition, manual_text)
     task = TASKS[task_id]
-    gid = f"{task_id}-{player}-{'manual' if manual_text else 'plain'}-{uuid.uuid4().hex[:6]}"
+    gid = gid or new_game_id(task_id, player, condition)
+    if not re.fullmatch(rf"{re.escape(task_id)}-{re.escape(player)}-{condition}-[0-9a-f]{{6}}", gid):
+        raise ValueError(f"game id {gid!r} does not match {task_id} / {player} / {condition}")
     run_dir = ROOT / "out" / "runs" / gid          # harness only
     game_dir = GAMES_DIR / gid                       # what the player sees
     run_dir.mkdir(parents=True)
@@ -249,13 +341,17 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
     shutil.copy(TOOLS / "play.py", game_dir / "play.py")
 
     summary, commands, others, cli_error, timed_out, exit_code = "", [], [], None, False, 0
+    # Our side failing AFTER the player started is a harness error (re-run), but the player's
+    # commands are audited all the same, so an audit failure always stands (PREREG order).
+    final_error, files, tampered, launched = None, None, [], False
+    started = time.time()
     with open(run_dir / "qemu.log", "w") as qlog:
-        machine = Machine.start(task["start"], workdir=run_dir, log=qlog)
+        machine = Machine.start(task["start"], workdir=run_dir, log=qlog)  # fails: nothing was played
         started = time.time()
         broker = Broker(machine, max_actions, run_dir / "transcript.jsonl", deadline=started + TIME_LIMIT)
-        (game_dir / "game.json").write_text(json.dumps({"game": gid, "port": broker.port, "token": broker.token}))
-        protected = {f: sha(game_dir / f) for f in ("play.py", "game.json")}
         try:
+            (game_dir / "game.json").write_text(json.dumps({"game": gid, "port": broker.port, "token": broker.token}))
+            protected = {f: sha(game_dir / f) for f in ("play.py", "game.json")}
             if player == "script":
                 machine.run_keys(task["solution"])
                 screen = machine.settle()
@@ -263,12 +359,13 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
                     json.dumps({"n": 1, "action": "solution", "args": [task["solution"]], "screen": screen}) + "\n")
                 summary = "ran the reference solution"
             else:
-                manual = f"\nHere is the manual for this computer:\n\n{manual_text}\n" if manual_text else ""
+                manual = context_block(condition, manual_text)
                 prompt = PROMPT.format(gid=gid, max_actions=max_actions, request=task["request"], manual=manual,
                                        tips=V3_TIP if task.get("v3") else "")
                 (run_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
                 cmd = player_command(f"robot:{task_id}" if player == "robot" else player, gid, game_dir)
                 cmd[0] = shutil.which(cmd[0]) or cmd[0]
+                launched = True
                 if player in LOGIN_FILES:
                     env, home = fresh_home(player, gid)
                     try:
@@ -277,60 +374,84 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
                         end_home(player, home)
                 else:
                     timed_out, exit_code = run_player(cmd, prompt, game_dir, run_dir / "player.log")
-                commands, others, summary, cli_error = player_events(
-                    player, (run_dir / "player.log").read_text(encoding="utf-8", errors="replace"))
             broker.close()                          # no more actions from here on
             if player != "script":
                 kill_leftovers(gid)
-            files = None
             if broker.os_crash is None:
                 try:
                     machine.settle()
                     files = machine.dump()
-                except (SettleError, TimeoutError, RuntimeError) as e:
-                    if not machine.os_crashed():
-                        raise  # our side failed: a harness error (re-run)
-                    broker.os_crash = f"at the end of the game: {e}"
-            if files is None:  # the player's actions crashed the OS: scored as a loss
-                files = {}
-            tampered = [f for f, h in protected.items() if sha(game_dir / f) != h]
+                except Exception as e:
+                    if machine.os_crashed():
+                        broker.os_crash = f"at the end of the game: {e}"
+                    else:
+                        final_error = f"final check failed: {e!r}"
+        except Exception as e:
+            if not launched:
+                raise  # the player never started: nothing to audit (a harness error, re-run)
+            final_error = final_error or f"our side failed after the player started: {e!r}"
         finally:
-            broker.close()
-            machine.stop()
-            shutil.rmtree(game_dir, ignore_errors=True)
+            if launched:  # did the player change the game tool or its ticket? (checked before deleting)
+                tampered = changed_files(game_dir, protected)
+            for step in (broker.close, machine.stop):
+                try:
+                    step()
+                except Exception as e:
+                    final_error = final_error or f"clean-up failed: {e!r}"
+            try:
+                shutil.rmtree(game_dir, ignore_errors=True)
+            except Exception as e:
+                final_error = final_error or f"clean-up failed: {e!r}"
 
-    if exit_code not in (0, None) and not timed_out and not cli_error:
-        cli_error = f"player CLI exited with code {exit_code}"
-    if player not in ("script", "robot") and not cli_error:
-        cli_error = infrastructure_problem(run_dir / "player.log", commands, summary, broker.used)
-    passed, rule = strict_check(task_id, files)
-    if broker.os_crash:
-        passed, rule = False, f"the OS stopped responding ({broker.os_crash})"
-    visible_passed, hidden = passed, None
-    os_crash = broker.os_crash
-    if task.get("hidden") and not os_crash:  # fix/write: the chore must also work on hidden worlds
-        hidden = run_hidden(task, files.get(task["chore_page"]))
-        if not all(h["ok"] for h in hidden):
-            passed = False
-            rule += " | hidden worlds: " + "; ".join(h["why"] for h in hidden if not h["ok"])
-        crashed = [h for h in hidden if h.get("os_crash")]
-        if crashed:
-            os_crash = f"on a hidden world: {crashed[0]['why']}"
+    if launched and player != "script":
+        try:
+            commands, others, summary, cli_error = player_events(
+                player, (run_dir / "player.log").read_text(encoding="utf-8", errors="replace"))
+        except Exception as e:  # can't read what the player did: our fault (re-run)
+            final_error = final_error or f"player log unreadable: {e!r}"
+    # The audit comes first and never depends on anything below.
     violations = audit(commands, gid) + others + [f"changed {f}" for f in tampered] if player != "script" else []
+    if files is None:  # OS crash (a loss) or our failure (a harness error): nothing to score
+        files = {}
+    passed, rule, visible_passed, hidden, os_crash = False, "", False, None, broker.os_crash
+    try:
+        if exit_code not in (0, None) and not timed_out and not cli_error:
+            cli_error = f"player CLI exited with code {exit_code}"
+        if player not in ("script", "robot") and not cli_error and launched:
+            cli_error = infrastructure_problem(run_dir / "player.log", commands, summary, broker.used)
+        passed, rule = strict_check(task_id, files)
+        if broker.os_crash:
+            passed, rule = False, f"the OS stopped responding ({broker.os_crash})"
+        visible_passed = passed
+        if final_error:
+            passed, rule = False, final_error
+        if task.get("hidden") and not os_crash and not final_error:  # fix/write: also on hidden worlds
+            hidden = run_hidden(task, files.get(task["chore_page"]))
+            if not all(h["ok"] for h in hidden):
+                passed = False
+                rule += " | hidden worlds: " + "; ".join(h["why"] for h in hidden if not h["ok"])
+            crashed = [h for h in hidden if h.get("os_crash")]
+            if crashed:
+                os_crash = f"on a hidden world: {crashed[0]['why']}"
+    except Exception as e:  # our side failed while scoring: a harness error, audited all the same
+        final_error = final_error or f"scoring failed: {e!r}"
+        passed, rule = False, final_error
     harness_errors = ([f"settle failures: {broker.settle_failures}"] if broker.settle_failures else []) \
-        + [f"infra: {e}" for e in broker.infra_errors] + ([cli_error] if cli_error else [])
-    transcript = []
-    if (run_dir / "transcript.jsonl").exists():
-        transcript = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text(encoding="utf-8").splitlines()]
-    result = {"game": gid, "task": task_id, "level": task["level"], "player": player, "manual": bool(manual_text),
+        + [f"infra: {e}" for e in broker.infra_errors] + ([cli_error] if cli_error else []) \
+        + ([final_error] if final_error else [])
+    result = {"game": gid, "task": task_id, "level": task["level"], "player": player,
+              "condition": condition, "manual": condition == "manual",
+              "context_sha256": hashlib.sha256(manual_text.encode("utf-8")).hexdigest() if manual_text else None,
               "passed": passed, "visible_passed": visible_passed, "hidden": hidden, "rule": rule,
               "os_crash": os_crash,
               "actions": broker.used if player != "script" else 1,
               "seconds": round(time.time() - started), "timed_out": timed_out,
               "settle_failures": broker.settle_failures, "harness_errors": harness_errors,
               "audit_ok": not violations, "violations": violations, "summary": summary, "files": files}
-    (run_dir / "result.json").write_text(json.dumps(result, indent=2))
-    result["transcript"] = [t for t in transcript if "action" in t]
+    tmp = run_dir / "result.json.tmp"  # written whole, then renamed: a result.json is always complete
+    tmp.write_text(json.dumps(result, indent=2))
+    os.replace(tmp, run_dir / "result.json")
+    result["transcript"] = load_transcript(gid)  # never raises (see load_transcript)
     return result
 
 

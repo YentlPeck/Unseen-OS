@@ -26,6 +26,12 @@ escapes for those characters.
 import re
 
 PLAIN_OK = re.compile(r"[A-Za-z0-9_./:=+,@#!-]*")   # no \\ or %: escapes / variable expansion
+# Version 4: in PowerShell a backslash is an ordinary character (never an escape), so it is
+# also allowed in unquoted words, but only in the game tool's arguments: there it can at most
+# change the text play.py receives (Windows PowerShell 5.1 re-quotes arguments for native
+# programs), never what runs. (cd paths with backslashes stay refused.)
+PLAIN_OK_PS_TOOL = re.compile(r"[A-Za-z0-9_./:=+,@#!\\-]*")
+COMMENT_SAFE = re.compile(r"[A-Za-z0-9_./:=+,@#!\\-]")  # a # after one of these is inside a word
 SILENCE = re.compile(r"\s*(?:\d?>\s*/dev/null|2>&1|>\s*\$null|\|\s*Out-Null)\s*$", re.I)
 POWERSHELL = re.compile(r'^(?:"[^"]*powershell(?:\.exe)?"|[^\s"]*powershell(?:\.exe)?)\s+-Command\s+(.*)$',
                         re.I | re.S)
@@ -98,6 +104,12 @@ def split_chain(command, shell="bash"):
             continue
         if quote:
             quote = None if ch == quote else quote
+        elif ch == "#" and (i == 0 or not COMMENT_SAFE.match(command[i - 1])):
+            # A comment (bash and PowerShell: # at the start of a word, also <# in PowerShell).
+            # Quote marks inside it mean nothing to the shell, so they must not hide what
+            # follows: the comment and everything after it is one part, which is refused.
+            parts += [cur, "#" + command[i + 1:]]
+            return [p.strip() for p in parts if p.strip()]
         elif ch in "'\"":
             quote = ch
         elif ch in ";\n" or command.startswith("&&", i) or command.startswith("||", i):
@@ -149,12 +161,13 @@ def words(segment, shell="bash"):
     return None if quote else out
 
 
-def literal(word, shell="bash"):
+def literal(word, shell="bash", tool_arg=False):
     """True if a word can't make the shell run anything (no expansion, no operators)."""
     if shell == "powershell" and word and word[0][1] == "plain" and word[0][0].startswith("@"):
         return False  # PowerShell: @"..."@ / @'...'@ here-strings and @name splatting
+    plain_ok = PLAIN_OK_PS_TOOL if (shell == "powershell" and tool_arg) else PLAIN_OK
     for text, kind in word:
-        if kind == "plain" and not PLAIN_OK.fullmatch(text):
+        if kind == "plain" and not plain_ok.fullmatch(text):
             return False
         if kind == "double" and re.search(r"(?<!\x00)[$`]", text):
             return False
@@ -191,9 +204,10 @@ def allowed_part(part, gid, aliases, shell="bash"):
                                                         for t, k in ws[0])
     if "--%" in head:  # PowerShell stop-parsing token: expands %VARIABLES%
         return False
-    if not all(literal(w, shell) for w in ws):
+    tool = head[:2] == ["python", "play.py"] and all(literal(w, shell) for w in ws[:2])
+    if not all(literal(w, shell, tool_arg=tool and i >= 2) for i, w in enumerate(ws)):
         return False
-    if head[:2] == ["python", "play.py"]:
+    if tool:
         return True
     if head[0].lower() in ("cd", "set-location") and len(ws) <= 2:
         return True  # (unquoted backslashes were already refused; a quoted path is literal)
@@ -209,9 +223,13 @@ def audit(commands, gid):
     bad = []
     for c in commands:
         aliases = {}
-        inner, shell = unwrap_shell(c)
-        if not all(allowed_part(part, gid, aliases, shell) for part in split_chain(inner, shell)):
-            bad.append(c)
+        try:
+            inner, shell = unwrap_shell(c)
+            ok = all(allowed_part(part, gid, aliases, shell) for part in split_chain(inner, shell))
+        except Exception:  # a command the audit can't read is not a plain game call: it fails
+            ok = False
+        if not ok:
+            bad.append(c if isinstance(c, str) else repr(c))
     return bad
 
 
@@ -244,6 +262,14 @@ ALLOWED = [
     'python play.py g1 type "a\\";b"',                       # bash: one literal argument
     'python play.py g1 type "x\\"\nfor\\" && y"',
     PS + "'python play.py g1 type a@b.c'",                    # @ inside a word is plain
+    # version 4: a backslash is plain in PowerShell (game tool arguments only);
+    # experiment 3's three refused commands:
+    '"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py phonebook-luna-plain-b3ed3c type \\"write desk:phonebook \\\\\\"Alan Nagy: 555-5810\\\\\\\\nAldo Nagy: 555-3513\\\\\\"\\""',
+    '"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py write-digest-luna-plain-dab996 type \\"write desk:chores:digest \\\\\\"\\\\\\"\\""',
+    '"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py fix-late-luna-plain-921220 type \\"write desk:chores:late \\\\\\"set n to 0\\\\\\"\\""',
+    PS + "'python play.py g1 type C:\\x\\y'",
+    PS + '"python play.py g1 type \\"say a\\\\\\" b"',
+    'python play.py g1 type "#1 on the list" && python play.py g1 type a#b',  # # inside quotes or a word
 ]
 REJECTED = [
     'python play.py g1 look; cat game.json',
@@ -287,6 +313,20 @@ REJECTED = [
     PS + "'python play.py g1 type @PSVersionTable'",
     PS + "'python play.py g1 type @''\nx\n''@'",
     PS + '"python play.py g1 type \\"a\\\\\\";Get-Content game.json\\""',
+    # version 4: backslashes stay refused in bash words, PowerShell cd paths, and the tool's name
+    'python play.py g1 type a\\b',
+    PS + "'cd C:\\Temp\\x; python play.py g1 look'",
+    PS + "'python .\\play.py g1 look'",
+    PS + "'python play.py g1 type a\\$env:USERPROFILE'",
+    PS + "'python play.py g1 type a\\(Get-Content game.json)'",
+    PS + "'python play.py g1 type a\\;Get-Content game.json'",
+    # Sol's final review (experiment 4): a comment's quote marks must not hide a command
+    PS + "'python play.py g1 type # \"\nGet-Content game.json\n# \"'",
+    PS + '"python play.py g1 type # \'\nGet-Content game.json\n# \'"',
+    "python play.py g1 type # '\ncat game.json\n# '",
+    'python play.py g1 type x #"\ncat game.json\n#"',
+    PS + '"python play.py g1 type <# \' #> ; Get-Content game.json"',
+    'python play.py g1 look # just a note',
 ]
 
 if __name__ == "__main__":

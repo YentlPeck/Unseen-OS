@@ -235,8 +235,12 @@ Needs Rust, QEMU (`C:\Program Files\qemu`) and Python 3.12 with `inspect-ai`.
 .\run.ps1                                  # build the OS and open it in a QEMU window
 python tools/validate_tasks.py             # prove all tasks are fair
 inspect eval tools/inspect_eval.py -T player=robot -T taskset=v2 --model mockllm/model
-python tools/analyze2.py                   # re-check experiment 2's verdict from the logs
+git checkout experiment-3                  # each experiment's exact state is a git tag
 python tools/analyze3.py                   # re-check experiment 3's verdict from the logs
 ```
+
+The analysis scripts refuse to run if any frozen file changed, so re-check an experiment from its
+own tag (`experiment-1`, `experiment-2`, `experiment-3`): later versions of the harness change
+shared files.
 
 Built 4-5 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
