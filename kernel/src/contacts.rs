@@ -1,5 +1,6 @@
 //! Contacts: an address book. Each person is a page contacts:<mail> with
-//! lines "name:", "mail:", "phone:", "note:".
+//! lines "name:", "mail:", "phone:", "city:", "birthday:", "note:". Saving keeps
+//! any other lines of the page as they were.
 
 use crate::fs::{self, Fs};
 use crate::keyboard::Key;
@@ -17,8 +18,14 @@ struct Person {
     name: String,
     mail: String,
     phone: String,
+    city: String,
+    birthday: String,
     note: String,
+    /// The page as it was (to keep lines the form doesn't show).
+    text: String,
 }
+
+const FIELDS: [&str; 6] = ["name", "mail", "phone", "city", "birthday", "note"];
 
 fn people(fs: &Fs) -> Vec<Person> {
     let mut out: Vec<Person> = fs
@@ -32,7 +39,10 @@ fn people(fs: &Fs) -> Vec<Person> {
                 name: ui::field(t, "name").to_string(),
                 mail: ui::field(t, "mail").to_string(),
                 phone: ui::field(t, "phone").to_string(),
+                city: ui::field(t, "city").to_string(),
+                birthday: ui::field(t, "birthday").to_string(),
                 note: ui::field(t, "note").to_string(),
+                text: t.to_string(),
                 path,
             }
         })
@@ -43,7 +53,7 @@ fn people(fs: &Fs) -> Vec<Person> {
 
 enum Mode {
     List,
-    Edit { form: Form, old: Option<String>, warned: bool },
+    Edit { form: Form, old: Option<String>, text: String, warned: bool },
     Toss,
 }
 
@@ -59,11 +69,35 @@ impl Contacts {
     }
 
     fn form(p: Option<&Person>) -> Form {
-        let (n, m, ph, no) = p.map_or(("", "", "", ""), |p| (&*p.name, &*p.mail, &*p.phone, &*p.note));
-        Form::new(&[("Name", n, 30), ("Mail", m, 24), ("Phone", ph, 20), ("Note", no, 60)])
+        let e = "";
+        let (n, m, ph, c, b, no) = p.map_or((e, e, e, e, e, e), |p| {
+            (&*p.name, &*p.mail, &*p.phone, &*p.city, &*p.birthday, &*p.note)
+        });
+        Form::new(&[("Name", n, 30), ("Mail", m, 24), ("Phone", ph, 20), ("City", c, 30), ("Birthday", b, 10),
+                    ("Note", no, 60)])
     }
 
-    fn save(fs: &mut Fs, form: &Form, old: &Option<String>) -> Result<String, String> {
+    /// The page text: name, mail, phone and note always; city and birthday only if they are
+    /// filled in or the page had them; then every other line the page had, unchanged.
+    fn page_text(form: &Form, old_text: &str) -> String {
+        let mut lines = Vec::new();
+        for (i, key) in FIELDS.iter().enumerate() {
+            let had = old_text.lines().any(|l| l.split_once(':').map_or(false, |(k, _)| k.trim().eq_ignore_ascii_case(key)));
+            let always = matches!(*key, "name" | "mail" | "phone" | "note"); // the original four
+            if always || !form.value(i).is_empty() || had {
+                lines.push(format!("{key}: {}", form.value(i)));
+            }
+        }
+        for l in old_text.split('\n') {
+            let known = l.split_once(':').map_or(false, |(k, _)| FIELDS.iter().any(|f| k.trim().eq_ignore_ascii_case(f)));
+            if !known && !l.is_empty() {
+                lines.push(l.to_string());
+            }
+        }
+        lines.join("\n")
+    }
+
+    fn save(fs: &mut Fs, form: &Form, old: &Option<String>, old_text: &str) -> Result<String, String> {
         if form.overflow() {
             return Err(ui::OVERFLOW_MSG.into());
         }
@@ -81,7 +115,7 @@ impl Contacts {
         if let Some(o) = old {
             fs.app_toss(o);
         }
-        let text = format!("name: {name}\nmail: {mail}\nphone: {}\nnote: {}", form.value(2), form.value(3));
+        let text = Self::page_text(form, old_text);
         fs.app_write(&path, &text);
         Ok(format!("Kept {name}."))
     }
@@ -94,11 +128,13 @@ impl Contacts {
             Mode::List => match key {
                 Key::Escape => return true,
                 Key::Enter => match ppl.get(self.list.sel) {
-                    Some(p) => self.mode = Mode::Edit { form: Self::form(Some(p)), old: Some(p.path.clone()), warned: false },
+                    Some(p) => {
+                        self.mode = Mode::Edit { form: Self::form(Some(p)), old: Some(p.path.clone()), text: p.text.clone(), warned: false }
+                    }
                     None => self.message = "There is nobody to open. Press A to add someone.".into(),
                 },
                 Key::Char(b'a') | Key::Char(b'A') => {
-                    self.mode = Mode::Edit { form: Self::form(None), old: None, warned: false }
+                    self.mode = Mode::Edit { form: Self::form(None), old: None, text: String::new(), warned: false }
                 }
                 Key::Char(b't') | Key::Char(b'T') => {
                     if ppl.is_empty() {
@@ -126,8 +162,8 @@ impl Contacts {
                 }
                 self.mode = Mode::List;
             }
-            Mode::Edit { form, old, warned } => match key {
-                Key::Ctrl(b'k') => match Self::save(fs, form, old) {
+            Mode::Edit { form, old, text, warned } => match key {
+                Key::Ctrl(b'k') => match Self::save(fs, form, old, text) {
                     Ok(m) => {
                         self.message = m;
                         self.mode = Mode::List;
@@ -160,7 +196,8 @@ impl Contacts {
             let title = if old.is_some() { "Contacts - change person" } else { "Contacts - new person" };
             ui::bars(screen, title, "", "Up/Down/Tab move   Ctrl+K keep   Esc back", &self.message);
             let (c, r) = form.draw(screen, 3);
-            screen.put_str(2, 9, "Mail is the person's address on this computer (one word, e.g. mira).", NORMAL);
+            screen.put_str(2, 11, "Mail is the person's address on this computer (one word, e.g. mira).", NORMAL);
+            screen.put_str(2, 12, "Birthday is written MM-DD, e.g. 03-14.", NORMAL);
             screen.set_cursor(c, r);
             return;
         }

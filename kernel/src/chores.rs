@@ -78,6 +78,20 @@ impl World for OsWorld<'_> {
 /// desk, which replaces the real one only if every change worked.
 /// Returns a line describing each change.
 pub fn apply(desk: &mut Fs, actions: &[Action]) -> Result<Vec<String>, String> {
+    // Check the room first, so the copy below can never run out of memory.
+    let adds: usize = actions
+        .iter()
+        .map(|a| match a {
+            Action::Write { text, .. } => text.len(),
+            Action::Add { line, .. } => line.len() + 1,
+            Action::Toss { .. } => 0,
+            Action::Send { to, subject, text } => to.len() + subject.len() + text.len() + 32,
+            Action::Event { date, time, title, with } => date.len() + time.len() + title.len() + with.len() + 32,
+        })
+        .sum();
+    if desk.total_bytes() + adds > fs::MAX_DESK {
+        return Err("the desk would be too full (all pages together can hold at most 1 MB of text)".into());
+    }
     let mut copy = desk.clone();
     let mut done = Vec::new();
     for a in actions {

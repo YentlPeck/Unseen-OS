@@ -29,7 +29,7 @@ NOTES = (["neighbour"] * 4 + ["neighbour, has a dog"] * 3 + ["neighbour, has a c
          "works at the bakery", "tennis club", "book club", "family", "dentist", "cousin",
          "met at the market", "family, my aunt", "book club, likes crime novels", "tennis club"])
 STRANGERS = ["shop", "bank", "news", "zoe", "kim", "max", "rex", "tom"]
-SUBJECTS = (["Invoice"] * 6 + ["Hello", "Lunch?", "Photos", "Question", "Meeting", "Reminder",
+SUBJECTS = (["Invoice"] * 6 + ["Meeting"] * 2 + ["Hello", "Lunch?", "Photos", "Question", "Reminder",
             "Party", "Book club", "News", "Weekend"])
 TITLES = ["Dentist", "Lunch", "Team call", "Piano lesson", "Book club", "Gym", "Haircut", "Dinner",
           "Coffee", "Tennis", "Movie", "Market"]
@@ -48,7 +48,7 @@ def date_add(date, days):
     return (dt.date.fromisoformat(date) + dt.timedelta(days=days)).isoformat()
 
 
-def generate(seed, n_contacts=100, n_mails=150, n_sent=20, n_events=80, today=TODAY,
+def generate(seed, n_contacts=100, n_mails=400, n_sent=30, n_events=150, today=TODAY,
              first="2026-11-01", last="2026-12-31"):
     r = random.Random(seed)
     names = r.sample(FIRST, n_contacts)
@@ -65,8 +65,9 @@ def generate(seed, n_contacts=100, n_mails=150, n_sent=20, n_events=80, today=TO
         subject = r.choice(SUBJECTS)
         if subject == "Invoice":
             amount = r.randint(15, 300) + (0.5 if r.random() < 0.3 else 0)
-            amt = f"{amount:g}"
-            body = f"Total: {amt} euro. Please pay before {date_add(today, r.randint(5, 30))}."
+            body = f"Total: {amount:g} euro\nDue: {date_add(today, r.randint(-20, 40))}"
+        elif subject == "Meeting":
+            body = f"Meeting on {date_add(today, r.randint(1, 45))} at {r.choice(TIMES)}\nSee you there."
         else:
             body = r.choice(BODIES)
         inbox.append({"from": sender, "subject": subject, "body": body})
@@ -154,9 +155,20 @@ def events(files):
 
 
 def invoice_amount(mail):
-    """The amount of an invoice mail ('Total: 120.5 euro ...'), as text and as a number."""
+    """The amount of an invoice mail ('Total: 120.5 euro / Due: ...'), as text and as a number."""
     words = mail["body"].split()
     return words[1], float(words[1])
+
+
+def invoice_due(mail):
+    """The due date of an invoice mail (the line 'Due: YYYY-MM-DD')."""
+    return mail["body"].split()[4]
+
+
+def meeting_when(mail):
+    """(date, time) of a Meeting mail ('Meeting on YYYY-MM-DD at HH:MM')."""
+    words = mail["body"].split("\n")[0].split()
+    return words[2], words[4]
 
 
 def new_sent(start, end):

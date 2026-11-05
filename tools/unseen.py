@@ -239,6 +239,19 @@ class Machine:
         if "error" in reply:
             raise RuntimeError(reply["error"]["desc"])
 
+    def alive(self, timeout=3.0):
+        """Does the OS still answer? (False: QEMU runs but the OS hangs or crashed.)"""
+        try:
+            self._ask("KEYS", timeout=timeout)
+            return True
+        except (TimeoutError, RuntimeError, OSError):
+            return False
+
+    def os_crashed(self):
+        """The OS stopped answering while QEMU itself is still running."""
+        proc = getattr(self, "proc", None)
+        return proc is not None and proc.poll() is None and not self.alive()
+
     def cursor(self):
         """Where the cursor is: (row, column), counted from 1 like the screen rows."""
         row, col = self._ask("CURSOR").split()

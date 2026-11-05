@@ -463,13 +463,9 @@ fn cmd_seek(sh: &mut Shell, screen: &mut Screen, rest: &str) {
     for (path, entry) in sh.fs.all() {
         let Entry::Page(text) = entry else { continue };
         let in_name = fs::name(path).to_ascii_lowercase().contains(&word);
-        let line = text.split('\n').find(|l| l.to_ascii_lowercase().contains(&word));
-        if in_name || line.is_some() {
+        if in_name || text.to_ascii_lowercase().contains(&word) {
             found += 1;
             screen.write_colored(&format!("  {}", fs::display(path)), ACCENT);
-            if let Some(l) = line {
-                let _ = write!(screen, "   \"{}\"", &l[..l.len().min(40)]);
-            }
             screen.write_byte(b'\n');
         }
     }

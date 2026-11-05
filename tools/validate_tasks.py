@@ -89,6 +89,12 @@ def check_v3(tid, task, problems):
     elif steps > STEP_MARGIN:
         problems.append(f"{tid}: reference chore needs {steps} steps (more than {STEP_MARGIN})")
     info = f"{steps} steps"
+    if "baseline" in task and tid in T.TASK_SETS["v3"]:
+        from tasks_v3 import BASELINE_MIN
+        info += f", no-chore baseline >= {task['baseline']} actions"
+        if task["baseline"] < BASELINE_MIN:
+            problems.append(f"{tid}: can be done without chores in about {task['baseline']} actions "
+                            f"(must be at least {BASELINE_MIN})")
     if task.get("hidden"):
         res = run_hidden(task, task["ref_chore"])
         if not all(r["ok"] for r in res):

@@ -147,40 +147,123 @@ chapter explains the same rules with examples.
    Stopped), then everything the chore said with `say`, then every change it made. Esc goes back.
 3. If it stopped, the first line names the line with the mistake, e.g.
    `Stopped: line 5: total has no value yet ...`. Open the page in Notes again, fix that line,
-   keep it and run it again. **A chore that stops changes nothing**, so running it again is safe.
+   keep it and run it again. **A chore that stops because of a mistake changes nothing**, so running it again is safe. (`stop` is different: it ends the chore on purpose, and the chore counts as finished, so its changes are made.)
 
 Lines can be at most 78 characters (the Notes limit). Indenting lines inside blocks is optional
 but makes them easier to read.
 
-### The language in short
+### The complete reference
 
-```
--- a comment: the rest of the line is ignored
-set count to 0                   -- give a name a value
-say 'count: ' & count            -- show a line on the Output screen
-when count > 3                   -- the lines up to done run only if yes
-  say 'more than 3'
-otherwise
-  say '3 or less'
-done
-for each p in pages('contacts')  -- run the block once for every page
-  say field(p, 'name')
-done
-repeat 3 times                   -- run the block 3 times
-  say 'hi'
-done
-```
+This is exactly the text `guide do` shows on the screen.
 
-- **Values:** numbers (`12`, `3.5`), text in quotes (`'hello'`), `yes`/`no`, and lists (from
-  `pages`, `lines`, `words`).
-- **Operators:** `+ - * /` for numbers; `&` joins anything into text; `is`, `is not`, `<`, `>`,
-  `<=`, `>=` compare; `has` checks if a text contains a text (or a list contains an item);
-  `and`, `or`, `not` combine yes/no.
-- **Reading:** `pages(drawer)`, `read(page)`, `field(page, key)`, `body(page)`, `exists(path)`,
-  `lines(text)`, `words(text)`, `count(x)`, `item(list, n)`, `number(text)`, `lower(text)`,
-  `today()`, `weekday(date)`, `add_days(date, n)`.
-- **Actions** (each on a line of its own): `write(page, text)`, `add(page, text)`, `toss(page)`,
-  `send(to, subject, text)`, `event(date, time, title, with)`.
+```text
+CHORES: the complete reference
+A chore is a page of instructions. Write it (for example in Notes), then
+run it from the prompt with:   do <page>      e.g.  do desk:count
+An Output screen shows what the chore said and whether it worked.
+
+EXAMPLE
+  -- count Omar's mails and save the answer
+  set total to 0
+  for each m in pages('mail:inbox')
+    when field(m, 'from') is 'omar'
+      set total to total + 1
+    done
+  done
+  say 'Omar sent ' & total & ' mails'
+  write('desk:answer', total)
+
+LINES
+  One instruction per line. Spaces at the start of a line don't matter.
+  -- starts a comment: the rest of the line is ignored.
+  Capitals don't matter in words and names (SET = set, Total = total).
+
+INSTRUCTIONS
+  set NAME to VALUE       give NAME a value (names: letters, digits, _)
+  say VALUE               show a line on the Output screen
+  when CONDITION          the lines up to done run only if CONDITION is yes
+  otherwise               (optional, inside when) lines for when it is no
+  for each NAME in LIST   the lines up to done run once for every item
+  repeat NUMBER times     the lines up to done run NUMBER times (0-10000)
+  done                    ends a when, for each or repeat block
+  stop                    ends the chore here; it still counts as finished
+  ACTION(...)             one of the actions below, on a line of its own
+
+VALUES
+  numbers    12   3.5   -2
+  text       'hello' or "hello" (no line breaks; a text can't contain
+             its own quote mark, so use "it's" or 'say "hi"')
+  yes, no    the answers of comparisons
+  lists      made by pages(...), lines(...) and words(...)
+  A name must get a value with set before it is used.
+
+OPERATORS, strongest first
+  ( )            brackets
+  -              minus in front: -x
+  * /            multiply, divide (numbers only)
+  + -            add, subtract (numbers only)
+  &              join into text: 'total: ' & 5 gives 'total: 5'
+  is, is not     the same value? Both sides must be the same kind, and
+                 capitals count ('A' is not 'a')
+  < > <= >=      compare two numbers, or two texts in alphabetical order
+                 (dates written 2026-11-14 compare correctly as text)
+  has            text has text: 'has a cat' has 'cat' is yes;
+                 list has text: yes if the text is one of the items
+  not            not yes is no; not x is y means x is not y
+  and, or        combine yes/no answers (and is stronger than or)
+  One comparison at a time: a < b and b < c, not a < b < c.
+  Mixing kinds is a mistake: 1 + '2' fails. Use number('2').
+
+NUMBERS
+  Shown and written like 163, 12.5 or 0.333333 (at most 6 decimals).
+  They must stay below 1000000000000. Dividing by 0 is a mistake.
+
+READING
+  pages(DRAWER)      list of the pages directly in DRAWER, as paths like
+                     mail:inbox:m1, in name order (m2 before m10)
+  read(PAGE)         all the text of PAGE
+  field(PAGE, KEY)   the value of a 'key: value' line at the top of PAGE
+                     (up to the first empty line); '' if there is none
+  body(PAGE)         the text after the first empty line ('' if none)
+  exists(PATH)       yes if there is a page or drawer at PATH
+  lines(TEXT)        list of the lines of TEXT
+  words(TEXT)        list of the words of TEXT
+  count(X)           number of items in a list, or characters in a text
+  item(LIST, N)      item number N of LIST (the first is 1)
+  number(TEXT)       text to number: number('12.5') is 12.5
+  lower(TEXT)        TEXT in small letters
+  today()            today's date, like 2026-11-12
+  weekday(DATE)      the day of DATE, like monday
+  add_days(DATE, N)  the date N days after DATE (before it if N is below 0)
+  Paths always start at the desk: 'notes:list' and 'desk:notes:list' are
+  the same page, wherever you are.
+
+ACTIONS (each on a line of its own)
+  write(PAGE, TEXT)              make PAGE with this text, or replace it
+  add(PAGE, TEXT)                add a line at the end of PAGE (makes it
+                                 if needed)
+  toss(PAGE)                     throw PAGE away
+  send(TO, SUBJECT, TEXT)        send a mail like the Mail app does; TO
+                                 must be the mail address of a contact
+  event(DATE, TIME, TITLE, WITH) add an event like the Calendar app does:
+                                 DATE like 2026-11-14, TIME like 18:00,
+                                 WITH can be ''
+  write, add and toss can't change the pages of the apps (the drawers
+  mail, contacts, calendar and system). Use send and event for those.
+
+ALL OR NOTHING
+  The whole page is checked first: a mistake on any line stops the chore
+  before anything runs. While it runs, it sees the pages as they were
+  when it started. Its changes are made together at the end, and only if
+  it finished without a mistake. If it stops, nothing is changed, so you
+  can fix the page and run it again.
+
+LIMITS (going over one is a mistake that stops the chore)
+  120 lines and 4096 characters per chore; blocks 16 deep; brackets 12
+  deep; 4096 characters per text; 1000 items per list; 100 names;
+  200 say lines; 200 actions; 50000 steps (every part of a calculation
+  and every turn of a loop is a step).
+```
 
 ### Examples
 

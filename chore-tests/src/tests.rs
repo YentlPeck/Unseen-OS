@@ -197,7 +197,10 @@ fn strict_types() {
     has(&err("say yes and 1"), "and needs yes or no");
     has(&err("say not 'a'"), "not needs yes or no");
     has(&err("say 'a' < 1"), "two numbers or two texts");
-    has(&err("say pages('mail:inbox') is 'x'"), "can't compare lists");
+    has(&err("say pages('mail:inbox') is 'x'"), "same kind");
+    assert_eq!(say("words('a b') is words('a b')"), "yes");
+    assert_eq!(say("words('a b') is words('a  c')"), "no");
+    assert_eq!(say("lines('') is words('')"), "yes");
     assert_eq!(say("'2026-11-02' < '2026-11-10'"), "yes");
     assert_eq!(say("'B' is 'b'"), "no");
     assert_eq!(say("lower('B') is 'b'"), "yes");
@@ -296,6 +299,9 @@ fn reading_builtins() {
     assert_eq!(say("pages('mail:inbox')"), "mail:inbox:m1, mail:inbox:m2, mail:inbox:m10");
     assert_eq!(say("pages('desk:mail:inbox')"), "mail:inbox:m1, mail:inbox:m2, mail:inbox:m10");
     assert_eq!(say("count(pages('empty'))"), "0");
+    assert_eq!(say("pages('desk') has 'answer'"), "no");
+    assert_eq!(say("exists('desk')"), "yes");
+    assert_eq!(say("count(pages('desk'))"), "0");
     assert_eq!(say("count(pages('mail'))"), "0");
     has(&err("say pages('nowhere')"), "no drawer called desk:nowhere");
     has(&err("say pages('bad name!')"), "not a valid");

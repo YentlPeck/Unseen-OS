@@ -4,6 +4,7 @@
   python tools/freeze.py [--exp 2] --check   compare the files with the manifest
 
 Experiment 1 (default): out/experiment/manifest.json. Experiment 2: out/experiment2/manifest.json.
+Experiment 3: out/experiment3/manifest.json.
 The manifest's hash is recorded in every experiment log (task arg `manifest`), and the
 runner and analysis refuse to run if any frozen file has changed.
 """
@@ -24,6 +25,10 @@ EXPERIMENTS = {
     1: {"dir": "out/experiment", "files": COMMON + ["PREREG.md", "tools/run_experiment.py", "tools/analyze.py"]},
     2: {"dir": "out/experiment2", "files": COMMON + ["PREREG2.md", "tools/tasks_v2.py", "tools/run_experiment2.py",
                                                      "tools/analyze2.py"]},
+    3: {"dir": "out/experiment3", "files": COMMON + ["PREREG3.md", "docs/calibration3.md", "tools/tasks_v2.py",
+                                                     "tools/tasks_v3.py",
+                                                     "tools/world_v3.py", "tools/hidden.py",
+                                                     "tools/run_experiment3.py", "tools/analyze3.py"]},
 }
 
 

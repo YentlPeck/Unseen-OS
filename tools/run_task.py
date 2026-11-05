@@ -37,7 +37,7 @@ sys.path.insert(0, str(TOOLS))
 from audit import audit  # noqa: E402
 from broker import Broker  # noqa: E402
 from tasks import TASKS, strict_check  # noqa: E402
-from unseen import Machine  # noqa: E402
+from unseen import Machine, SettleError  # noqa: E402
 from hidden import run_hidden  # noqa: E402
 
 MAX_ACTIONS = 40
@@ -80,13 +80,34 @@ LUNA_TOOLS_OFF = ["--disable", "computer_use", "--disable", "apps", "--disable",
 _login_lock = threading.Lock()
 
 
+def login_freshness(player, path):
+    """How fresh a login file is (bigger is fresher; -1 if missing or broken). Haiku: the
+    login's own expiry time. Luna: its last refresh time (else the file's date)."""
+    try:
+        d = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return -1
+    if player == "haiku":
+        o = d.get("claudeAiOauth") or {}
+        return o.get("expiresAt") or -1 if o.get("accessToken") else -1
+    if not d.get("tokens") and not d.get("OPENAI_API_KEY"):
+        return -1
+    try:
+        import datetime as _dt
+        return _dt.datetime.fromisoformat(str(d["last_refresh"]).replace("Z", "+00:00")).timestamp() * 1000
+    except (KeyError, ValueError):
+        return Path(path).stat().st_mtime * 1000
+
+
 def fresh_home(player, gid):
     """A new, empty setup folder for this game, with only the login (and Luna's two settings).
     Returns (env for the player process, folder)."""
     source, var = LOGIN_FILES[player]
     master = LOGINS / player / source.name
     with _login_lock:
-        if not master.exists():
+        # Use the freshest login: the owner's own CLI keeps refreshing its login, and an old
+        # copy's refresh token stops working. A fresh copy also means the game needn't refresh it.
+        if login_freshness(player, source) > login_freshness(player, master):
             master.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(source, master)
     home = CLEAN_HOMES / "games" / gid
@@ -102,7 +123,8 @@ def end_home(player, home):
     name = LOGIN_FILES[player][0].name
     used, master = home / name, LOGINS / player / name
     with _login_lock:
-        if used.exists() and used.read_bytes() != master.read_bytes() and used.stat().st_mtime > master.stat().st_mtime:
+        # only a login the game really refreshed (fresher, not broken) is kept
+        if used.exists() and login_freshness(player, used) > login_freshness(player, master):
             shutil.copy(used, master)
     shutil.rmtree(home, ignore_errors=True)
 
@@ -260,8 +282,17 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
             broker.close()                          # no more actions from here on
             if player != "script":
                 kill_leftovers(gid)
-            machine.settle()
-            files = machine.dump()
+            files = None
+            if broker.os_crash is None:
+                try:
+                    machine.settle()
+                    files = machine.dump()
+                except (SettleError, TimeoutError, RuntimeError) as e:
+                    if not machine.os_crashed():
+                        raise  # our side failed: a harness error (re-run)
+                    broker.os_crash = f"at the end of the game: {e}"
+            if files is None:  # the player's actions crashed the OS: scored as a loss
+                files = {}
             tampered = [f for f, h in protected.items() if sha(game_dir / f) != h]
         finally:
             broker.close()
@@ -273,12 +304,18 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
     if player not in ("script", "robot") and not cli_error:
         cli_error = infrastructure_problem(run_dir / "player.log", commands, summary, broker.used)
     passed, rule = strict_check(task_id, files)
+    if broker.os_crash:
+        passed, rule = False, f"the OS stopped responding ({broker.os_crash})"
     visible_passed, hidden = passed, None
-    if task.get("hidden"):  # fix/write tasks: the chore must also work on the hidden worlds
+    os_crash = broker.os_crash
+    if task.get("hidden") and not os_crash:  # fix/write: the chore must also work on hidden worlds
         hidden = run_hidden(task, files.get(task["chore_page"]))
         if not all(h["ok"] for h in hidden):
             passed = False
             rule += " | hidden worlds: " + "; ".join(h["why"] for h in hidden if not h["ok"])
+        crashed = [h for h in hidden if h.get("os_crash")]
+        if crashed:
+            os_crash = f"on a hidden world: {crashed[0]['why']}"
     violations = audit(commands, gid) + others + [f"changed {f}" for f in tampered] if player != "script" else []
     harness_errors = ([f"settle failures: {broker.settle_failures}"] if broker.settle_failures else []) \
         + [f"infra: {e}" for e in broker.infra_errors] + ([cli_error] if cli_error else [])
@@ -287,6 +324,7 @@ def play_game(task_id, player, manual_text=None, max_actions=MAX_ACTIONS):
         transcript = [json.loads(l) for l in (run_dir / "transcript.jsonl").read_text(encoding="utf-8").splitlines()]
     result = {"game": gid, "task": task_id, "level": task["level"], "player": player, "manual": bool(manual_text),
               "passed": passed, "visible_passed": visible_passed, "hidden": hidden, "rule": rule,
+              "os_crash": os_crash,
               "actions": broker.used if player != "script" else 1,
               "seconds": round(time.time() - started), "timed_out": timed_out,
               "settle_failures": broker.settle_failures, "harness_errors": harness_errors,

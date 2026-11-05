@@ -60,24 +60,52 @@ def record_attempt(entry):
         f.write(json.dumps({"time": time.strftime("%Y-%m-%d %H:%M:%S"), **entry}) + "\n")
 
 
+SCORED = ("game", "passed", "rule", "audit_ok", "violations", "timed_out", "harness_errors", "actions",
+          "seconds", "settle_failures", "visible_passed", "hidden", "os_crash", "summary")
+
+
+def terminal(result):
+    """The registered order: an audit failure stands, then an OS crash (a loss), then a
+    harness error (re-run); anything else is a finished game. Terminal results are final."""
+    return (not result.get("audit_ok")) or bool(result.get("os_crash")) or not result.get("harness_errors")
+
+
+def earlier_terminal(cell):
+    """A finished game already recorded for this cell (only in an experiment's own ledger):
+    if an interruption lost the Inspect sample after the game was recorded, eval-retry must
+    reuse that game, never play a replacement."""
+    if not os.environ.get("UNSEEN_LEDGER") or not LEDGER.exists():
+        return None
+    for line in LEDGER.read_text(encoding="utf-8").splitlines():
+        a = json.loads(line)
+        if a.get("terminal") and all(a.get(k) == v for k, v in cell.items()):
+            return a
+    return None
+
+
 def run_with_retry(task_id, player, manual_text, max_actions, condition="plain", epoch=1):
     """play_game with the PREREG rules:
-    - an audit failure always stands (no re-run; it scores FAIL),
+    - an audit failure always stands (no re-run; it scores FAIL), and so does an OS crash,
     - a harness error gets one re-run; if that fails too, the sample errors out,
-    - every attempt is recorded (in the result and in the ledger)."""
+    - every attempt is recorded (in the result and in the ledger); a recorded finished game
+      is never replayed (eval-retry reuses it)."""
     attempts = []
     cell = {"player": player, "task": task_id, "condition": condition, "epoch": epoch}
+    done = earlier_terminal(cell)
+    if done:
+        result = {k: done.get(k) for k in SCORED}
+        result.update(transcript=[], recovered_from_ledger=True, attempts=[{k: done.get(k) for k in SCORED}])
+        return result
     for _ in range(2):
         try:
             result = play_game(task_id, player, manual_text, max_actions)
         except Exception as e:  # our code or QEMU failed, not the player
             attempts.append({"game": None, "harness_errors": [f"crash: {e!r}"]})
-            record_attempt({**cell, **attempts[-1]})
+            record_attempt({**cell, **attempts[-1], "terminal": False})
             continue
-        attempts.append({k: result.get(k) for k in ("game", "passed", "audit_ok", "violations",
-                                                    "timed_out", "harness_errors", "actions")})
-        record_attempt({**cell, **attempts[-1]})
-        if not result["audit_ok"] or not result["harness_errors"]:
+        attempts.append({k: result.get(k) for k in SCORED})
+        record_attempt({**cell, **attempts[-1], "terminal": terminal(result)})
+        if terminal(result):
             result["attempts"] = attempts
             return result
     raise HarnessError(f"harness error twice: {attempts}")
@@ -108,10 +136,13 @@ def end_state():
         # PREREG.md: an audit failure or a time-out always counts as FAIL.
         passed = r["passed"] and r["audit_ok"] and not r["timed_out"]
         explanation = (f"Rule: {r['rule']}" + ("" if r["audit_ok"] else " | AUDIT FAILED")
+                       + (" | OS CRASH" if r.get("os_crash") else "")
                        + (" | TIMED OUT" if r["timed_out"] else ""))
         return Score(value=CORRECT if passed else INCORRECT, explanation=explanation,
                      metadata={k: r.get(k) for k in ("game", "actions", "seconds", "timed_out", "settle_failures",
-                                                     "audit_ok", "violations", "harness_errors", "attempts")})
+                                                     "audit_ok", "violations", "harness_errors", "attempts",
+                                                     "visible_passed", "hidden", "os_crash",
+                                                     "recovered_from_ledger")})
 
     return score
 
@@ -119,8 +150,10 @@ def end_state():
 @task
 def unseen_os(player: str = "haiku", conditions: str | list[str] = "plain", manual: str | None = None,
               level: str | None = None, tasks: str | list[str] | None = None, seed: int | None = None,
-              manifest: str | None = None, taskset: str = "v1", max_actions: int = 40):
+              manifest: str | None = None, taskset: str = "v1", max_actions: int | None = None):
     # `manifest` is only recorded (in the log's task args): the hash of the frozen manifest.
+    if max_actions is None:  # measured budgets: 40 for the v1/v2 tasks, 100 for chore tasks (v3)
+        max_actions = 100 if taskset in ("v3", "practice3") else 40
     conds = conditions.split(",") if isinstance(conditions, str) else list(conditions)
     wanted = set(tasks.split(",") if isinstance(tasks, str) else tasks) if tasks else None
     manual_path = Path(manual) if manual else DEFAULT_MANUAL

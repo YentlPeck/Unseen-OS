@@ -58,6 +58,10 @@ pub const APP_DRAWERS: [(&str, &str, &str); 4] = [
     ("system", "Settings", "settings"),
 ];
 
+/// All pages together may hold at most this much text (the heap is 8 MB; a chore's
+/// all-or-nothing copy of the desk needs room for a second copy).
+pub const MAX_DESK: usize = 1024 * 1024;
+
 pub const DEFAULT_SETTINGS: &str = "name: friend\ntheme: blue\nstart: shell\nclock: 24h";
 
 /// The app that looks after this path, if any: (app name, command).
@@ -216,8 +220,17 @@ impl Fs {
         }
     }
 
+    /// Bytes of text in all pages together.
+    pub fn total_bytes(&self) -> usize {
+        self.entries.values().map(|e| match e { Entry::Page(t) => t.len(), Entry::Drawer => 0 }).sum()
+    }
+
     pub fn write_page(&mut self, path: &str, text: &str) -> Result<()> {
         guard(path)?;
+        let old = match self.entries.get(path) { Some(Entry::Page(t)) => t.len(), _ => 0 };
+        if self.total_bytes() - old + text.len() > MAX_DESK {
+            return Err("the desk is full (all pages together can hold at most 1 MB of text)".into());
+        }
         if self.is_drawer(path) {
             return Err(format!("{} is a drawer, not a page", display(path)));
         }

@@ -17,10 +17,27 @@ from unseen import Machine  # noqa: E402
 DEEP_EXPR = "say " + "(" * 12 + "1" + ")" * 12 + " & 1" + " + 1" * 44
 WORST = "\n".join(["when yes"] * 16 + [DEEP_EXPR] + ["done"] * 16)
 
+# Sol's review: a legal chore that, run again and again, used to fill the memory.
+FILL = """set t to 'a'
+repeat 12 times
+  set t to t & t
+done
+set i to count(pages('chores'))
+repeat 200 times
+  set i to i + 1
+  write('chores:p' & i, t)
+done"""
+
 START = f"""#today 2026-11-12
+#drawer chores
 #page contacts:omar
 name: Omar Haddad
 mail: omar
+phone: 555-0404
+city: Brookville
+birthday: 03-14
+note: works at the bakery
+extra: a line the form doesn't show
 #end
 #page contacts:lina
 name: Lina Berg
@@ -85,6 +102,12 @@ done
 #page stranger
 send('nobody', 'Hi', 'x')
 #end
+#page fill
+{FILL}
+#end
+#page root
+say count(pages('desk')) & ' ' & exists('desk')
+#end
 """
 
 failures = []
@@ -142,6 +165,30 @@ def main():
             check("endless-ish loop stops at the step limit", "too many steps" in s, s)
             run(m, "{esc}")
             check("OS still answers after the hostile chores", m._ask("PING") is not None)
+
+            s = run(m, "do root{enter}")
+            check("pages('desk') and exists('desk')", "Finished:" in s and "9 yes" in s, s)  # 8 start pages + desk:answer
+            run(m, "{esc}")
+
+            before = m.dump()["desk:contacts:omar"]
+            run(m, "contacts{enter}")
+            s = run(m, "{down}{enter}")
+            check("contact form shows City and Birthday", "Brookville" in s and "03-14" in s, s)
+            run(m, "{ctrl+k}{esc}")
+            check("saving an unchanged contact keeps every line", m.dump()["desk:contacts:omar"] == before,
+                  (before, m.dump()["desk:contacts:omar"]))
+
+            s = run(m, "do fill{enter}")
+            check("fill run 1 (800 KB) works", "Finished:" in s, s)
+            run(m, "{esc}")
+            s = run(m, "do fill{enter}")
+            check("fill run 2 is refused: the desk would be too full", "too full" in s and "Nothing was changed" in s, s)
+            run(m, "{esc}")
+            for _ in range(3):
+                run(m, "do fill{enter}{esc}")
+            check("OS still answers after filling", m.alive())
+            s = run(m, "write chores:big x{enter}")
+            check("shell write refused on a full desk... or fits", "Wrote" in s or "full" in s, s)
 
             s = run(m, "do nothing{enter}")
             check("do on a missing page", "no page called desk:nothing" in s, s)

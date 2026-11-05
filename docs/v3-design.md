@@ -237,3 +237,32 @@ are tested through both players' real shells and `audit.py` before freezing.
 3. **Manual chapter;** measure the real workflow cost with the robot player.
 4. **Big world generator, tasks, hidden worlds, scorer changes and negative tests.**
 5. **Sol review**, then calibration, PREREG3 and freeze, then the experiment.
+
+## Changes after Sol's review of the build (5 Nov)
+
+1. **Memory:** all pages together may hold at most 1 MB (`fs::MAX_DESK`). A chore's changes are
+   checked against that limit *before* the desk is copied, so repeated legal chores can no longer
+   fill the 8 MB heap (`tools/test_chores.py` repeats Sol's example).
+2. **Crashes are losses:** if the OS stops answering while QEMU still runs (after a player's
+   action, at the final check, or on a hidden world), the game is a loss marked `os_crash`, with
+   no re-run (`broker.py`, `run_task.py`, `hidden.py`).
+3. **No cheap no-chore route:** the count tasks that could be read off app lists (weekend events,
+   never-written, stranger events) were replaced. The world grew to 400 mails and 150 events,
+   and `seek` now lists matching pages only (no text excerpt), so a mail's text can only be read
+   by opening it. Every count and bulk test task records a lower bound for doing it without
+   chores (cost model in `tools/tasks_v3.py`). The validator requires at least 120 actions,
+   against a budget of 100; the actual bounds are 130 to 706.
+4. **Contacts** shows and keeps City and Birthday, and any other lines of a contact page; saving
+   an unchanged contact leaves the page exactly as it was.
+5. **Hidden worlds** vary the drawer sizes independently (400/100/150, 250/80/120 and 90/40/30
+   mails/contacts/events), and `write-stats` has an empty calendar world and a "4 x contacts"
+   wrong chore.
+6. **The budget** defaults to 100 actions for the chore task sets (40 for v1/v2).
+7. **One scratch policy:** pages in `desk:chores` (other than the task's chore page) are ignored
+   by both the visible and the hidden checks, and every v3 request says so.
+8. **Quoting:** `tools/test_quoting.py` sends 13 chore lines through real Git Bash and Windows
+   PowerShell 5.1 the way the prompt's tip says. All arrive unchanged and pass the audit. The
+   known PowerShell trap (single quotes outside, double inside) is shown for the record.
+9. **The manual contains the `guide do` reference word for word** (checked by
+   `tools/test_manual_examples.py`). It also says that `stop` finishes a chore normally.
+10. `pages('desk')` / `exists('desk')` work, and `is` compares lists item by item.

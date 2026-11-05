@@ -2,7 +2,7 @@
 
 Four kinds (docs/v3-design.md):
   count  add up or cross-check, then save just the answer on desk:answer
-  bulk   many sends or events at once
+  bulk   many sends, events or lines at once
   fix    a chore in desk:chores has a bug: fix it and run it once
   write  write a reusable chore at a named page and run it once
 
@@ -15,21 +15,37 @@ results are checked by an independent checker.
 Each task has a reference chore. Its key solution types the chore in Notes
 and runs it, exactly as a player could (validate_tasks.py records the end
 state from it and checks it against the task's own checker).
+
+No-chore baseline. Every count and bulk task records `baseline`: a LOWER
+BOUND on the actions any strategy without chores needs, under this cost model
+(each is the cheapest way we know with the apps and the shell):
+  - opening one mail to read its text: 1 action ("press esc down enter" moves
+    to the next mail and opens it in one action); list views and `seek` show
+    no mail text, so every mail whose text matters must be opened
+  - sending one mail by hand: 6 actions (W, To, Tab, Subject, Tab, text, Ctrl+K
+    with the two Tabs merged into neighbouring presses at best)
+  - adding one event by hand: 6 actions
+  - one line typed in Notes: 2 actions (type, Enter)
+validate_tasks.py requires every test task's baseline to be at least 120
+actions (the budget is 100), so the tasks can't be done without chores.
 """
 
 import copy
+import re
 
 import world_v3 as W
 from tasks import task
 
 SEED = 20261112
+BASELINE_MIN = 120
+SEND, EVENT, OPEN, LINE = 6, 6, 1, 2
 
 
 def visible_world():
     w = W.generate(SEED)
     # a few invoices from senders who are not contacts (a trap for "from contacts")
-    w["inbox"][7] = {"from": "shop", "subject": "Invoice", "body": "Total: 240 euro. Please pay before 2026-11-30."}
-    w["inbox"][61] = {"from": "bank", "subject": "Invoice", "body": "Total: 118.5 euro. Please pay before 2026-12-04."}
+    w["inbox"][7] = {"from": "shop", "subject": "Invoice", "body": "Total: 240 euro\nDue: 2026-11-30"}
+    w["inbox"][61] = {"from": "bank", "subject": "Invoice", "body": "Total: 299.5 euro\nDue: 2026-12-04"}
     # three birthdays today
     for i in (5, 40, 77):
         w["contacts"][i]["birthday"] = W.TODAY[5:]
@@ -37,6 +53,14 @@ def visible_world():
 
 
 VISIBLE = visible_world()
+
+
+def files_of(start_text):
+    from tasks import parse_start
+    return parse_start(start_text)
+
+
+VISIBLE_FILES = files_of(W.render(VISIBLE))
 
 
 def chore_keys(page, source, replace=False):
@@ -48,8 +72,6 @@ def chore_keys(page, source, replace=False):
 
 def one_number(value):
     """Flex test for desk:answer: exactly one number in the text, equal to value."""
-    import re
-
     def test(text):
         if not isinstance(text, str):
             return False
@@ -58,104 +80,46 @@ def one_number(value):
     return test
 
 
-def answer_task(level, request, ref, oracle, wrong_values=(), world=None):
+SCRATCH = ("You may write chores (and any other pages) in the drawer desk:chores; "
+           "everything in it is ignored.")
+SCRATCH_CODE = ("You may also write other pages in desk:chores; they are ignored (only your chore page "
+                "is checked).")
+
+
+def answer_task(request, ref, oracle, baseline, wrong_values=(), world=None):
     """A `count` task: the answer page desk:answer is checked by its number."""
     world = world or VISIBLE
-    value = oracle(W.render(world))
-    return task(level, request, W.render(world), lambda f: one_number(value)(f.get("desk:answer")),
-                f"desk:answer holds {value:g}",
+    value = oracle(files_of(W.render(world)))
+    return task("count", request + " " + SCRATCH, W.render(world),
+                lambda f: one_number(value)(f.get("desk:answer")), f"desk:answer holds {value:g}",
                 chore_keys("desk:chores:job", ref),
                 flex={"desk:answer": one_number(value)},
-                right=[("desk:answer", f"{value:g}"), ("desk:answer", f"{value:g}\n")],
-                wrong=[("desk:answer", f"{v:g}") for v in wrong_values] + [("desk:answer", "")]) | {
-        "v3": "count", "oracle_value": value, "ref_chore": ref}
+                right=[("desk:answer", f"{value:g}"), ("desk:answer", f"{value:g}\n"),
+                       ("desk:answer", f"The answer is {value:g}.")],
+                wrong=[("desk:answer", f"{v:g}") for v in wrong_values] + [("desk:answer", ""),
+                       ("desk:answer", f"{value:g} or {value + 1:g}")]) | {
+        "v3": "count", "oracle_value": value, "ref_chore": ref, "baseline": baseline}
 
 
-def files_of(start_text):
-    from tasks import parse_start
-    return parse_start(start_text)
+def contact_invoices(f):
+    c = W.contacts(f)
+    return [m for m in W.inbox(f) if m["subject"] == "Invoice" and m["from"] in c]
+
+
+def all_invoices(f):
+    return [m for m in W.inbox(f) if m["subject"] == "Invoice"]
 
 
 # =========================================================================== count
 
-REF_BROOK = """set total to 0
+REF_CONTACT_TOTAL = """set total to 0
 for each m in pages('mail:inbox')
   set who to 'contacts:' & field(m, 'from')
   when field(m, 'subject') is 'Invoice' and exists(who)
-    when field(who, 'city') is 'Brookville'
-      set total to total + number(item(words(body(m)), 2))
-    done
+    set total to total + number(item(words(body(m)), 2))
   done
 done
 write('desk:answer', total)"""
-
-
-def oracle_brook(start):
-    f = files_of(start)
-    c = W.contacts(f)
-    return sum(W.invoice_amount(m)[1] for m in W.inbox(f)
-               if m["subject"] == "Invoice" and m["from"] in c and c[m["from"]]["city"] == "Brookville")
-
-
-def oracle_strangers(start):
-    f = files_of(start)
-    c = W.contacts(f)
-    return sum(1 for e in W.events(f) if e["date"].startswith("2026-12") and e["with"] and e["with"] not in c)
-
-
-REF_STRANGERS = """set n to 0
-for each e in pages('calendar')
-  set w to field(e, 'with')
-  when field(e, 'date') >= '2026-12-01' and w is not ''
-    when not exists('contacts:' & w)
-      set n to n + 1
-    done
-  done
-done
-write('desk:answer', n)"""
-
-
-def oracle_weekend(start):
-    f = files_of(start)
-    return sum(1 for e in W.events(f) if W.weekday(e["date"]) in ("saturday", "sunday"))
-
-
-REF_WEEKEND = """set n to 0
-for each e in pages('calendar')
-  set day to weekday(field(e, 'date'))
-  when day is 'saturday' or day is 'sunday'
-    set n to n + 1
-  done
-done
-write('desk:answer', n)"""
-
-
-def oracle_never(start):
-    f = files_of(start)
-    written = {s["to"] for s in W.sent(f)}
-    return sum(1 for m in W.inbox(f) if m["from"] not in written)
-
-
-REF_NEVER = """set written to ''
-for each s in pages('mail:sent')
-  set written to written & ' ' & field(s, 'to')
-done
-set n to 0
-for each m in pages('mail:inbox')
-  when not (words(written) has field(m, 'from'))
-    set n to n + 1
-  done
-done
-write('desk:answer', n)"""
-
-
-def oracle_biggest(start):
-    f = files_of(start)
-    c = W.contacts(f)
-    best = max((m for m in W.inbox(f) if m["subject"] == "Invoice" and m["from"] in c),
-               key=lambda m: W.invoice_amount(m)[1])
-    return W.invoice_amount(best)[1]
-
 
 REF_BIGGEST = """set best to 0
 for each m in pages('mail:inbox')
@@ -169,43 +133,79 @@ for each m in pages('mail:inbox')
 done
 write('desk:answer', best)"""
 
-SCRATCH = ("You may write chores (and any other pages) in the drawer desk:chores; "
-           "everything in it is ignored.")
+REF_WEEKEND_DUE = """set n to 0
+for each m in pages('mail:inbox')
+  when field(m, 'subject') is 'Invoice'
+    set day to weekday(item(words(body(m)), 5))
+    when day is 'saturday' or day is 'sunday'
+      set n to n + 1
+    done
+  done
+done
+write('desk:answer', n)"""
+
+REF_OVERDUE = """set n to 0
+for each m in pages('mail:inbox')
+  set who to 'contacts:' & field(m, 'from')
+  when field(m, 'subject') is 'Invoice' and exists(who)
+    when item(words(body(m)), 5) < today()
+      set n to n + 1
+    done
+  done
+done
+write('desk:answer', n)"""
+
+REF_DECEMBER_DUE = """set total to 0
+for each m in pages('mail:inbox')
+  when field(m, 'subject') is 'Invoice'
+    set w to words(body(m))
+    when item(w, 5) >= '2026-12-01'
+      set total to total + number(item(w, 2))
+    done
+  done
+done
+write('desk:answer', total)"""
 
 COUNT = {
-    "brook-invoices": answer_task(
-        "count",
-        "Some mails in your inbox are invoices (their subject is Invoice). Add up the amounts of "
-        "the invoices sent by contacts who live in Brookville, and save just the total on the "
-        "page desk:answer. " + SCRATCH,
-        REF_BROOK, oracle_brook, wrong_values=(oracle_brook(W.render(VISIBLE)) + 1,)),
-    "stranger-events": answer_task(
-        "count",
-        "How many events in December 2026 are with someone who is not one of your contacts? "
-        "(Events where With is empty don't count.) Save just the number on the page desk:answer. "
-        + SCRATCH,
-        REF_STRANGERS, oracle_strangers),
-    "weekend-events": answer_task(
-        "count",
-        "How many of your events are on a Saturday or a Sunday? Save just the number on the page "
-        "desk:answer. " + SCRATCH,
-        REF_WEEKEND, oracle_weekend),
-    "never-written": answer_task(
-        "count",
-        "How many mails in your inbox are from someone you have never sent a mail to (nothing in "
-        "Sent is addressed to them)? Save just the number on the page desk:answer. " + SCRATCH,
-        REF_NEVER, oracle_never),
+    "contact-invoices": answer_task(
+        "Some mails in your inbox are invoices (their subject is Invoice). Add up the amounts of all "
+        "invoices that come from your contacts (not from senders who aren't contacts), and save just "
+        "the total on the page desk:answer.",
+        REF_CONTACT_TOTAL,
+        lambda f: sum(W.invoice_amount(m)[1] for m in contact_invoices(f)),
+        OPEN * len(contact_invoices(VISIBLE_FILES))),
     "biggest-invoice": answer_task(
-        "count",
-        "Of the invoices in your inbox (subject Invoice) that come from your contacts, which has "
-        "the highest amount? Save just that amount on the page desk:answer. " + SCRATCH,
-        REF_BIGGEST, oracle_biggest),
+        "Of the invoices in your inbox (subject Invoice) that come from your contacts, which has the "
+        "highest amount? Save just that amount on the page desk:answer.",
+        REF_BIGGEST,
+        lambda f: max(W.invoice_amount(m)[1] for m in contact_invoices(f)),
+        OPEN * len(contact_invoices(VISIBLE_FILES))),
+    "weekend-due": answer_task(
+        "Each invoice in your inbox (subject Invoice) says when it is due. How many invoices are due "
+        "on a Saturday or a Sunday? Save just the number on the page desk:answer.",
+        REF_WEEKEND_DUE,
+        lambda f: sum(1 for m in all_invoices(f) if W.weekday(W.invoice_due(m)) in ("saturday", "sunday")),
+        OPEN * len(all_invoices(VISIBLE_FILES))),
+    "overdue": answer_task(
+        "Each invoice in your inbox (subject Invoice) says when it is due. How many invoices from "
+        "your contacts were due before today (2026-11-12)? Save just the number on the page "
+        "desk:answer.",
+        REF_OVERDUE,
+        lambda f: sum(1 for m in contact_invoices(f) if W.invoice_due(m) < W.TODAY),
+        OPEN * len(contact_invoices(VISIBLE_FILES))),
+    "december-due": answer_task(
+        "Each invoice in your inbox (subject Invoice) says when it is due. Add up the amounts of all "
+        "invoices (from anyone) that are due in December 2026, and save just the total on the page "
+        "desk:answer.",
+        REF_DECEMBER_DUE,
+        lambda f: sum(W.invoice_amount(m)[1] for m in all_invoices(f) if W.invoice_due(m) >= "2026-12-01"),
+        OPEN * len(all_invoices(VISIBLE_FILES))),
 }
 
 # ============================================================================ bulk
 
 
-def bulk_task(request, ref, expect_sent=None, expect_events=None, world=None):
+def bulk_task(request, ref, baseline, expect_sent=None, expect_events=None, world=None):
     """A `bulk` task: exactly the expected new mails / events must exist (checked by content)."""
     start = W.render(world or VISIBLE)
 
@@ -218,8 +218,9 @@ def bulk_task(request, ref, expect_sent=None, expect_events=None, world=None):
         if expect_events is not None:
             ok &= W.new_events(s, files) == expect_events(s)
         return ok
-    return task("bulk", request, start, extra, "exactly the right mails/events were added",
-                chore_keys("desk:chores:job", ref), extra=extra) | {"v3": "bulk", "ref_chore": ref}
+    return task("bulk", request + " " + SCRATCH, start, extra, "exactly the right mails/events were added",
+                chore_keys("desk:chores:job", ref), extra=extra) | {
+        "v3": "bulk", "ref_chore": ref, "baseline": baseline}
 
 
 INVITE_TEXT = "Street party on Saturday at 15:00. Hope you can come!"
@@ -238,13 +239,11 @@ done"""
 
 
 def expect_thanks(s):
-    c = W.contacts(s)
     out = []
-    for m in W.inbox(s):
-        if m["subject"] == "Invoice" and m["from"] in c:
-            text, value = W.invoice_amount(m)
-            if value > 100:
-                out.append((m["from"], "Invoice received", f"Thanks, I will pay {text} euro."))
+    for m in contact_invoices(s):
+        text, value = W.invoice_amount(m)
+        if value > 100:
+            out.append((m["from"], "Invoice received", f"Thanks, I will pay {text} euro."))
     return sorted(out)
 
 
@@ -259,33 +258,19 @@ REF_THANKS = """for each m in pages('mail:inbox')
 done"""
 
 
-def expect_planning(s):
-    evs = W.events(s)
-    out = []
-    for i in range(31):
-        d = W.date_add("2026-12-01", i)
-        if W.weekday(d) in ("saturday", "sunday"):
-            continue
-        if not any(e["date"] == d and e["time"] < "12:00" for e in evs):
-            out.append((d, "08:30", "Planning", ""))
-    return out
+def meetings(f):
+    return [m for m in W.inbox(f) if m["subject"] == "Meeting"]
 
 
-REF_PLANNING = """set d to '2026-12-01'
-repeat 31 times
-  set day to weekday(d)
-  when day is not 'saturday' and day is not 'sunday'
-    set busy to no
-    for each e in pages('calendar')
-      when field(e, 'date') is d and field(e, 'time') < '12:00'
-        set busy to yes
-      done
-    done
-    when not busy
-      event(d, '08:30', 'Planning', '')
-    done
+def expect_meetings(s):
+    return sorted(W.meeting_when(m) + ("Meeting", m["from"]) for m in meetings(s))
+
+
+REF_MEETINGS = """for each m in pages('mail:inbox')
+  when field(m, 'subject') is 'Meeting'
+    set w to words(item(lines(body(m)), 1))
+    event(item(w, 3), item(w, 5), 'Meeting', field(m, 'from'))
   done
-  set d to add_days(d, 1)
 done"""
 
 
@@ -306,10 +291,9 @@ REF_REMINDERS = """for each e in pages('calendar')
   done
 done"""
 
-REF_PHONEBOOK = """write('desk:phonebook', '')
-set first to yes
+REF_PHONEBOOK = """set first to yes
 for each c in pages('contacts')
-  when field(c, 'city') is 'Brookville'
+  when field(c, 'city') is not 'Ashford'
     set line to field(c, 'name') & ': ' & field(c, 'phone')
     when first
       write('desk:phonebook', line)
@@ -322,63 +306,63 @@ done"""
 
 
 def phonebook_text(s):
-    return "\n".join(f"{c['name']}: {c['phone']}" for m, c in W.contacts(s).items() if c["city"] == "Brookville")
+    return "\n".join(f"{c['name']}: {c['phone']}" for m, c in W.contacts(s).items() if c["city"] != "Ashford")
+
+
+def n_phonebook(s):
+    return sum(1 for c in W.contacts(s).values() if c["city"] != "Ashford")
 
 
 BULK = {
     "invite-neighbours": bulk_task(
         "Send every contact whose note mentions neighbour a mail with the subject Street party and "
-        f"the text: {INVITE_TEXT} " + SCRATCH,
-        REF_INVITE, expect_sent=expect_invite),
+        f"the text: {INVITE_TEXT}",
+        REF_INVITE, SEND * len(expect_invite(VISIBLE_FILES)), expect_sent=expect_invite),
     "invoice-thanks": bulk_task(
         "For every invoice in your inbox (subject Invoice) from one of your contacts with an amount "
         "of more than 100 euro, send the sender a mail with the subject Invoice received and the "
-        "text: Thanks, I will pay N euro.  (N is the amount exactly as the invoice writes it.) "
-        + SCRATCH,
-        REF_THANKS, expect_sent=expect_thanks),
-    "december-planning": bulk_task(
-        "Add an event with the title Planning at 08:30 (With empty) on every weekday (Monday to "
-        "Friday) in December 2026 that has no event before 12:00 yet. " + SCRATCH,
-        REF_PLANNING, expect_events=expect_planning),
+        "text: Thanks, I will pay N euro.  (N is the amount exactly as the invoice writes it.)",
+        REF_THANKS, OPEN * len(contact_invoices(VISIBLE_FILES)) + SEND * len(expect_thanks(VISIBLE_FILES)),
+        expect_sent=expect_thanks),
+    "meeting-events": bulk_task(
+        "Some mails in your inbox have the subject Meeting and say when the meeting is (Meeting on "
+        "DATE at TIME). For every such mail, add an event on that date and time with the title "
+        "Meeting and the sender's mail address in With.",
+        REF_MEETINGS, (OPEN + EVENT) * len(meetings(VISIBLE_FILES)), expect_events=expect_meetings),
     "reminders": bulk_task(
         "For every event from today (2026-11-12) up to and including 2026-12-02 that is with one of "
         "your contacts, send that contact a mail with the subject Reminder and the text: See you "
         "at TITLE on DATE at TIME!  (with the event's title, date and time, e.g. See you at Lunch "
-        "on 2026-11-20 at 12:30!) " + SCRATCH,
-        REF_REMINDERS, expect_sent=expect_reminders),
+        "on 2026-11-20 at 12:30!)",
+        REF_REMINDERS, SEND * len(expect_reminders(VISIBLE_FILES)), expect_sent=expect_reminders),
     "phonebook": task(
         "bulk",
-        "Make a page desk:phonebook with one line for every contact who lives in Brookville, "
+        "Make a page desk:phonebook with one line for every contact who does not live in Ashford, "
         "written Full Name: phone (e.g. Ana Costa: 555-1234), in alphabetical order of their mail "
         "addresses. " + SCRATCH,
-        W.render(VISIBLE), lambda f: f.get("desk:phonebook") == phonebook_text(files_of(W.render(VISIBLE))),
-        "desk:phonebook lists the Brookville contacts",
-        chore_keys("desk:chores:job", REF_PHONEBOOK)) | {"v3": "bulk", "ref_chore": REF_PHONEBOOK},
+        W.render(VISIBLE), lambda f: f.get("desk:phonebook") == phonebook_text(VISIBLE_FILES),
+        "desk:phonebook lists the contacts outside Ashford",
+        chore_keys("desk:chores:job", REF_PHONEBOOK)) | {
+        "v3": "bulk", "ref_chore": REF_PHONEBOOK, "baseline": LINE * n_phonebook(VISIBLE_FILES)},
 }
 
 # ===================================================================== fix and write
 
 
 def hidden_worlds(mutate_empty, seeds=(SEED + 101, SEED + 202, SEED + 303)):
-    """Three hidden worlds: a fresh random one, one with nothing to find, one smaller with
-    another date. Each is a function of the chore source (the chore page is added)."""
-    a = W.generate(seeds[0])
+    """Three hidden worlds, with drawer sizes that vary independently: a fresh random one,
+    one with nothing to find, and a small one on another date."""
+    a = W.generate(seeds[0], n_contacts=80, n_mails=250, n_sent=20, n_events=120)
     b = W.generate(seeds[1])
     mutate_empty(b)
-    c = W.generate(seeds[2], n_contacts=40, n_mails=60, n_sent=8, n_events=30, today="2026-12-03")
+    c = W.generate(seeds[2], n_contacts=40, n_mails=90, n_sent=8, n_events=30, today="2026-12-03")
     for i in (3, 17):  # birthdays on the smaller world's date
         c["contacts"][i]["birthday"] = c["today"][5:]
     return [a, b, c]
 
 
-def with_chore(world, page, source):
-    w = copy.deepcopy(world)
-    w["pages"][page[len("desk:"):]] = source
-    return W.render(w)
-
-
-def code_task(kind, request, page, start_world, ref, check, empty, wrong_chores=(), level=None,
-              outputs=(), adds_mail=False):
+def code_task(kind, request, page, start_world, ref, check, empty, wrong_chores=(), outputs=(),
+              adds_mail=False):
     """A `fix` or `write` task. check(start_files, end_files, today) -> (ok, why) is the
     independent checker, used on the visible world and on every hidden world."""
     start = W.render(start_world)
@@ -386,7 +370,7 @@ def code_task(kind, request, page, start_world, ref, check, empty, wrong_chores=
 
     def extra(files):
         return check(files_of(start), files, start_world["today"])[0]
-    t = task(level or kind, request, start, extra, f"{page} works (visible and hidden worlds)",
+    t = task(kind, request + " " + SCRATCH_CODE, start, extra, f"{page} works (visible and hidden worlds)",
              chore_keys(page, ref, replace=replace), flex={page: lambda text: isinstance(text, str)},
              extra=extra)
     return t | {"v3": kind, "chore_page": page, "hidden": hidden_worlds(empty), "check": check,
@@ -394,29 +378,38 @@ def code_task(kind, request, page, start_world, ref, check, empty, wrong_chores=
                 "adds_mail": adds_mail}
 
 
+def lines_of(text):
+    lines = [l.rstrip() for l in text.split("\n")]
+    while lines and lines[-1] == "":
+        lines.pop()
+    return lines
+
+
 def check_page(path, want_fn):
     def check(s, e, today):
-        want = want_fn(s)
         got = e.get(path)
-        if got is None or isinstance(got, str) is False:
+        if not isinstance(got, str):
             return False, f"{path} is missing"
-        lines = [l.rstrip() for l in got.split("\n")]
-        while lines and lines[-1] == "":
-            lines.pop()
-        return (lines == want, f"{path}: expected {len(want)} lines")
+        return lines_of(got) == want_fn(s), f"{path} is wrong"
     return check
 
 
 def check_sent(want_fn):
     def check(s, e, today):
-        return (W.new_sent(s, e) == want_fn(s, today), "sent mails differ")
+        return W.new_sent(s, e) == want_fn(s, today), "sent mails differ"
     return check
 
 
 def check_number(path, value_fn):
     def check(s, e, today):
-        return (one_number(value_fn(s))(e.get(path)), f"{path} should hold {value_fn(s):g}")
+        return one_number(value_fn(s))(e.get(path)), f"{path} should hold {value_fn(s):g}"
     return check
+
+
+def with_page(world, page, text):
+    w = copy.deepcopy(world)
+    w["pages"][page[len("desk:"):]] = text
+    return w
 
 
 def no_late(w):
@@ -436,7 +429,7 @@ def no_invoices(w):
             m["subject"] = "Hello"
 
 
-def no_colleague_mail(w):
+def no_colleagues(w):
     for c in w["contacts"]:
         if "colleague" in c["note"]:
             c["note"] = "book club"
@@ -448,8 +441,8 @@ def no_birthdays(w):
             c["birthday"] = "01-01" if w["today"][5:] != "01-01" else "01-02"
 
 
-def nothing(w):
-    pass
+def no_events(w):
+    w["events"] = []
 
 
 def late_value(s):
@@ -493,13 +486,7 @@ def hello_sent(s, today):
 
 
 def total_value(s):
-    return sum(W.invoice_amount(m)[1] for m in W.inbox(s) if m["subject"] == "Invoice")
-
-
-def with_page(world, page, text):
-    w = copy.deepcopy(world)
-    w["pages"][page[len("desk:"):]] = text
-    return w
+    return sum(W.invoice_amount(m)[1] for m in all_invoices(s))
 
 
 REF_DIGEST = """write('desk:digest-list', '')
@@ -525,16 +512,6 @@ def digest_lines(s):
     return [f"{m['from']} - {m['subject']}" for m in W.inbox(s) if m["from"] in c and "colleague" in c[m["from"]]["note"]]
 
 
-def digest_check(s, e, today):
-    got = e.get("desk:digest-list")
-    if not isinstance(got, str):
-        return False, "desk:digest-list is missing"
-    lines = [l.rstrip() for l in got.split("\n")]
-    while lines and lines[-1] == "":
-        lines.pop()
-    return lines == digest_lines(s), "desk:digest-list is wrong"
-
-
 REF_BIRTHDAYS = """for each c in pages('contacts')
   when today() has field(c, 'birthday')
     send(field(c, 'mail'), 'Happy birthday', 'Happy birthday!')
@@ -553,43 +530,43 @@ add('desk:stats-out', 'events: ' & count(pages('calendar')))"""
 
 
 def stats_lines(s):
-    f = s
-    return [f"mails: {len(W.inbox(f))}", f"contacts: {len(W.contacts(f))}", f"events: {len(W.events(f))}"]
+    return [f"mails: {len(W.inbox(s))}", f"contacts: {len(W.contacts(s))}", f"events: {len(W.events(s))}"]
 
+
+V = VISIBLE_FILES
 
 CODE = {
     "fix-late": code_task(
         "fix",
         "The chore on desk:chores:late should count the events that start at 18:00 or later and "
         "save the number on desk:late-count, but it doesn't work. Fix it (keep it on "
-        "desk:chores:late) and run it once.",
+        "desk:chores:late) and run it once. It will also be tested on other desks.",
         "desk:chores:late", with_page(VISIBLE, "desk:chores:late", BROKEN_LATE), FIXED_LATE,
         check_number("desk:late-count", late_value), no_late, outputs=("desk:late-count",),
-        wrong_chores=[("hard-coded answer", f"write('desk:late-count', {late_value(files_of(W.render(VISIBLE)))})"),
+        wrong_chores=[("hard-coded answer", f"write('desk:late-count', {late_value(V)})"),
                       ("misses events at exactly 18:00", BROKEN_LATE.replace(">= 18", "> '18:00'")),
                       ("counts all events", BROKEN_LATE.replace("field(e, 'time') >= 18", "yes"))]),
     "fix-hello": code_task(
         "fix",
         "The chore on desk:chores:hello should send every contact whose note mentions neighbour a "
         "mail (subject Hello, text Hello neighbour!), but it misses some of them. Fix it (keep it on "
-        "desk:chores:hello) and run it once.",
+        "desk:chores:hello) and run it once. It will also be tested on other desks.",
         "desk:chores:hello", with_page(VISIBLE, "desk:chores:hello", BROKEN_HELLO), FIXED_HELLO,
         check_sent(hello_sent), no_neighbours, adds_mail=True,
         wrong_chores=[("unchanged", BROKEN_HELLO),
-                      ("hard-coded list", "\n".join(f"send('{m}', 'Hello', 'Hello neighbour!')" for m, c in
-                                                    W.contacts(files_of(W.render(VISIBLE))).items()
-                                                    if "neighbour" in c["note"])),
+                      ("hard-coded list", "\n".join(f"send('{m}', 'Hello', 'Hello neighbour!')"
+                                                    for m, _, _ in hello_sent(V, W.TODAY))),
                       ("mails everyone", BROKEN_HELLO.replace("field(c, 'note') is 'neighbour'", "yes"))]),
     "fix-total": code_task(
         "fix",
         "The chore on desk:chores:total should add up the amounts of all invoices in the inbox "
         "(subject Invoice) and save the total on desk:invoice-total, but it doesn't work. Fix it "
-        "(keep it on desk:chores:total) and run it once.",
+        "(keep it on desk:chores:total) and run it once. It will also be tested on other desks.",
         "desk:chores:total", with_page(VISIBLE, "desk:chores:total", BROKEN_TOTAL), FIXED_TOTAL,
         check_number("desk:invoice-total", total_value), no_invoices, outputs=("desk:invoice-total",),
         wrong_chores=[("only one bug fixed", BROKEN_TOTAL.replace("total + item(words(body(m)), 2)",
                                                                   "total + number(item(words(body(m)), 2))")),
-                      ("hard-coded total", f"write('desk:invoice-total', {total_value(files_of(W.render(VISIBLE))):g})")]),
+                      ("hard-coded total", f"write('desk:invoice-total', {total_value(V):g})")]),
     "write-digest": code_task(
         "write",
         "Write a chore on the page desk:chores:digest that makes the page desk:digest-list with one "
@@ -597,11 +574,11 @@ CODE = {
         "sender - subject (e.g. ana - Lunch?), in the order pages('mail:inbox') gives. If there are "
         "no such mails, desk:digest-list must still be made, empty. Run it once. It will also be "
         "tested on other desks.",
-        "desk:chores:digest", VISIBLE, REF_DIGEST, digest_check, no_colleague_mail,
+        "desk:chores:digest", VISIBLE, REF_DIGEST, check_page("desk:digest-list", digest_lines), no_colleagues,
         outputs=("desk:digest-list",),
         wrong_chores=[("add only (no page when nothing matches)", REF_DIGEST.replace(
                           "write('desk:digest-list', '')\n", "")),
-                      ("hard-coded lines", "write('desk:digest-list', '" + digest_lines(files_of(W.render(VISIBLE)))[0] + "')"),
+                      ("hard-coded lines", "write('desk:digest-list', '" + digest_lines(V)[0] + "')"),
                       ("note is colleague exactly", REF_DIGEST.replace("has 'colleague'", "is 'colleague'"))]),
     "write-birthdays": code_task(
         "write",
@@ -613,18 +590,19 @@ CODE = {
         wrong_chores=[("hard-coded date", REF_BIRTHDAYS.replace("today() has field(c, 'birthday')",
                                                                 "field(c, 'birthday') is '11-12'")),
                       ("hard-coded people", "\n".join(f"send('{m}', 'Happy birthday', 'Happy birthday!')"
-                                                      for m, c in W.contacts(files_of(W.render(VISIBLE))).items()
-                                                      if c["birthday"] == W.TODAY[5:]))]),
+                                                      for m, _, _ in birthday_sent(V, W.TODAY)))]),
     "write-stats": code_task(
         "write",
         "Write a chore on the page desk:chores:stats that writes the page desk:stats-out with exactly "
         "three lines: mails: N (the number of mails in the inbox), contacts: N and events: N (the "
         "number of events). Run it once. It will also be tested on other desks.",
-        "desk:chores:stats", VISIBLE, REF_STATS, check_page("desk:stats-out", stats_lines), nothing,
+        "desk:chores:stats", VISIBLE, REF_STATS, check_page("desk:stats-out", stats_lines), no_events,
         outputs=("desk:stats-out",),
-        wrong_chores=[("hard-coded numbers", "write('desk:stats-out', 'mails: 150')\nadd('desk:stats-out', 'contacts: 100')\n"
-                                             "add('desk:stats-out', 'events: 80')"),
-                      ("counts sent instead of inbox", REF_STATS.replace("pages('mail:inbox')", "pages('mail:sent')"))]),
+        wrong_chores=[("hard-coded numbers", "write('desk:stats-out', 'mails: 400')\nadd('desk:stats-out', "
+                                             "'contacts: 100')\nadd('desk:stats-out', 'events: 150')"),
+                      ("counts sent instead of inbox", REF_STATS.replace("pages('mail:inbox')", "pages('mail:sent')")),
+                      ("inbox = 4 x contacts", REF_STATS.replace("count(pages('mail:inbox'))",
+                                                                 "count(pages('contacts')) * 4"))]),
 }
 
 TASKS_V3 = {**COUNT, **BULK, **CODE}
@@ -634,11 +612,7 @@ TASKS_V3 = {**COUNT, **BULK, **CODE}
 # can't teach the test world's contents.
 
 PRACTICE_WORLD = W.generate(SEED + 999)
-
-
-def oracle_photos(start):
-    return sum(1 for m in W.inbox(files_of(start)) if m["subject"] == "Photos")
-
+P = files_of(W.render(PRACTICE_WORLD))
 
 REF_PHOTOS = """set n to 0
 for each m in pages('mail:inbox')
@@ -647,11 +621,6 @@ for each m in pages('mail:inbox')
   done
 done
 write('desk:answer', n)"""
-
-
-def oracle_morning(start):
-    return sum(1 for e in W.events(files_of(start)) if e["date"].startswith("2026-11") and e["time"] < "12:00")
-
 
 REF_MORNING = """set n to 0
 for each e in pages('calendar')
@@ -689,8 +658,7 @@ def family_check(s, e, today):
     if not isinstance(got, str):
         return False, "desk:family is missing"
     want = [c["name"] for c in W.contacts(s).values() if "family" in c["note"]]
-    lines = [l.rstrip() for l in got.split("\n") if l.strip()]
-    return lines == want, "desk:family is wrong"
+    return [l.rstrip() for l in got.split("\n") if l.strip()] == want, "desk:family is wrong"
 
 
 def no_family(w):
@@ -720,18 +688,21 @@ def no_ashford(w):
 
 PRACTICE_V3 = {
     "p3-photos": answer_task(
-        "count", "How many mails in your inbox have the subject Photos? Save just the number on the "
-        "page desk:answer. " + SCRATCH, REF_PHOTOS, oracle_photos, world=PRACTICE_WORLD),
+        "How many mails in your inbox have the subject Photos? Save just the number on the page "
+        "desk:answer.", REF_PHOTOS, lambda f: sum(1 for m in W.inbox(f) if m["subject"] == "Photos"),
+        0, world=PRACTICE_WORLD),
     "p3-morning": answer_task(
-        "count", "How many events in November 2026 start before 12:00? Save just the number on the "
-        "page desk:answer. " + SCRATCH, REF_MORNING, oracle_morning, world=PRACTICE_WORLD),
+        "How many events in November 2026 start before 12:00? Save just the number on the page "
+        "desk:answer.", REF_MORNING,
+        lambda f: sum(1 for e in W.events(f) if e["date"].startswith("2026-11") and e["time"] < "12:00"),
+        0, world=PRACTICE_WORLD),
     "p3-moving": bulk_task(
-        "Send every contact who lives in Dunmore a mail with the subject Moving and the text: "
-        f"{MOVING} " + SCRATCH, REF_MOVING, expect_sent=expect_moving, world=PRACTICE_WORLD),
+        f"Send every contact who lives in Dunmore a mail with the subject Moving and the text: {MOVING}",
+        REF_MOVING, SEND * len(expect_moving(P)), expect_sent=expect_moving, world=PRACTICE_WORLD),
     "p3-fix-family": code_task(
         "fix", "The chore on desk:chores:family should write the names of the contacts whose note "
         "mentions family on the page desk:family (one per line), but it doesn't work. Fix it (keep "
-        "it on desk:chores:family) and run it once.",
+        "it on desk:chores:family) and run it once. It will also be tested on other desks.",
         "desk:chores:family", with_page(PRACTICE_WORLD, "desk:chores:family", BROKEN_FAMILY), FIXED_FAMILY,
         family_check, no_family, outputs=("desk:family",),
         wrong_chores=[("unchanged", BROKEN_FAMILY)]),
@@ -741,5 +712,5 @@ PRACTICE_V3 = {
         "desks.",
         "desk:chores:ashford", PRACTICE_WORLD, REF_ASHFORD, check_number("desk:city-count", ashford_value),
         no_ashford, outputs=("desk:city-count",),
-        wrong_chores=[("hard-coded", f"write('desk:city-count', {ashford_value(files_of(W.render(PRACTICE_WORLD)))})")]),
+        wrong_chores=[("hard-coded", f"write('desk:city-count', {ashford_value(P)})")]),
 }

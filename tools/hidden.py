@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import world_v3 as W  # noqa: E402
 from tasks import parse_start  # noqa: E402
-from unseen import Machine  # noqa: E402
+from unseen import Machine, SettleError  # noqa: E402
 
 
 def other_changes(task, start, end):
@@ -22,7 +22,7 @@ def other_changes(task, start, end):
     page = task["chore_page"]
     bad = []
     for p in sorted(set(start) | set(end)):
-        if p == page or start.get(p) == end.get(p):
+        if p == page or start.get(p) == end.get(p) or p.startswith("desk:chores:"):
             continue
         if p in task.get("outputs", ()):
             continue
@@ -58,11 +58,17 @@ def run_hidden(task, source):
             w = dict(world, pages=dict(world["pages"]))
             w["pages"][page[len("desk:"):]] = source
             start_text = W.render(w)
-            m = Machine.start(start_text, workdir=tmp)
+            m = Machine.start(start_text, workdir=tmp)  # a failure to boot is ours: it raises
             try:
                 m.run_keys(f"do {page}{{enter}}")
                 screen = m.settle()
                 end = m.dump()
+            except (SettleError, TimeoutError, RuntimeError) as e:
+                if not m.os_crashed():
+                    raise
+                out.append({"ok": False, "why": f"the chore made the OS stop responding ({e})", "steps": None,
+                            "os_crash": True})
+                break  # a crash is final: the game is lost, nothing later may replace that
             finally:
                 m.stop()
             start = parse_start(start_text)

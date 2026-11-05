@@ -55,9 +55,8 @@ cake
 #end
 """
 
-# What the examples must do, in order (None: only check that it finished).
+# What the examples must do, in order.
 EXPECT = [
-    ("short language block", lambda s, f: "count: 0" in s and "3 or less" in s and "Omar Haddad" in s),
     ("count pages", lambda s, f: f.get("desk:how-many") == "2"),
     ("phone list", lambda s, f: f.get("desk:phones") == "Lina Berg: 555-0505\nOmar Haddad: 555-0404"),
     ("find mails", lambda s, f: "omar - Team Meeting moved" in s and "lina" not in s.split("Finished")[1]),
@@ -67,19 +66,47 @@ EXPECT = [
 ]
 
 
-def chapter_blocks():
+def fenced_blocks(text):
+    """(info, code) of every ``` block, e.g. ("text", ...) for ```text."""
+    out, info, buf = [], None, []
+    for line in text.split("\n"):
+        if line.startswith("```"):
+            if info is None:
+                info, buf = line[3:].strip(), []
+            else:
+                out.append((info, "\n".join(buf) + "\n"))
+                info = None
+        elif info is not None:
+            buf.append(line)
+    return out
+
+
+def chapter():
     text = (ROOT / "docs" / "manual.md").read_text(encoding="utf-8")
-    chapter = text.split("## Chores", 1)[1].split("\n## ", 1)[0]
-    return re.findall(r"```\n(.*?)```", chapter, re.S)
+    return text.split("## Chores", 1)[1].split("\n## ", 1)[0]
+
+
+def chapter_blocks():
+    """The chore examples: plain ``` blocks (the reference is a ```text block)."""
+    return [code for info, code in fenced_blocks(chapter()) if info == ""]
+
+
+def guide_text():
+    src = (ROOT / "kernel" / "src" / "chores.rs").read_text(encoding="utf-8")
+    return src.split('pub const GUIDE: &str = "\\\n', 1)[1].split('";', 1)[0].replace('\\"', '"')
 
 
 def guide_example():
-    src = (ROOT / "kernel" / "src" / "chores.rs").read_text(encoding="utf-8")
-    block = src.split("EXAMPLE\n", 1)[1].split("\n\n", 1)[0]
+    block = guide_text().split("EXAMPLE\n", 1)[1].split("\n\n", 1)[0]
     return "\n".join(line[2:] for line in block.split("\n"))
 
 
 def main():
+    refs = [code for info, code in fenced_blocks(chapter()) if info == "text"]
+    if refs != [guide_text() + "\n"]:
+        print("FAIL the manual must contain the guide do reference word for word")
+        return 1
+    print("PASS manual contains the guide do reference word for word")
     blocks = chapter_blocks()
     assert len(blocks) == len(EXPECT), f"manual has {len(blocks)} chore blocks, test expects {len(EXPECT)}"
     cases = list(zip([e[0] for e in EXPECT], blocks, [e[1] for e in EXPECT]))

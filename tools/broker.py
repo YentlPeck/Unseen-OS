@@ -31,6 +31,9 @@ class Broker:
         self.open = True
         self.settle_failures = 0
         self.infra_errors = []
+        # Set when the OS stopped answering after a player's action while QEMU still ran
+        # (a player-triggered crash or hang): the game ends and counts as a loss, no re-run.
+        self.os_crash = None
         self.lock = threading.Lock()
         self.server = socket.socket()
         self.server.bind(("127.0.0.1", 0))
@@ -82,6 +85,8 @@ class Broker:
             return {"ok": False, "error": str(e)}
 
         with self.lock:
+            if self.os_crash:
+                return {"ok": False, "error": "The game is over (the computer stopped responding)."}
             if not self.open or (self.deadline and time.time() > self.deadline):
                 return {"ok": False, "error": "The game is over (time is up)."}
             if self.used >= self.max_actions:
@@ -93,12 +98,19 @@ class Broker:
                 screen = self.machine.settle()
                 row, col = self.machine.cursor()
                 cursor = f"row {row}, column {col}"
-            except SettleError as e:
-                self.settle_failures += 1
-                self._log({"n": n, "settle_error": str(e)})
-                return {"ok": False, "error": "The computer did not respond (harness error)."}
-            except Exception as e:  # QMP / serial / QEMU trouble: our fault, not the player's
-                self.infra_errors.append(repr(e))
+            except Exception as e:
+                # A hang or crash of the OS itself (QEMU still running, OS silent) follows the
+                # player's own actions: a loss, not a re-run. Anything else is our side's fault.
+                if self.machine.os_crashed():
+                    self.os_crash = f"after action {n}: {e!r}"
+                    self.open = False
+                    self._log({"n": n, "os_crash": repr(e)})
+                    return {"ok": False, "error": "The computer stopped responding. The game is over."}
+                if isinstance(e, SettleError):
+                    self.settle_failures += 1
+                    self._log({"n": n, "settle_error": str(e)})
+                    return {"ok": False, "error": "The computer did not respond (harness error)."}
+                self.infra_errors.append(repr(e))  # QMP / serial / QEMU trouble: our fault
                 self._log({"n": n, "infra_error": repr(e)})
                 return {"ok": False, "error": "The computer did not respond (harness error)."}
             self._log({"n": n, "action": action, "args": args, "screen": screen, "cursor": cursor})

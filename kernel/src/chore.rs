@@ -832,6 +832,9 @@ fn path_of(v: &Value) -> Result<String, String> {
     };
     let s = s.trim();
     let rest = if s == "desk" { "" } else { s.strip_prefix("desk:").unwrap_or(s) };
+    if rest.is_empty() && s == "desk" {
+        return Ok(String::new()); // the desk itself
+    }
     let mut path = String::new();
     for part in rest.split(':') {
         if !fs::valid_name(part) {
@@ -1077,8 +1080,9 @@ impl<'a, W: World> Runner<'a, W> {
                     (Value::Num(x), Value::Num(y)) => x == y,
                     (Value::Text(x), Value::Text(y)) => x == y,
                     (Value::Bool(x), Value::Bool(y)) => x == y,
-                    (Value::List(_), _) | (_, Value::List(_)) => {
-                        return Err(format!("{sym} can't compare lists (use has, or count(...))"))
+                    (Value::List(x), Value::List(y)) => {
+                        self.tick(x.len().min(y.len()))?;
+                        x == y
                     }
                     _ => {
                         return Err(format!(
