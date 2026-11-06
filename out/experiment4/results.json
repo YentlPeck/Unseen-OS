@@ -1,0 +1,650 @@
+{
+  "manifest_sha256": "949ee88080619f023919bb52f285ed3722d712b3de90c96269a50c834e0e0b87",
+  "games": 576,
+  "primary": {
+    "contrast": "manual vs reference",
+    "per_task": {
+      "biggest-invoice": 0.25,
+      "contact-invoices": 0.3333,
+      "december-due": 0.1667,
+      "fix-hello": 0.1667,
+      "fix-late": 0.1667,
+      "fix-total": 0.0833,
+      "invite-neighbours": 0.5,
+      "invoice-thanks": 0.3333,
+      "meeting-events": 0.4167,
+      "overdue": -0.1667,
+      "phonebook": 0.1667,
+      "reminders": 0.0,
+      "weekend-due": 0.1667,
+      "write-birthdays": -0.1667,
+      "write-digest": 0.5,
+      "write-stats": 0.25
+    },
+    "D": 0.1979,
+    "p": 0.00262,
+    "tasks_better": 13,
+    "tasks_worse": 2,
+    "sign_test_p": 0.00739,
+    "ci95_permutation": [
+      0.092,
+      0.306
+    ],
+    "ci95_bootstrap": [
+      0.1042,
+      0.2969
+    ],
+    "verdict": "The manual helps more than the reference"
+  },
+  "secondary": {
+    "reference vs plain": {
+      "per_task": {
+        "biggest-invoice": 0.25,
+        "contact-invoices": 0.3333,
+        "december-due": 0.5,
+        "fix-hello": -0.1667,
+        "fix-late": 0.0833,
+        "fix-total": 0.0833,
+        "invite-neighbours": 0.3333,
+        "invoice-thanks": 0.3333,
+        "meeting-events": 0.5833,
+        "overdue": 0.4167,
+        "phonebook": 0.3333,
+        "reminders": 0.4167,
+        "weekend-due": 0.6667,
+        "write-birthdays": 0.3333,
+        "write-digest": 0.0,
+        "write-stats": 0.3333
+      },
+      "D": 0.3021,
+      "p": 0.00031,
+      "tasks_better": 14,
+      "tasks_worse": 1,
+      "sign_test_p": 0.00098,
+      "ci95_permutation": [
+        0.187,
+        0.417
+      ],
+      "ci95_bootstrap": [
+        0.1979,
+        0.401
+      ]
+    },
+    "manual vs plain": {
+      "per_task": {
+        "biggest-invoice": 0.5,
+        "contact-invoices": 0.6667,
+        "december-due": 0.6667,
+        "fix-hello": 0.0,
+        "fix-late": 0.25,
+        "fix-total": 0.1667,
+        "invite-neighbours": 0.8333,
+        "invoice-thanks": 0.6667,
+        "meeting-events": 1.0,
+        "overdue": 0.25,
+        "phonebook": 0.5,
+        "reminders": 0.4167,
+        "weekend-due": 0.8333,
+        "write-birthdays": 0.1667,
+        "write-digest": 0.5,
+        "write-stats": 0.5833
+      },
+      "D": 0.5,
+      "p": 6e-05,
+      "tasks_better": 15,
+      "tasks_worse": 0,
+      "sign_test_p": 6e-05,
+      "ci95_permutation": [
+        0.35,
+        0.65
+      ],
+      "ci95_bootstrap": [
+        0.3698,
+        0.6302
+      ]
+    }
+  },
+  "per_player": {
+    "haiku": {
+      "manual vs reference": {
+        "per_task": {
+          "biggest-invoice": 0.3333,
+          "contact-invoices": 0.3333,
+          "december-due": 0.1667,
+          "fix-hello": 0.1667,
+          "fix-late": 0.3333,
+          "fix-total": 0.1667,
+          "invite-neighbours": 0.6667,
+          "invoice-thanks": 0.6667,
+          "meeting-events": 0.3333,
+          "overdue": 0.0,
+          "phonebook": 0.0,
+          "reminders": 0.3333,
+          "weekend-due": 0.0,
+          "write-birthdays": -0.3333,
+          "write-digest": 0.6667,
+          "write-stats": 0.5
+        },
+        "D": 0.2708,
+        "p": 0.00317,
+        "tasks_better": 12,
+        "tasks_worse": 1,
+        "sign_test_p": 0.00342,
+        "ci95_permutation": [
+          0.119,
+          0.417
+        ],
+        "ci95_bootstrap": [
+          0.1354,
+          0.4062
+        ]
+      },
+      "reference vs plain": {
+        "per_task": {
+          "biggest-invoice": 0.1667,
+          "contact-invoices": 0.1667,
+          "december-due": 0.1667,
+          "fix-hello": -0.1667,
+          "fix-late": 0.1667,
+          "fix-total": 0.1667,
+          "invite-neighbours": 0.1667,
+          "invoice-thanks": 0.1667,
+          "meeting-events": 0.6667,
+          "overdue": 0.5,
+          "phonebook": 0.3333,
+          "reminders": 0.5,
+          "weekend-due": 0.6667,
+          "write-birthdays": 0.5,
+          "write-digest": 0.0,
+          "write-stats": 0.1667
+        },
+        "D": 0.2708,
+        "p": 0.00061,
+        "tasks_better": 14,
+        "tasks_worse": 1,
+        "sign_test_p": 0.00098,
+        "ci95_permutation": [
+          0.142,
+          0.396
+        ],
+        "ci95_bootstrap": [
+          0.1562,
+          0.3854
+        ]
+      },
+      "manual vs plain": {
+        "per_task": {
+          "biggest-invoice": 0.5,
+          "contact-invoices": 0.5,
+          "december-due": 0.3333,
+          "fix-hello": 0.0,
+          "fix-late": 0.5,
+          "fix-total": 0.3333,
+          "invite-neighbours": 0.8333,
+          "invoice-thanks": 0.8333,
+          "meeting-events": 1.0,
+          "overdue": 0.5,
+          "phonebook": 0.3333,
+          "reminders": 0.8333,
+          "weekend-due": 0.6667,
+          "write-birthdays": 0.1667,
+          "write-digest": 0.6667,
+          "write-stats": 0.6667
+        },
+        "D": 0.5417,
+        "p": 6e-05,
+        "tasks_better": 15,
+        "tasks_worse": 0,
+        "sign_test_p": 6e-05,
+        "ci95_permutation": [
+          0.4,
+          0.688
+        ],
+        "ci95_bootstrap": [
+          0.4167,
+          0.6667
+        ]
+      }
+    },
+    "luna": {
+      "manual vs reference": {
+        "per_task": {
+          "biggest-invoice": 0.1667,
+          "contact-invoices": 0.3333,
+          "december-due": 0.1667,
+          "fix-hello": 0.1667,
+          "fix-late": 0.0,
+          "fix-total": 0.0,
+          "invite-neighbours": 0.3333,
+          "invoice-thanks": 0.0,
+          "meeting-events": 0.5,
+          "overdue": -0.3333,
+          "phonebook": 0.3333,
+          "reminders": -0.3333,
+          "weekend-due": 0.3333,
+          "write-birthdays": 0.0,
+          "write-digest": 0.3333,
+          "write-stats": 0.0
+        },
+        "D": 0.125,
+        "p": 0.08008,
+        "tasks_better": 9,
+        "tasks_worse": 2,
+        "sign_test_p": 0.06543,
+        "ci95_permutation": [
+          0.0,
+          0.25
+        ],
+        "ci95_bootstrap": [
+          0.0104,
+          0.2396
+        ]
+      },
+      "reference vs plain": {
+        "per_task": {
+          "biggest-invoice": 0.3333,
+          "contact-invoices": 0.5,
+          "december-due": 0.8333,
+          "fix-hello": -0.1667,
+          "fix-late": 0.0,
+          "fix-total": 0.0,
+          "invite-neighbours": 0.5,
+          "invoice-thanks": 0.5,
+          "meeting-events": 0.5,
+          "overdue": 0.3333,
+          "phonebook": 0.3333,
+          "reminders": 0.3333,
+          "weekend-due": 0.6667,
+          "write-birthdays": 0.1667,
+          "write-digest": 0.0,
+          "write-stats": 0.5
+        },
+        "D": 0.3333,
+        "p": 0.00073,
+        "tasks_better": 12,
+        "tasks_worse": 1,
+        "sign_test_p": 0.00342,
+        "ci95_permutation": [
+          0.19,
+          0.477
+        ],
+        "ci95_bootstrap": [
+          0.2083,
+          0.4583
+        ]
+      },
+      "manual vs plain": {
+        "per_task": {
+          "biggest-invoice": 0.5,
+          "contact-invoices": 0.8333,
+          "december-due": 1.0,
+          "fix-hello": 0.0,
+          "fix-late": 0.0,
+          "fix-total": 0.0,
+          "invite-neighbours": 0.8333,
+          "invoice-thanks": 0.5,
+          "meeting-events": 1.0,
+          "overdue": 0.0,
+          "phonebook": 0.6667,
+          "reminders": 0.0,
+          "weekend-due": 1.0,
+          "write-birthdays": 0.1667,
+          "write-digest": 0.3333,
+          "write-stats": 0.5
+        },
+        "D": 0.4583,
+        "p": 0.00098,
+        "tasks_better": 11,
+        "tasks_worse": 0,
+        "sign_test_p": 0.00098,
+        "ci95_permutation": [
+          0.25,
+          0.667
+        ],
+        "ci95_bootstrap": [
+          0.2708,
+          0.6458
+        ]
+      }
+    }
+  },
+  "cli_versions": {
+    "cli_versions_at_start": [
+      {
+        "time": "2026-11-05 20:27:19",
+        "claude": "2.1.318 (Claude Code)",
+        "codex": "codex-cli 0.166.0"
+      },
+      {
+        "time": "2026-11-06 10:26:35",
+        "claude": "2.1.318 (Claude Code)",
+        "codex": "codex-cli 0.166.0"
+      }
+    ],
+    "cli_versions_at_end": [
+      {
+        "time": "2026-11-06 20:21:53",
+        "claude": "2.1.319 (Claude Code)",
+        "codex": "codex-cli 0.167.0"
+      }
+    ]
+  },
+  "win_rates": {
+    "haiku / plain": "16/96",
+    "haiku / reference": "42/96",
+    "haiku / manual": "68/96",
+    "luna / plain": "29/96",
+    "luna / reference": "61/96",
+    "luna / manual": "73/96"
+  },
+  "win_rates_per_task": {
+    "biggest-invoice / plain": "1/12",
+    "biggest-invoice / reference": "4/12",
+    "biggest-invoice / manual": "7/12",
+    "contact-invoices / plain": "0/12",
+    "contact-invoices / reference": "4/12",
+    "contact-invoices / manual": "8/12",
+    "december-due / plain": "0/12",
+    "december-due / reference": "6/12",
+    "december-due / manual": "8/12",
+    "fix-hello / plain": "10/12",
+    "fix-hello / reference": "8/12",
+    "fix-hello / manual": "10/12",
+    "fix-late / plain": "9/12",
+    "fix-late / reference": "10/12",
+    "fix-late / manual": "12/12",
+    "fix-total / plain": "9/12",
+    "fix-total / reference": "10/12",
+    "fix-total / manual": "11/12",
+    "invite-neighbours / plain": "1/12",
+    "invite-neighbours / reference": "5/12",
+    "invite-neighbours / manual": "11/12",
+    "invoice-thanks / plain": "0/12",
+    "invoice-thanks / reference": "4/12",
+    "invoice-thanks / manual": "8/12",
+    "meeting-events / plain": "0/12",
+    "meeting-events / reference": "7/12",
+    "meeting-events / manual": "12/12",
+    "overdue / plain": "0/12",
+    "overdue / reference": "5/12",
+    "overdue / manual": "3/12",
+    "phonebook / plain": "2/12",
+    "phonebook / reference": "6/12",
+    "phonebook / manual": "8/12",
+    "reminders / plain": "0/12",
+    "reminders / reference": "5/12",
+    "reminders / manual": "5/12",
+    "weekend-due / plain": "0/12",
+    "weekend-due / reference": "8/12",
+    "weekend-due / manual": "10/12",
+    "write-birthdays / plain": "6/12",
+    "write-birthdays / reference": "10/12",
+    "write-birthdays / manual": "8/12",
+    "write-digest / plain": "2/12",
+    "write-digest / reference": "2/12",
+    "write-digest / manual": "8/12",
+    "write-stats / plain": "5/12",
+    "write-stats / reference": "9/12",
+    "write-stats / manual": "12/12"
+  },
+  "win_rates_per_kind": {
+    "count / plain": "1/60",
+    "count / reference": "27/60",
+    "count / manual": "36/60",
+    "bulk / plain": "3/60",
+    "bulk / reference": "27/60",
+    "bulk / manual": "44/60",
+    "fix / plain": "28/36",
+    "fix / reference": "28/36",
+    "fix / manual": "33/36",
+    "write / plain": "13/36",
+    "write / reference": "21/36",
+    "write / manual": "28/36"
+  },
+  "actions_in_won_games": {
+    "haiku / plain": 75.5,
+    "haiku / reference": 67.0,
+    "haiku / manual": 60.0,
+    "luna / plain": 46,
+    "luna / reference": 47,
+    "luna / manual": 39
+  },
+  "guide_do": {
+    "haiku / plain": {
+      "games_that_opened_it": "38/96",
+      "median_actions_showing_it_when_opened": 2.0
+    },
+    "haiku / reference": {
+      "games_that_opened_it": "17/96",
+      "median_actions_showing_it_when_opened": 1
+    },
+    "haiku / manual": {
+      "games_that_opened_it": "0/96",
+      "median_actions_showing_it_when_opened": 0
+    },
+    "luna / plain": {
+      "games_that_opened_it": "41/96",
+      "median_actions_showing_it_when_opened": 1
+    },
+    "luna / reference": {
+      "games_that_opened_it": "18/96",
+      "median_actions_showing_it_when_opened": 1.0
+    },
+    "luna / manual": {
+      "games_that_opened_it": "0/96",
+      "median_actions_showing_it_when_opened": 0
+    }
+  },
+  "audit_failures": [
+    "haiku biggest-invoice reference #1: ['cd . && P=biggest-invoice-haiku-reference-63b28a\\nfor L in \"add desk:chores:scan set mails to \\'\\'\" \"add desk:chores:scan for each c in pages(\\'contacts\\')\" \"add desk:chores:scan set mails to mails & \\' \\' & field(c, \\'mail\\') & \\' \\'\" \"add desk:chores:scan done\" \"add desk:chores:scan for each m in pages(\\'mail:inbox\\')\" \"add desk:chores:scan when field(m, \\'subject\\') is \\'Invoice\\'\" \"add desk:chores:scan when mails has \\' \\' & field(m, \\'from\\') & \\' \\'\" \"add desk:chores:scan for each l in lines(body(m))\" \"add desk:chores:scan say m & \\' \\' & field(m, \\'from\\') & \\' \\' & l\" \"add desk:chores:scan done\" \"add desk:chores:scan done\" \"add desk:chores:scan done\" \"add desk:chores:scan done\"; do\\npython play.py $P type \"$L\" >/dev/null; python play.py $P press enter >/dev/null; done\\npython play.py $P type \"do desk:chores:scan\"; python play.py $P press enter']",
+    "haiku december-due manual #1: ['cd . && P=\"python play.py december-due-haiku-manual-15924d\"; for line in \"set total to 0\" \"set n to 0\" \"for each m in pages(\\'mail:inbox\\')\" \"  when lower(field(m, \\'subject\\')) has \\'invoice\\'\" \"    set tl to words(item(lines(body(m)), 1))\" \"    set dl to words(item(lines(body(m)), 2))\" \"    when field(m, \\'subject\\') is not \\'Invoice\\' or count(tl) is not 3 or count(dl) is not 2\" \"      say \\'CHECK \\' & m\" \"    done\" \"    when count(tl) is 3 and count(dl) is 2\" \"      when item(tl, 3) is not \\'euro\\'\" \"        say \\'CUR \\' & m\" \"      done\" \"      when item(dl, 2) > \\'2026-11-30\\' and item(dl, 2) < \\'2027-01-01\\'\" \"        set total to total + number(item(tl, 2))\" \"        set n to n + 1\" \"      done\" \"    done\" \"  done\" \"done\" \"say \\'invoices: \\' & n & \\' total: \\' & total\"; do $P type \"$line\"; $P press enter; done']",
+    "haiku fix-hello reference #1: ['cd . ; for l in \"for each c in pages(\\'contacts\\')\" \"when lower(field(c, \\'note\\')) has \\'neigh\\'\" \"say field(c, \\'mail\\') & \\' | \\' & field(c, \\'note\\')\" \"done\" \"done\" \"say \\'total \\' & count(pages(\\'contacts\\'))\"; do python play.py fix-hello-haiku-reference-c99e87 type \"add desk:chores:scan $l\"; python play.py fix-hello-haiku-reference-c99e87 press enter; done; python play.py fix-hello-haiku-reference-c99e87 type \"do desk:chores:scan\"; python play.py fix-hello-haiku-reference-c99e87 press enter']",
+    "haiku fix-late reference #1: ['python play.py fix-late-haiku-reference-64774d type \"notes desk:chores:late\" && python play.py fix-late-haiku-reference-64774d press enter && for i in 1 2 3 4; do python play.py fix-late-haiku-reference-64774d press down; done && python play.py fix-late-haiku-reference-64774d press end && for i in $(seq 27); do python play.py fix-late-haiku-reference-64774d press backspace; done | tail -n 12']",
+    "haiku fix-total plain #1: ['for i in $(seq 1 20); do python play.py fix-total-haiku-plain-30abf1 press down | tail -n 30; done']",
+    "haiku invite-neighbours reference #1: ['cd C:/Users/yentl/AppData/Local/Temp/unseen-games/invite-neighbours-haiku-reference-00aff3 && G=\"python play.py invite-neighbours-haiku-reference-00aff3\"; for l in \"for each c in pages(\\'contacts\\')\" \"when lower(field(c, \\'note\\')) has \\'neighbour\\'\" \"send(field(c, \\'mail\\'), \\'Street party\\', \\'Street party on Saturday at 15:00. Hope you can come!\\')\" \"done\" \"done\"; do $G type \"$l\"; $G press enter; done; $G press esc']",
+    "haiku meeting-events plain #1: ['cd . && python play.py meeting-events-haiku-plain-401711 type \"mail\" && python play.py meeting-events-haiku-plain-401711 press enter && python play.py meeting-events-haiku-plain-401711 press $(python -c \"print(\\' \\'.join([\\'down\\']*240))\")']",
+    "haiku phonebook plain #1: ['cd /d 2>/dev/null; K=\"down down down down down down down down down down down down down down down down down\"; python play.py phonebook-haiku-plain-c5cbf5 press $K; python play.py phonebook-haiku-plain-c5cbf5 press $K; python play.py phonebook-haiku-plain-c5cbf5 press $K; python play.py phonebook-haiku-plain-c5cbf5 press $K; python play.py phonebook-haiku-plain-c5cbf5 press $K']",
+    "haiku reminders plain #1: ['cd /tmp 2>/dev/null; python play.py reminders-haiku-plain-832c4e type \"mail\"; python play.py reminders-haiku-plain-832c4e press enter; python play.py reminders-haiku-plain-832c4e type \"$(printf \\'wmira\\\\tReminder\\\\tSee you at Gym on 2026-11-12 at 18:00!\\')\"']",
+    "haiku weekend-due plain #1: ['cd /d . 2>/dev/null; for i in $(seq 1 12); do python play.py weekend-due-haiku-plain-e5dd3b press down >/dev/null; done; python play.py weekend-due-haiku-plain-e5dd3b look']",
+    "haiku write-birthdays plain #1: ['cd . ; for i in $(seq 1 20); do python play.py write-birthdays-haiku-plain-90c5bc press down | tail -n 30 | head -n 27; done']",
+    "haiku write-digest plain #1: ['cd . ; for w in write do build; do python play.py write-digest-haiku-plain-925af2 type \"guide $w\"; python play.py write-digest-haiku-plain-925af2 press enter; done']",
+    "haiku write-digest reference #1: ['cd . ; P=\"python play.py write-digest-haiku-reference-12e2fe\"; for L in \"set sender to field(m, \\'from\\')\" \"set cpath to \\'contacts:\\' & sender\" \"when exists(cpath)\" \"when lower(field(cpath, \\'note\\')) has \\'colleague\\'\" \"add(\\'desk:digest-list\\', sender & \\' - \\' & field(m, \\'subject\\'))\" \"done\" \"done\" \"done\"; do $P type \"$L\" >/dev/null; $P press enter > /dev/null; done; $P look']",
+    "haiku december-due manual #2: ['python play.py december-due-haiku-manual-185afa press up up up end $(for i in $(seq 73); do echo -n \"backspace \"; done)']",
+    "haiku december-due reference #2: ['for l in \"for each m in pages(\\'mail:inbox\\')\" \"  when field(m, \\'subject\\') is \\'Invoice\\'\" \"    say field(m, \\'from\\') & \\' | \\' & body(m)\" \"  done\" \"done\" \"stop\"; do python play.py december-due-haiku-reference-07f958 type \"$l\"; python play.py december-due-haiku-reference-07f958 press enter; done 2>&1 | tail -5']",
+    "haiku fix-hello reference #2: ['cd /d /tmp 2>/dev/null; python play.py fix-hello-haiku-reference-545ff4 press down down end backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace']",
+    "haiku fix-late plain #2: ['cd . && for k in down down down down end backspace backspace; do python play.py fix-late-haiku-plain-0ffcf4 press $k; done; python play.py fix-late-haiku-plain-0ffcf4 type \"\\'18:00\\'\"']",
+    "haiku fix-total manual #2: ['cd \"C:\\\\Users\\\\yentl\\\\AppData\\\\Local\\\\Temp\\\\unseen-games\\\\fix-total-haiku-manual-c22173\" && for t in \"done\" \"done\" \"done\" \"done\" \"write(\\'desk:invoice-total\\', total)\"; do python play.py fix-total-haiku-manual-c22173 type \"add desk:chores:total $t\" && python play.py fix-total-haiku-manual-c22173 press enter; done; python play.py fix-total-haiku-manual-c22173 type \"read desk:chores:total\" && python play.py fix-total-haiku-manual-c22173 press enter']",
+    "haiku fix-total plain #2: ['cd . && for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do python play.py fix-total-haiku-plain-f5d0c6 press down; done 2>&1 | tail -n 30']",
+    "haiku invoice-thanks reference #2: ['cd . && P=invoice-thanks-haiku-reference-897faf; python play.py $P type \"for each m in pages(\\'mail:inbox\\')\" && python play.py $P press enter && python play.py $P type \"when field(m, \\'subject\\') is \\'Invoice\\'\" && python play.py $P press enter && python play.py $P type \"say field(m, \\'from\\') & \\' | \\' & body(m)\" && python play.py $P press enter && python play.py $P type \"done\" && python play.py $P press enter && python play.py $P type \"done\" && python play.py $P press enter']",
+    "haiku meeting-events reference #2: ['cd . ; P=meeting-events-haiku-reference-8117a7; for l in \"for each m in pages(\\'mail:inbox\\')\" \"when field(m, \\'subject\\') is \\'Meeting\\'\" \"set w to words(item(lines(body(m)), 1))\" \"event(item(w, 3), item(w, 5), \\'Meeting\\', field(m, \\'from\\'))\" \"done\" \"done\"; do python play.py $P type \"$l\"; python play.py $P press enter; done']",
+    "haiku phonebook manual #2: ['cd . && python play.py phonebook-haiku-manual-98f2e7 press up end $(printf \\'backspace %.0s\\' $(seq 78)); python play.py phonebook-haiku-manual-98f2e7 type \"   say field(c, \\'mail\\') & \\' | \\' & field(c, \\'city\\')\"; python play.py phonebook-haiku-manual-98f2e7 press enter']",
+    "haiku weekend-due manual #2: ['cd /c/Users/yentl/AppData/Local/Temp/unseen-games/weekend-due-haiku-manual-368f7e; for t in \"when lower(line) has \\'due:\\'\" \"set d to item(words(line), 2)\" \"when weekday(d) is \\'saturday\\' or weekday(d) is \\'sunday\\'\" \"set total to total + 1\" \"done\" \"done\" \"done\" \"done\" \"say total\"; do python play.py weekend-due-haiku-manual-368f7e type \"$t\"; python play.py weekend-due-haiku-manual-368f7e press enter; done; python play.py weekend-due-haiku-manual-368f7e press ctrl+k']",
+    "haiku write-birthdays plain #2: ['cd /d 2>/dev/null; P=write-birthdays-haiku-plain-38b8a6; python play.py $P type \"for each c in pages(\\'contacts\\')\"; python play.py $P press enter; python play.py $P type \"  when field(c, \\'birthday\\') is not \\'\\'\"; python play.py $P press enter; python play.py $P type \"    when today() has field(c, \\'birthday\\')\"; python play.py $P press enter; python play.py $P type \"      send(field(c, \\'mail\\'), \\'Happy birthday\\', \\'Happy birthday!\\')\"; python play.py $P press enter; python play.py $P type \"    done\"; python play.py $P press enter; python play.py $P type \"  done\"; python play.py $P press enter; python play.py $P type \"done\"']",
+    "haiku write-digest plain #2: ['cd . && for w in chores write do build pages; do python play.py write-digest-haiku-plain-f02feb type \"guide $w\"; python play.py write-digest-haiku-plain-f02feb press enter; done', 'for i in $(seq 22); do python play.py write-digest-haiku-plain-f02feb press up; done | tail -n 30']",
+    "haiku write-digest reference #2: ['cd . && P=\"python play.py write-digest-haiku-reference-daa868\"; for l in \"add desk:chores:digest write(\\'desk:digest-list\\', \\'\\')\" \"add desk:chores:digest for each m in pages(\\'mail:inbox\\')\" \"add desk:chores:digest set who to field(m, \\'from\\')\" \"add desk:chores:digest set cp to \\'contacts:\\' & who\" \"add desk:chores:digest when exists(cp)\" \"add desk:chores:digest when lower(field(cp, \\'note\\')) has \\'colleague\\'\" \"add desk:chores:digest add(\\'desk:digest-list\\', who & \\' - \\' & field(m, \\'subject\\'))\" \"add desk:chores:digest done\" \"add desk:chores:digest done\" \"add desk:chores:digest done\"; do $P type \"$l\"; $P press enter >/dev/null; done; $P type \"read desk:chores:digest\"; $P press enter']",
+    "haiku write-stats reference #2: ['cd . && P=write-stats-haiku-reference-d1d8f0; python play.py $P type \"-- count mails, contacts and events and write the stats page\"; python play.py $P press enter; python play.py $P type \"set mails to count(pages(\\'mail:inbox\\'))\"; python play.py $P press enter; python play.py $P type \"set contacts to count(pages(\\'contacts\\'))\"; python play.py $P press enter; python play.py $P type \"set events to count(pages(\\'calendar\\'))\"; python play.py $P press enter; python play.py $P type \"write(\\'desk:stats-out\\', \\'mails: \\' & mails)\"; python play.py $P press enter; python play.py $P type \"add(\\'desk:stats-out\\', \\'contacts: \\' & contacts)\"; python play.py $P press enter; python play.py $P type \"add(\\'desk:stats-out\\', \\'events: \\' & events)\"; python play.py $P press enter']",
+    "haiku biggest-invoice manual #3: ['cd . && G=biggest-invoice-haiku-manual-511645 && python play.py $G type \"write desk:chores:inv set best to -1\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv set bestfrom to \\'none\\'\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv for each m in pages(\\'mail:inbox\\')\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv   when field(m, \\'subject\\') is \\'Invoice\\'\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv     set ok to \\'n\\'\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv     for each c in pages(\\'contacts\\')\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv       when field(c, \\'mail\\') is field(m, \\'from\\')\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv         set ok to \\'y\\'\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv       done\" && python play.py $G press enter && python play.py $G type \"add desk:chores:inv     done\" && python play.py $G press enter']",
+    "haiku biggest-invoice reference #3: ['cd . ; P=biggest-invoice-haiku-reference-1beb17; python play.py $P type \"for each m in pages(\\'mail:inbox\\')\"; python play.py $P press enter; python play.py $P type \"say m & \\' | \\' & field(m, \\'subject\\') & \\' | \\' & field(m, \\'from\\')\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P look']",
+    "haiku december-due reference #3: ['cd /d 2>/dev/null; P=\"python play.py december-due-haiku-reference-bb5165\"; $P press esc; $P type \"notes desk:chores:sum\"; $P press enter; for L in \"set total to 0\" \"for each m in pages(\\'mail:inbox\\')\" \"when field(m, \\'subject\\') is \\'Invoice\\'\" \"set amt to 0\" \"set duedate to \\'\\'\" \"for each l in lines(body(m))\" \"when l has \\'Total:\\'\" \"set amt to number(item(words(l), 2))\" \"done\" \"when l has \\'Due:\\'\" \"set duedate to item(words(l), 2)\" \"done\" \"done\" \"when duedate > \\'2026-11-30\\' and duedate < \\'2027-01-01\\'\" \"set total to total + amt\" \"say m & \\' \\' & amt & \\' \\' & duedate\" \"done\" \"done\" \"done\" \"write(\\'desk:answer\\', total)\"; do $P type \"$L\"; $P press enter; done']",
+    "haiku fix-hello manual #3: ['cd /d 2>/dev/null; python play.py fix-hello-haiku-manual-bc2cac press $(printf \\'backspace %.0s\\' {1..36}) ; python play.py fix-hello-haiku-manual-bc2cac type \"lower(field(c, \\'note\\')) has \\'neighbour\\'\"']",
+    "haiku fix-hello reference #3: ['python play.py fix-hello-haiku-reference-790eca press down down end $(printf \\'backspace %.0s\\' {1..36}); python play.py fix-hello-haiku-reference-790eca type \"when lower(field(c, \\'note\\')) has \\'neighbour\\'\"']",
+    "haiku invite-neighbours reference #3: ['P=invite-neighbours-haiku-reference-064d5c; python play.py $P type \"for each c in pages(\\'contacts\\')\"; python play.py $P press enter; python play.py $P type \"when lower(field(c, \\'note\\')) has \\'neighbour\\'\"; python play.py $P press enter; python play.py $P type \"say field(c, \\'mail\\') & \\' | \\' & field(c, \\'name\\') & \\' | \\' & field(c, \\'note\\')\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P look']",
+    "haiku meeting-events plain #3: [\"python play.py meeting-events-haiku-plain-9d0dd7 type $'2026-11-19\\\\t09:00\\\\tMeeting\\\\tlars'\"]",
+    "haiku phonebook reference #3: ['cd . && P=\"python play.py phonebook-haiku-reference-707774\"; for L in \"set prev to \\'\\'\" \"repeat 100 times\" \"set best to \\'\\'\" \"for each p in pages(\\'contacts\\')\" \"when field(p, \\'mail\\') > prev and (best is \\'\\' or field(p, \\'mail\\') < best)\" \"set best to field(p, \\'mail\\')\" \"done\" \"done\" \"when best is \\'\\'\" \"stop\" \"done\" \"for each p in pages(\\'contacts\\')\" \"when field(p, \\'mail\\') is best and field(p, \\'city\\') is not \\'Ashford\\'\" \"add(\\'desk:phonebook\\', field(p, \\'name\\') & \\': \\' & field(p, \\'phone\\'))\" \"done\" \"done\" \"set prev to best\" \"done\"; do $P type \"$L\" >/dev/null && $P press enter > /dev/null; done; $P look']",
+    "haiku reminders reference #3: ['cd /d \"\" 2>/dev/null; python play.py reminders-haiku-reference-60e80d type \"add desk:chores:remind set total to 0\" && python play.py reminders-haiku-reference-60e80d press enter && python play.py reminders-haiku-reference-60e80d type \"read desk:chores:remind\" && python play.py reminders-haiku-reference-60e80d press enter']",
+    "haiku weekend-due manual #3: ['cd /d/ 2>/dev/null; P=\"python play.py weekend-due-haiku-manual-5441ee\"; $P press enter >/dev/null; $P type \"notes desk:chores:wkend\" && $P press enter && \\\\\\n$P type \"set total to 0\" && $P press enter && \\\\\\n$P type \"set wk to 0\" && $P press enter && \\\\\\n$P type \"for each m in pages(\\'mail:inbox\\')\" && $P press enter && \\\\\\n$P type \"when field(m, \\'subject\\') is \\'Invoice\\'\" && $P press enter && \\\\\\n$P type \"set total to total + 1\" && $P press enter && \\\\\\n$P type \"for each l in lines(body(m))\" && $P press enter && \\\\\\n$P type \"when l has \\'Due:\\'\" && $P press enter && \\\\\\n$P type \"set d to item(words(l), 2)\" && $P press enter && \\\\\\n$P type \"say d & \\' \\' & weekday(d)\" && $P press enter && \\\\\\n$P type \"when weekday(d) is \\'saturday\\' or weekday(d) is \\'sunday\\'\" && $P press enter && \\\\\\n$P type \"set wk to wk + 1\" && $P press enter && \\\\\\n$P press enter >/dev/null; $P type \"done\" && $P press enter && $P type \"done\" && $P press enter && $P type \"done\" && $P press enter && $P type \"done\" && $P press enter && $P type \"done\" && $P press enter && \\\\\\n$P type \"say \\'invoices \\' & total & \\' weekend \\' & wk\" && $P press enter && \\\\\\n$P type \"write(\\'desk:answer\\', wk)\" && $P press enter && \\\\\\n$P press ctrl+k && $P press esc']",
+    "haiku write-birthdays plain #3: ['cd . && for w in build do write contacts calendar mail; do python play.py write-birthdays-haiku-plain-f93318 type \"guide $w\"; python play.py write-birthdays-haiku-plain-f93318 press enter; done']",
+    "haiku write-digest manual #3: ['cd . ; P=write-digest-haiku-manual-aa7a26; python play.py $P type \"notes desk:chores:digest\"; python play.py $P press enter; python play.py $P type \"-- digest of mails from colleagues\"; python play.py $P press enter; python play.py $P type \"set who to \\'|\\'\"; python play.py $P press enter; python play.py $P type \"for each c in pages(\\'contacts\\')\"; python play.py $P press enter; python play.py $P type \"when lower(field(c, \\'note\\')) has \\'colleague\\'\"; python play.py $P press enter; python play.py $P type \"set who to who & field(c, \\'mail\\') & \\'|\\'\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter']",
+    "haiku write-stats plain #3: ['cd /d . 2>/dev/null; python play.py write-stats-haiku-plain-b4711a type \"guide write\"; python play.py write-stats-haiku-plain-b4711a press enter; python play.py write-stats-haiku-plain-b4711a type \"guide do\"; python play.py write-stats-haiku-plain-b4711a press enter', 'for i in $(seq 1 20); do python play.py write-stats-haiku-plain-b4711a press down; done | tail -n 60', 'for w in \"peek mail\" \"peek contacts\" \"peek calendar\"; do python play.py write-stats-haiku-plain-b4711a type \"$w\"; python play.py write-stats-haiku-plain-b4711a press enter; done']",
+    "haiku fix-late plain #4: ['cd . ; for i in $(seq 1 8); do python play.py fix-late-haiku-plain-65c8fb press down; done 2>&1 | tail -n 60']",
+    "haiku invite-neighbours reference #4: ['cd . ; P=invite-neighbours-haiku-reference-eda062; python play.py $P type \"for each c in pages(\\'contacts\\')\"; python play.py $P press enter; python play.py $P type \"when lower(field(c, \\'note\\')) has \\'neighbour\\'\"; python play.py $P press enter; python play.py $P type \"say field(c, \\'mail\\') & \\' | \\' & field(c, \\'name\\') & \\' | \\' & field(c, \\'note\\')\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter']",
+    "haiku invoice-thanks manual #4: [\"python play.py invoice-thanks-haiku-manual-f808f5 press up up up up up up end; python play.py invoice-thanks-haiku-manual-f808f5 press $(printf 'backspace %.0s' $(seq 1 77))\"]",
+    "haiku invoice-thanks plain #4: [\"python play.py invoice-thanks-haiku-plain-56fae6 press home $(printf 'down %.0s' {1..18})\"]",
+    "haiku overdue reference #4: ['cd /d 2>/dev/null; P=\"python play.py overdue-haiku-reference-78f1ac\"; for t in \"for each m in pages(\\'mail:inbox\\')\" \"when field(m, \\'subject\\') is \\'Invoice\\'\" \"set mine to 0\" \"for each c in pages(\\'contacts\\')\" \"when field(c, \\'mail\\') is field(m, \\'from\\')\" \"set mine to 1\" \"done\" \"done\" \"when mine is 1\" \"for each l in lines(body(m))\" \"when l has \\'Due:\\'\" \"set due to item(words(l), 2)\" \"say field(m, \\'from\\') & \\' \\' & due\" \"when due < \\'2026-11-12\\'\" \"set total to total + 1\" \"done\" \"done\" \"done\" \"done\" \"done\" \"done\" \"say \\'Count: \\' & total\" \"write(\\'desk:answer\\', total)\"; do $P type \"add desk:chores:count $t\" >/dev/null; $P press enter >/dev/null; done; $P type \"read desk:chores:count\"; $P press enter']",
+    "haiku phonebook manual #4: ['cd . ; P=phonebook-haiku-manual-5ca49e; python play.py $P type \"for each c in pages(\\'contacts\\')\"; python play.py $P press enter; python play.py $P type \"say field(c, \\'name\\') & \\' | \\' & field(c, \\'city\\') & \\' | \\' & field(c, \\'mail\\')\"; python play.py $P press enter; python play.py $P type \"when lower(field(c, \\'city\\')) is not \\'ashford\\'\"; python play.py $P press enter; python play.py $P type \"write(\\'chores:sorted:\\' & field(c, \\'mail\\'), field(c, \\'name\\') & \\': \\' & field(c, \\'phone\\'))\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter; python play.py $P type \"done\"; python play.py $P press enter']",
+    "haiku phonebook reference #4: [\"python play.py phonebook-haiku-reference-3dea83 type $'write desk:chores:t hi\\\\nsay 1\\\\n'\"]",
+    "haiku reminders plain #4: [\"python play.py reminders-haiku-plain-ebd8dd type $'mira\\\\tReminder\\\\tSee you at Gym on 2026-11-12 at 18:00!'\"]",
+    "haiku reminders reference #4: ['cd /d 2>/dev/null; P=\"python play.py reminders-haiku-reference-0835ea\"; for L in \\'for each e in pages(\"calendar\")\\' \\'  set d to field(e, \"date\")\\' \\'  set w to field(e, \"with\")\\' \\'  set c to \"contacts:\" & w\\' \\'  when d >= \"2026-11-12\" and d <= \"2026-12-02\" and w is not \"\" and exists(c)\\' \\'    say d & \" \" & field(e, \"time\") & \" \" & w & \" \" & field(e, \"title\")\\' \\'    send(field(c, \"mail\"), \"Reminder\", \"See you at \" & field(e, \"title\") & \" on \" & d & \" at \" & field(e, \"time\") & \"!\")\\' \\'  done\\' \\'done\\'; do $P type \"add desk:chores:remind \\'$L\\'\" && $P press enter; done; $P type \"read desk:chores:remind\" && $P press enter']",
+    "haiku write-digest plain #4: ['cd . && P=write-digest-haiku-plain-bae034; python play.py $P type \"add desk:chores:digest for each m in pages(\\'mail:inbox\\')\"; python play.py $P press enter; python play.py $P type \"add desk:chores:digest for each w in words(lower(field(\\'contacts:\\' & field(m, \\'from\\'), \\'note\\')))\"; python play.py $P press enter; python play.py $P type \"add desk:chores:digest when w is \\'colleague\\'\"; python play.py $P press enter; python play.py $P type \"add desk:chores:digest add(\\'desk:digest-list\\', field(m, \\'from\\') & \\' - \\' & field(m, \\'subject\\'))\"; python play.py $P press enter; python play.py $P type \"add desk:chores:digest done\"; python play.py $P press enter; python play.py $P type \"add desk:chores:digest done\"; python play.py $P press enter; python play.py $P type \"add desk:chores:digest done\"; python play.py $P press enter']",
+    "haiku write-stats reference #4: ['cd . && P=write-stats-haiku-reference-715d03; python play.py $P type \"write(\\'desk:stats-out\\', \\'mails: \\' & count(pages(\\'mail:inbox\\')))\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:stats-out\\', \\'contacts: \\' & count(pages(\\'contacts\\')))\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:stats-out\\', \\'events: \\' & count(pages(\\'calendar\\')))\" && python play.py $P press enter']",
+    "haiku biggest-invoice plain #5: ['cd . && for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17; do python play.py biggest-invoice-haiku-plain-3e2d72 press down; done 2>&1 | tail -60']",
+    "haiku contact-invoices reference #5: ['cd . ; for l in \"set total to 0\" \"for each m in pages(\\'mail:inbox\\')\" \"when field(m, \\'subject\\') is \\'Invoice\\'\" \"set sender to field(m, \\'from\\')\" \"set known to no\" \"for each c in pages(\\'contacts\\')\" \"when field(c, \\'mail\\') is sender\" \"set known to yes\" \"done\" \"done\" \"when known is yes\" \"say m & \\' \\' & sender & \\' \\' & body(m)\" \"done\" \"done\" \"done\"; do python play.py contact-invoices-haiku-reference-cf0d37 type \"add desk:chores:c1 $l\" >/dev/null; python play.py contact-invoices-haiku-reference-cf0d37 press enter >/dev/null; done; python play.py contact-invoices-haiku-reference-cf0d37 type \"read desk:chores:c1\"; python play.py contact-invoices-haiku-reference-cf0d37 press enter']",
+    "haiku december-due manual #5: ['cd . && P=december-due-haiku-manual-6a76e2; python play.py $P type \"for each m in pages(\\'mail:inbox\\')\" && python play.py $P press enter && python play.py $P type \"  when field(m, \\'subject\\') is \\'Invoice\\'\" && python play.py $P press enter && python play.py $P type \"    say m & \\' | \\' & field(m, \\'Total\\') & \\' | \\' & field(m, \\'Due\\')\" && python play.py $P press enter && python play.py $P type \"  done\" && python play.py $P press enter && python play.py $P type \"done\" && python play.py $P press enter && python play.py $P press ctrl+k']",
+    "haiku fix-hello plain #5: ['for i in 1 2 3 4 5 6 7 8; do python play.py fix-hello-haiku-plain-30049c press down; done | tail -25', 'for i in $(seq 1 14); do python play.py fix-hello-haiku-plain-30049c press down; done | tail -25']",
+    "haiku invoice-thanks reference #5: [\"python play.py invoice-thanks-haiku-reference-c81a52 press up up up up up up end $(for i in $(seq 78); do printf 'backspace '; done)\"]",
+    "haiku meeting-events plain #5: [\"python play.py meeting-events-haiku-plain-2fac42 press $(printf 'up %.0s' {1..371})\"]",
+    "haiku overdue manual #5: ['cd . ; P=\"python play.py overdue-haiku-manual-641da7\"; for l in \"set n to 0\" \"for each m in pages(\\'mail:inbox\\')\" \"when field(m, \\'subject\\') is \\'Invoice\\'\" \"set found to 0\" \"for each c in pages(\\'contacts\\')\" \"when field(c, \\'mail\\') is field(m, \\'from\\')\" \"set found to 1\" \"done\" \"done\" \"when found is 1 and field(m, \\'due\\') < today()\" \"set n to n + 1\" \"done\" \"done\" \"done\" \"write(\\'desk:answer\\', n)\"; do $P type \"$l\" >/dev/null && $P press enter >/dev/null; done; $P press ctrl+k; $P press esc']",
+    "haiku reminders plain #5: [\"python play.py reminders-haiku-plain-9a8301 type $'mira\\\\tReminder\\\\tSee you at Gym on 2026-11-12 at 18:00!'\"]",
+    "haiku weekend-due reference #5: ['cd . && for l in \"set total to 0\" \"for each m in pages(\\'mail:inbox\\')\" \"when field(m, \\'subject\\') is \\'Invoice\\'\" \"for each l in lines(body(m))\" \"when l has \\'Due:\\'\" \"set d to item(words(l), 2)\" \"when weekday(d) is \\'saturday\\' or weekday(d) is \\'sunday\\'\" \"set total to total + 1\" \"done\" \"done\" \"done\" \"done\" \"write(\\'desk:answer\\', total)\"; do python play.py weekend-due-haiku-reference-44cfa1 type \"$l\" >/dev/null && python play.py weekend-due-haiku-reference-44cfa1 press enter | tail -n 12; done']",
+    "haiku write-birthdays plain #5: ['for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do python play.py write-birthdays-haiku-plain-45edc7 press down; done 2>&1 | tail -n 30']",
+    "haiku write-birthdays reference #5: ['cd /d . 2>/dev/null; P=\"python play.py write-birthdays-haiku-reference-6e2d60\"; $P type \"write desk:chores:birthdays \\\\\"for each c in pages(\\'contacts\\')\\\\\"\"; $P press enter; $P type \"add desk:chores:birthdays \\\\\"say c & \\' | \\' & field(c, \\'Birthday\\') & \\' | \\' & field(c, \\'birthday\\') & \\' | \\' & field(c, \\'Mail\\')\\\\\"\"; $P press enter; $P type \"add desk:chores:birthdays \\\\\"done\\\\\"\"; $P press enter; $P type \"do desk:chores:birthdays\"; $P press enter']",
+    "haiku invite-neighbours reference #6: ['cd . && P=invite-neighbours-haiku-reference-1ecff9 && python play.py $P type \"add(\\'desk:chores:invite\\', \\'set people to pages(\\\\\"contacts\\\\\")\\')\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:chores:invite\\', \\'for each p in people\\')\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:chores:invite\\', \\'when lower(field(p, \\\\\"note\\\\\")) has \\\\\"neighbour\\\\\"\\')\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:chores:invite\\', \\'send(field(p, \\\\\"mail\\\\\"), \\\\\"Street party\\\\\", \\\\\"Street party on Saturday at 15:00. Hope you can come!\\\\\")\\')\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:chores:invite\\', \\'say field(p, \\\\\"name\\\\\")\\')\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:chores:invite\\', \\'done\\')\" && python play.py $P press enter && python play.py $P type \"add(\\'desk:chores:invite\\', \\'done\\')\" && python play.py $P press enter']",
+    "haiku invoice-thanks plain #6: ['cd /d 2>/dev/null; for i in $(seq 1 12); do python play.py invoice-thanks-haiku-plain-a7f707 press down; done 2>&1 | tail -n 25']",
+    "haiku meeting-events plain #6: ['cd . ; for m in m245 m263 m266; do python play.py meeting-events-haiku-plain-8b2274 type \"read desk:mail:inbox:$m\"; python play.py meeting-events-haiku-plain-8b2274 press enter; done', \"python play.py meeting-events-haiku-plain-8b2274 type $'2026-11-15\\\\t08:00\\\\tMeeting\\\\trex'; python play.py meeting-events-haiku-plain-8b2274 press enter\"]",
+    "haiku overdue reference #6: ['cd . ; P=\"python play.py overdue-haiku-reference-6f4318\"; for L in \"set due to \\'\\'\" \"set prev to \\'\\'\" \"for each w in words(body(m))\" \"when prev is \\'Due:\\'\" \"set due to w\" \"done\" \"set prev to w\" \"done\" \"when due is not \\'\\'\" \"when due < \\'2026-11-12\\'\" \"set found to no\" \"for each c in pages(\\'contacts\\')\" \"when field(c, \\'mail\\') is field(m, \\'from\\')\" \"set found to yes\" \"done\" \"done\" \"when found is yes\" \"set total to total + 1\" \"done\" \"done\" \"done\" \"done\" \"done\" \"say total\" \"write(\\'desk:answer\\', total)\"; do $P type \"$L\"; $P press enter; done']",
+    "haiku reminders plain #6: ['cd . && for i in $(seq 1 17); do python play.py reminders-haiku-plain-54bff4 press down; done | tail -n 30']",
+    "haiku write-digest plain #6: ['cd . ; for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do python play.py write-digest-haiku-plain-9c433e press down; done | tail -n 60']",
+    "haiku write-digest reference #6: ['cd . ; for k in down down down down down enter; do python play.py write-digest-haiku-reference-3e23d4 press $k; done']",
+    "haiku write-stats plain #6: ['cd . ; for w in chores write mail; do python play.py write-stats-haiku-plain-0ed35e type \"guide $w\"; python play.py write-stats-haiku-plain-0ed35e press enter; done']",
+    "haiku write-stats reference #6: ['cd /d . 2>/dev/null; P=\"python play.py write-stats-haiku-reference-826770\"; $P type \"set mails to count(pages(\\'mail:inbox\\'))\" && $P press enter && $P type \"set contacts to count(pages(\\'contacts\\'))\" && $P press enter && $P type \"set events to count(pages(\\'calendar\\'))\" && $P press enter && $P type \"write(\\'desk:stats-out\\', \\'mails: \\' & mails)\" && $P press enter && $P type \"add(\\'desk:stats-out\\', \\'contacts: \\' & contacts)\" && $P press enter && $P type \"add(\\'desk:stats-out\\', \\'events: \\' & events)\" && $P press enter && $P look']",
+    "luna overdue reference #3: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py overdue-luna-reference-6751a3 type \\\\\"add desk:chores:count \\\\\\\\\\\\\"for each m in pages(\\'mail:inbox\\')\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna write-stats plain #3: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py write-stats-luna-plain-c8f7c6 type \\\\\"write desk:chores:stats \\\\\\\\\\\\\"set mails to count(pages(\\'mail:inbox\\'))\\\\\\\\\\\\\"\\\\\"\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py write-stats-luna-plain-c8f7c6 type \"write desk:chores:stats `\"set mails to count(pages(\\'\"\\'mail:inbox\\'))\"\\'`\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py write-stats-luna-plain-c8f7c6 type \"add desk:chores:stats `\"set contacts to count(pages(\\'\"\\'contacts\\'))\"\\'`\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py write-stats-luna-plain-c8f7c6 type \"add desk:chores:stats `\"set events to count(pages(\\'\"\\'calendar\\'))\"\\'`\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py write-stats-luna-plain-c8f7c6 type \"add desk:chores:stats `\"write(\\'\"\\'desk:stats-out\\', \\'mails: \\' & mails)\"\\'`\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py write-stats-luna-plain-c8f7c6 type \"add desk:chores:stats `\"add(\\'\"\\'desk:stats-out\\', \\'contacts: \\' & contacts)\"\\'`\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py write-stats-luna-plain-c8f7c6 type \"add desk:chores:stats `\"add(\\'\"\\'desk:stats-out\\', \\'events: \\' & events)\"\\'`\"\"\\'']",
+    "luna contact-invoices reference #4: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py contact-invoices-luna-reference-4585f1 type \\\\\"add desk:chores:sum \\\\\\\\\\\\\"for each m in pages(\\'mail:inbox\\')\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna invite-neighbours plain #4: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py invite-neighbours-luna-plain-1606da type \\\\\"write desk:chores:party \\\\\\\\\\\\\"for each c in pages(\\'contacts\\')\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna phonebook reference #4: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py phonebook-luna-reference-c6b5e2 type \\\\\"write desk:chores:probe \\\\\\\\\\\\\"say count(pages(\\'contacts\\'))\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna reminders plain #4: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py reminders-luna-plain-b0e945 type \"omar`tReminder`tSee you at Tennis on 2026-11-12 at 18:30!\"\\'']",
+    "luna write-stats plain #4: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py write-stats-luna-plain-ad9b22 type \\\\\"write desk:chores:stats \\\\\\\\\\\\\"set mails to count(pages(\\'mail:inbox\\'))\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna biggest-invoice reference #5: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py biggest-invoice-luna-reference-d37d07 type \\\\\"add desk:chores:big \\\\\"for each m in pages(\\'mail:inbox\\')\\\\\"\\\\\"\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py biggest-invoice-luna-reference-d37d07 type \\\\\"add desk:chores:big \\\\\"when field(m, \\'subject\\') is \\'Invoice\\' and exists(\\'contacts:\\' & lower(field(m, \\'from\\')))\\\\\"\\\\\"\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py biggest-invoice-luna-reference-d37d07 type \"add desk:chores:big \"for each l in lines(body(m))\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py biggest-invoice-luna-reference-d37d07 type \"add desk:chores:big \"set amt to number(item(words(l), 2))\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py biggest-invoice-luna-reference-d37d07 type \"add desk:chores:big \"when amt > high\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py biggest-invoice-luna-reference-d37d07 type \\\\\"add desk:chores:big \\\\\"write(\\'desk:answer\\', high)\\\\\"\\\\\"\"']",
+    "luna fix-hello reference #5: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py fix-hello-luna-reference-1e0f1b type \\\\\"add desk:chores:hello \\\\\\\\\\\\\"for each c in pages(\\'contacts\\')\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna meeting-events reference #5: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py meeting-events-luna-reference-4eada9 type \\\\\"write desk:chores:meetings \\\\\\\\\\\\\"for each m in pages(\\'mail:inbox\\')\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna reminders plain #5: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py reminders-luna-plain-7c0fcd type \"mira`tReminder`tSee you at Gym on 2026-11-12 at 18:00!\"\\'']",
+    "luna invoice-thanks reference #6: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py invoice-thanks-luna-reference-cc0fdf type \\\\\"write desk:chores:inspect \\\\\\\\\\\\\"for each m in pages(\\'mail:inbox\\')\\\\\\\\\\\\\"\\\\\"\"']",
+    "luna overdue reference #6: ['\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py overdue-luna-reference-7e704e type \\\\\"add desk:chores:count \\\\\"for each m in pages(\\'mail:inbox\\')\\\\\"\\\\\"\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py overdue-luna-reference-7e704e type \\\\\"add desk:chores:count \\\\\"when field(m, \\'subject\\') is \\'Invoice\\'\\\\\"\\\\\"\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py overdue-luna-reference-7e704e type \\\\\"add desk:chores:count \\\\\"for each c in pages(\\'contacts\\')\\\\\"\\\\\"\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py overdue-luna-reference-7e704e type \\\\\"add desk:chores:count \\\\\"when field(c, \\'mail\\') is field(m, \\'from\\')\\\\\"\\\\\"\"', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \\'python play.py overdue-luna-reference-7e704e type \"add desk:chores:count \"when item(words(body(m)), 5) < today()\"\"\\'', '\"C:\\\\\\\\windows\\\\\\\\System32\\\\\\\\WindowsPowerShell\\\\\\\\v1.0\\\\\\\\powershell.exe\" -Command \"python play.py overdue-luna-reference-7e704e type \\\\\"add desk:chores:count \\\\\"write(\\'desk:answer\\', total)\\\\\"\\\\\"\"']"
+  ],
+  "timeouts": [
+    "luna write-digest plain #1",
+    "luna write-digest reference #1",
+    "luna write-birthdays plain #2",
+    "luna write-stats plain #2",
+    "luna write-digest plain #5",
+    "luna invite-neighbours reference #6",
+    "luna write-digest manual #6",
+    "luna write-digest reference #6"
+  ],
+  "os_crashes": [],
+  "visible_only": [],
+  "recovered_from_ledger": [],
+  "discarded_attempts": {
+    "haiku contact-invoices manual #5": [
+      {
+        "game": "contact-invoices-haiku-manual-88c4c8",
+        "rows": [
+          {
+            "time": "2026-11-05 23:36:42",
+            "player": "haiku",
+            "task": "contact-invoices",
+            "condition": "manual",
+            "epoch": 5,
+            "game": "contact-invoices-haiku-manual-88c4c8",
+            "started": true,
+            "terminal": false
+          }
+        ]
+      }
+    ],
+    "haiku meeting-events manual #5": [
+      {
+        "game": "meeting-events-haiku-manual-0c1f10",
+        "rows": [
+          {
+            "time": "2026-11-05 23:35:19",
+            "player": "haiku",
+            "task": "meeting-events",
+            "condition": "manual",
+            "epoch": 5,
+            "game": "meeting-events-haiku-manual-0c1f10",
+            "started": true,
+            "terminal": false
+          }
+        ]
+      }
+    ],
+    "luna contact-invoices plain #1": [
+      {
+        "game": "contact-invoices-luna-plain-537ac7",
+        "rows": [
+          {
+            "time": "2026-11-05 20:33:23",
+            "player": "luna",
+            "task": "contact-invoices",
+            "condition": "plain",
+            "epoch": 1,
+            "game": "contact-invoices-luna-plain-537ac7",
+            "started": true,
+            "terminal": false
+          },
+          {
+            "time": "2026-11-05 20:40:20",
+            "player": "luna",
+            "task": "contact-invoices",
+            "condition": "plain",
+            "epoch": 1,
+            "game": "contact-invoices-luna-plain-537ac7",
+            "context_sha256": null,
+            "passed": false,
+            "rule": "final check failed: SettleError('OS handled 393 of 394 keys')",
+            "audit_ok": true,
+            "violations": [],
+            "timed_out": false,
+            "harness_errors": [
+              "settle failures: 1",
+              "final check failed: SettleError('OS handled 393 of 394 keys')"
+            ],
+            "actions": 70,
+            "seconds": 417,
+            "settle_failures": 1,
+            "visible_passed": false,
+            "hidden": null,
+            "os_crash": null,
+            "summary": "I couldn\u2019t finish before the game ended; I did not save a total to `desk:answer`.",
+            "terminal": false
+          }
+        ]
+      }
+    ],
+    "luna invoice-thanks manual #2": [
+      {
+        "game": "invoice-thanks-luna-manual-13461b",
+        "rows": [
+          {
+            "time": "2026-11-05 23:35:31",
+            "player": "luna",
+            "task": "invoice-thanks",
+            "condition": "manual",
+            "epoch": 2,
+            "game": "invoice-thanks-luna-manual-13461b",
+            "started": true,
+            "terminal": false
+          }
+        ]
+      }
+    ],
+    "luna write-stats manual #2": [
+      {
+        "game": "write-stats-luna-manual-ffd478",
+        "rows": [
+          {
+            "time": "2026-11-05 23:36:10",
+            "player": "luna",
+            "task": "write-stats",
+            "condition": "manual",
+            "epoch": 2,
+            "game": "write-stats-luna-manual-ffd478",
+            "started": true,
+            "terminal": false
+          }
+        ]
+      }
+    ]
+  }
+}

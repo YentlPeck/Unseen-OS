@@ -1,0 +1,264 @@
+[11/05/26 20:27:25] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_os (48 x 6 samples): mockllm/model                                      
+epochs: 6, fail_on_error: False, max_samples: 2, player: luna, conditions:     
+plain,reference,manual, seed: 20261114, manifest: ..., taskset: v3,            
+max_actions: 100, dataset: (samples)                                           
+---------------------------------------------------------                      
+                                                                               
+[11/06/26 10:26:42] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_os (48 x 6 samples): mockllm/model                                      
+epochs: 6, fail_on_error: False, max_samples: 2, player: luna, conditions:     
+plain,reference,manual, seed: 20261114, manifest: ..., taskset: v3,            
+max_actions: 100, dataset: (samples)                                           
+---------------------------------------------------------                      
+                                                                               
+unseen_pl... | Steps:  72/288  25% | Samples:  72/288 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  73/288  25% | Samples:  72/288 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  74/288  25% | Samples:  73/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  75/288  26% | Samples:  74/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  76/288  26% | Samples:  75/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  77/288  26% | Samples:  77/288 | accuracy: 0.55 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  78/288  27% | Samples:  77/288 | accuracy: 0.55 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  79/288  27% | Samples:  78/288 | accuracy: 0.55 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  80/288  27% | Samples:  79/288 | accuracy: 0.55 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  81/288  28% | Samples:  80/288 | accuracy: 0.54 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  82/288  28% | Samples:  81/288 | accuracy: 0.54 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  83/288  28% | Samples:  82/288 | accuracy: 0.54 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  84/288  29% | Samples:  83/288 | accuracy: 0.54 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  85/288  29% | Samples:  84/288 | accuracy: 0.54 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  86/288  29% | Samples:  85/288 | accuracy: 0.54 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  87/288  30% | Samples:  86/288 | accuracy: 0.55 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  88/288  30% | Samples:  87/288 | accuracy: 0.56 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  89/288  30% | Samples:  88/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  90/288  31% | Samples:  89/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  91/288  31% | Samples:  90/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  92/288  31% | Samples:  91/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  93/288  32% | Samples:  92/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  94/288  32% | Samples:  93/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  95/288  32% | Samples:  94/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  96/288  33% | Samples:  95/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  97/288  33% | Samples:  96/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  98/288  34% | Samples:  97/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps:  99/288  34% | Samples:  98/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 100/288  34% | Samples:  99/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 101/288  35% | Samples: 100/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 102/288  35% | Samples: 101/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 103/288  35% | Samples: 102/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 104/288  36% | Samples: 103/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 105/288  36% | Samples: 104/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 106/288  36% | Samples: 105/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 107/288  37% | Samples: 106/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 108/288  37% | Samples: 107/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 109/288  37% | Samples: 108/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 110/288  38% | Samples: 109/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 111/288  38% | Samples: 110/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 112/288  38% | Samples: 111/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 113/288  39% | Samples: 112/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 114/288  39% | Samples: 113/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 115/288  39% | Samples: 114/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 116/288  40% | Samples: 115/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 117/288  40% | Samples: 116/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 118/288  40% | Samples: 117/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 119/288  41% | Samples: 118/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 120/288  41% | Samples: 119/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 121/288  42% | Samples: 120/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 122/288  42% | Samples: 121/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 123/288  42% | Samples: 122/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 124/288  43% | Samples: 123/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 125/288  43% | Samples: 124/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 126/288  43% | Samples: 125/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 127/288  44% | Samples: 126/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 128/288  44% | Samples: 127/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 129/288  44% | Samples: 128/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 130/288  45% | Samples: 129/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 131/288  45% | Samples: 130/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 132/288  45% | Samples: 131/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 133/288  46% | Samples: 132/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 134/288  46% | Samples: 133/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 135/288  46% | Samples: 134/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 136/288  47% | Samples: 135/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 137/288  47% | Samples: 136/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 138/288  47% | Samples: 137/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 139/288  48% | Samples: 138/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 140/288  48% | Samples: 139/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 141/288  48% | Samples: 141/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 142/288  49% | Samples: 141/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 143/288  49% | Samples: 142/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 144/288  50% | Samples: 143/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 145/288  50% | Samples: 144/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 146/288  50% | Samples: 145/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 147/288  51% | Samples: 146/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 148/288  51% | Samples: 147/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 149/288  51% | Samples: 148/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 150/288  52% | Samples: 149/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 151/288  52% | Samples: 151/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 152/288  52% | Samples: 151/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 153/288  53% | Samples: 152/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 154/288  53% | Samples: 153/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 155/288  53% | Samples: 154/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 156/288  54% | Samples: 155/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 157/288  54% | Samples: 156/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 158/288  54% | Samples: 157/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 159/288  55% | Samples: 158/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 160/288  55% | Samples: 159/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 161/288  55% | Samples: 160/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 162/288  56% | Samples: 161/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 163/288  56% | Samples: 162/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 164/288  56% | Samples: 163/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 165/288  57% | Samples: 164/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 166/288  57% | Samples: 165/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 167/288  57% | Samples: 166/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 168/288  58% | Samples: 167/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 169/288  58% | Samples: 168/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 170/288  59% | Samples: 169/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 171/288  59% | Samples: 170/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 172/288  59% | Samples: 171/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 173/288  60% | Samples: 172/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 174/288  60% | Samples: 173/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 175/288  60% | Samples: 174/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 176/288  61% | Samples: 175/288 | accuracy: 0.59 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 177/288  61% | Samples: 176/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 178/288  61% | Samples: 177/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 179/288  62% | Samples: 178/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 180/288  62% | Samples: 179/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 181/288  62% | Samples: 180/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 182/288  63% | Samples: 181/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 183/288  63% | Samples: 182/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 184/288  63% | Samples: 183/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 185/288  64% | Samples: 184/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 186/288  64% | Samples: 185/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 187/288  64% | Samples: 186/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 188/288  65% | Samples: 187/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 189/288  65% | Samples: 188/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 190/288  65% | Samples: 189/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 191/288  66% | Samples: 190/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 192/288  66% | Samples: 191/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 193/288  67% | Samples: 192/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 194/288  67% | Samples: 193/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 195/288  67% | Samples: 194/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 196/288  68% | Samples: 195/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 197/288  68% | Samples: 196/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 198/288  68% | Samples: 197/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 199/288  69% | Samples: 198/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 200/288  69% | Samples: 199/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 201/288  69% | Samples: 200/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 202/288  70% | Samples: 201/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 203/288  70% | Samples: 202/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 204/288  70% | Samples: 203/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 205/288  71% | Samples: 204/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 206/288  71% | Samples: 205/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 207/288  71% | Samples: 206/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 208/288  72% | Samples: 207/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 209/288  72% | Samples: 208/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 210/288  72% | Samples: 209/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 211/288  73% | Samples: 210/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 212/288  73% | Samples: 211/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 213/288  73% | Samples: 212/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 214/288  74% | Samples: 213/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 215/288  74% | Samples: 214/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 216/288  75% | Samples: 215/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 217/288  75% | Samples: 216/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 218/288  75% | Samples: 217/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 219/288  76% | Samples: 218/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 220/288  76% | Samples: 219/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 221/288  76% | Samples: 220/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 222/288  77% | Samples: 221/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 223/288  77% | Samples: 222/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 224/288  77% | Samples: 223/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 225/288  78% | Samples: 224/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 226/288  78% | Samples: 225/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 227/288  78% | Samples: 226/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 228/288  79% | Samples: 227/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 229/288  79% | Samples: 228/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 230/288  79% | Samples: 229/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 231/288  80% | Samples: 230/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 232/288  80% | Samples: 231/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 233/288  80% | Samples: 232/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 234/288  81% | Samples: 233/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 235/288  81% | Samples: 234/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 236/288  81% | Samples: 235/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 237/288  82% | Samples: 236/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 238/288  82% | Samples: 237/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 239/288  82% | Samples: 238/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 240/288  83% | Samples: 239/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 242/288  84% | Samples: 241/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 243/288  84% | Samples: 242/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 244/288  84% | Samples: 243/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 245/288  85% | Samples: 244/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 246/288  85% | Samples: 245/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 247/288  85% | Samples: 246/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 248/288  86% | Samples: 247/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 249/288  86% | Samples: 248/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 250/288  86% | Samples: 249/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 251/288  87% | Samples: 250/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 252/288  87% | Samples: 251/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 253/288  87% | Samples: 252/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 254/288  88% | Samples: 253/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 255/288  88% | Samples: 254/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 256/288  88% | Samples: 255/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 257/288  89% | Samples: 256/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 258/288  89% | Samples: 257/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 259/288  89% | Samples: 258/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 260/288  90% | Samples: 259/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 261/288  90% | Samples: 260/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 262/288  90% | Samples: 261/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 263/288  91% | Samples: 262/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 264/288  91% | Samples: 263/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 265/288  92% | Samples: 264/288 | accuracy: 0.58 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 266/288  92% | Samples: 265/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 267/288  92% | Samples: 266/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 268/288  93% | Samples: 267/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 269/288  93% | Samples: 268/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 270/288  93% | Samples: 269/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 271/288  94% | Samples: 270/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 272/288  94% | Samples: 271/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 273/288  94% | Samples: 272/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 274/288  95% | Samples: 273/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 275/288  95% | Samples: 274/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 276/288  95% | Samples: 275/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 277/288  96% | Samples: 276/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 278/288  96% | Samples: 277/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 279/288  96% | Samples: 278/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 280/288  97% | Samples: 279/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 281/288  97% | Samples: 280/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 282/288  97% | Samples: 281/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 283/288  98% | Samples: 282/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 284/288  98% | Samples: 283/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 285/288  98% | Samples: 284/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 286/288  99% | Samples: 285/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 287/288  99% | Samples: 286/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+unseen_pl... | Steps: 288/288 100% | Samples: 287/288 | accuracy: 0.57 | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_os (48 x 6 samples): mockllm/model                                      
+epochs: 6, fail_on_error: False, max_samples: 2, player: luna, conditions:     
+plain,reference,manual, seed: 20261114, manifest: ..., taskset: v3,            
+max_actions: 100, dataset: (samples)                                           
+                                                                               
+total time:                                   9:55:11                          
+end_state                                                                      
+accuracy   0.566                                                               
+stderr     0.055                                                               
+reference  0.635                                                               
+manual     0.760                                                               
+plain      0.302                                                               
+all        0.566                                                               
+write      0.685                                                               
+bulk       0.411                                                               
+fix        0.981                                                               
+count      0.400                                                               
+all2       0.566                                                               
+Log:                                                                           
+out/experiment4/logs/2026-11-06T09-26-42-00-00_unseen-os_bhDCGz5QATNFPyQCAkjWV…
+---------------------------------------------------------                      
+                                                                               

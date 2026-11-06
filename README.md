@@ -13,20 +13,126 @@ Version 0.3 has eight apps: a shell, **Notes**, **Files**, **Mail**, **Contacts*
 
 ![The Mail app](docs/img/v2-mail.png)
 
-## Three experiments
+## Four experiments
 
-| | Experiment 1 (v0.1) | Experiment 2 (v0.2) | Experiment 3 (v0.3) |
-|---|---|---|---|
-| Apps | shell, Notes, Files | + Mail, Contacts, Calendar, Settings, Calculator | + chores (scripting) |
-| Tasks | 30 single-app tasks | 20 tasks, most needing 2-3 apps | 16 tasks too big to do by hand |
-| Games | 120 | 240 | 192 |
-| Pre-registered verdict | **The manual helps** (p = 0.013) | **No clear difference** (p = 1.0) | **The manual helps** (p = 0.0001) |
-| What really happened | models nearly always won; the verdict came from the audit | models nearly always won, with or without the manual | without the manual, the big tasks were never solved |
+| | Experiment 1 (v0.1) | Experiment 2 (v0.2) | Experiment 3 (v0.3) | Experiment 4 (v0.3) |
+|---|---|---|---|---|
+| Apps | shell, Notes, Files | + Mail, Contacts, Calendar, Settings, Calculator | + chores (scripting) | same as experiment 3 |
+| Tasks | 30 single-app tasks | 20 tasks, most needing 2-3 apps | 16 tasks too big to do by hand | the same 16 tasks |
+| Compared | manual vs nothing | manual vs nothing | manual vs nothing | manual vs the reference alone (and nothing) |
+| Games | 120 | 240 | 192 | 576 |
+| Pre-registered verdict | **The manual helps** (p = 0.013) | **No clear difference** (p = 1.0) | **The manual helps** (p = 0.0001) | **The manual helps more than the reference** (p = 0.003) |
+| What really happened | models nearly always won; the verdict came from the audit | models nearly always won, with or without the manual | without the manual, the big tasks were never solved | the reference alone did most of the work; the manual added about 20 points more |
 
 Experiments 1 and 2 showed that **small models can operate a computer they have never seen**,
 and that on easy tasks a manual mostly makes them faster. Experiment 3 made the tasks hard enough
 to need a program in a language that exists nowhere else, and there **the manual made the
-difference between failing and succeeding**: wins went from 18/96 to 59/96.
+difference between failing and succeeding**: wins went from 18/96 to 59/96. Experiment 4 asked
+how much of that comes from simply having the language reference: **the reference alone lifted
+wins from 45/192 to 103/192, and the full manual lifted them further to 141/192.**
+
+## Experiment 4: the full manual or just the reference?
+
+The manual in experiment 3 holds the chore reference (the same text `guide do` shows on screen),
+but also the OS chapters, extra explanations, five worked examples and tips. Experiment 4 asks
+whether the full manual helps **more than the reference alone**. It reuses experiment 3's 16
+tasks, world and players, with a third condition in between:
+
+- **plain**: nothing in the prompt (the reference is still on the computer, `guide do`),
+- **reference**: only the chore reference in the prompt (106 lines),
+- **manual**: the full manual in the prompt, as in experiment 3.
+
+Each player played each task **6 times per condition**: 2 x 16 x 3 x 6 = **576 games**, with the
+three conditions mixed in random order. The harness was fixed first: keystrokes are now sent in
+acknowledged batches (experiment 3 lost keys in long actions), and the audit allows a backslash in
+the game tool's PowerShell arguments. Rules frozen before the first game: [PREREG4.md](PREREG4.md).
+Design and Sol's reviews: [docs/v4-design.md](docs/v4-design.md).
+
+### Results
+
+| Wins | Plain | Reference | Manual |
+|---|---|---|---|
+| Haiku | 16/96 | 42/96 | 68/96 |
+| Luna | 29/96 | 61/96 | 73/96 |
+| Median actions in won games *(not part of the verdict)* | Haiku 75.5 · Luna 46 | Haiku 67 · Luna 47 | Haiku 60 · Luna 39 |
+
+| Task kind (both players) | Plain | Reference | Manual |
+|---|---|---|---|
+| count | 1/60 | 27/60 | 36/60 |
+| bulk | 3/60 | 27/60 | 44/60 |
+| fix | 28/36 | 28/36 | 33/36 |
+| write | 13/36 | 21/36 | 28/36 |
+
+**Pre-registered verdict: "The manual helps more than the reference."** The average per-task
+difference in win rate is **D = +19.8 points** (permutation test over the 16 tasks, p = 0.003;
+95% interval 9.2 to 30.6 points). 13 tasks scored better with the manual, 2 better with the
+reference (`overdue` 5 -> 3 of 12, `write-birthdays` 10 -> 8 of 12), 1 tied.
+
+Also reported, without a verdict:
+
+| | Haiku | Luna | Both |
+|---|---|---|---|
+| manual vs reference | +27.1 points (p = 0.003) | +12.5 points (p = 0.08) | +19.8 points (p = 0.003) |
+| reference vs plain | +27.1 points (p = 0.0006) | +33.3 points (p = 0.0007) | +30.2 points (p = 0.0003) |
+| manual vs plain | +54.2 points (p = 0.0001) | +45.8 points (p = 0.001) | +50.0 points (p = 0.0001) |
+
+- **Most of the manual's power is the reference.** Having the reference in the prompt took the
+  count and bulk tasks from almost never solved (4/120) to 54/120. In the plain condition the
+  models could read the same text on screen (about 40% of plain games opened `guide do`), but
+  reading it 25 lines at a time worked far less well than having it up front.
+- **The full manual still adds a lot, mainly for Haiku.** Haiku gained 26 wins from the manual
+  over the reference; Luna gained 12, and Luna's difference on its own is not significant.
+- **Part of the manual's lead comes from the audit.** Counting only whether the task got done
+  (ignoring how commands were sent), the reference and manual are closer: Haiku 64 vs 74, Luna
+  66 vs 73. With the reference, Haiku broke the command rules in 30 games and Luna in 8; with
+  the manual, 13 and 0. *(Exploratory, not pre-registered.)*
+- **Experiment 3 replicates.** Manual vs plain is again a large win (15 tasks better, 0 worse).
+  Wins are higher than in experiment 3 in both conditions, probably helped by the keystroke fix.
+- No game crashed the OS, and no fix or write game worked on the visible world but failed a
+  hidden one.
+
+| Task | Plain | Reference | Manual |
+|---|---|---|---|
+| biggest-invoice | 1/12 | 4/12 | 7/12 |
+| contact-invoices | 0/12 | 4/12 | 8/12 |
+| december-due | 0/12 | 6/12 | 8/12 |
+| fix-hello | 10/12 | 8/12 | 10/12 |
+| fix-late | 9/12 | 10/12 | 12/12 |
+| fix-total | 9/12 | 10/12 | 11/12 |
+| invite-neighbours | 1/12 | 5/12 | 11/12 |
+| invoice-thanks | 0/12 | 4/12 | 8/12 |
+| meeting-events | 0/12 | 7/12 | 12/12 |
+| overdue | 0/12 | 5/12 | 3/12 |
+| phonebook | 2/12 | 6/12 | 8/12 |
+| reminders | 0/12 | 5/12 | 5/12 |
+| weekend-due | 0/12 | 8/12 | 10/12 |
+| write-birthdays | 6/12 | 10/12 | 8/12 |
+| write-digest | 2/12 | 2/12 | 8/12 |
+| write-stats | 5/12 | 9/12 | 12/12 |
+
+Results: [out/experiment4/results.json](out/experiment4/results.json). Run notes:
+[out/experiment4/RUN-NOTES.md](out/experiment4/RUN-NOTES.md). Every step of every game:
+`inspect view --log-dir out/experiment4/logs`.
+
+### Honest notes
+
+- **84 games failed the audit** and count as losses: Haiku 28 / 30 / 13 and Luna 5 / 8 / 0
+  (plain / reference / manual).
+- **8 games timed out** (15 minutes), all Luna, 5 of them on `write-digest`.
+- **The run was paused overnight** (PC off, 5 Nov 23:40 to 6 Nov 10:26) and resumed with
+  `--retry` under the written rules. **5 attempts were discarded** and played again: 4 games in
+  progress at the pause, and 1 Luna game where the OS failed to handle a key at the final check
+  (a harness error). All are listed in results.json.
+- **Deviation: the Codex CLI updated itself** from 0.166.0 to 0.167.0 at 10:27 on 6 Nov, one
+  minute after the resume, so Luna's later games ran on the new version (same model and
+  arguments). Luna's wins before and after the pause look the same: plain 7/26 vs 22/70,
+  reference 15/23 vs 46/73, manual 18/23 vs 55/73. Claude Code updated to 2.1.319 only after
+  Haiku's last game.
+- **Package comparisons.** "manual vs reference" bundles the OS chapters, extra explanations,
+  worked examples, tips and length; there is no length-matched placebo. Same tasks, world and
+  models as experiment 3, and the experimenter knew its results. The 5 count tasks all read
+  invoice mails, so they are not independent of each other.
+- Another project ran AI experiments with the same accounts on the same PC during the run.
 
 ## Experiment 3: writing code in an unseen language
 
@@ -235,12 +341,12 @@ Needs Rust, QEMU (`C:\Program Files\qemu`) and Python 3.12 with `inspect-ai`.
 .\run.ps1                                  # build the OS and open it in a QEMU window
 python tools/validate_tasks.py             # prove all tasks are fair
 inspect eval tools/inspect_eval.py -T player=robot -T taskset=v2 --model mockllm/model
-git checkout experiment-3                  # each experiment's exact state is a git tag
-python tools/analyze3.py                   # re-check experiment 3's verdict from the logs
+git checkout experiment-4                  # each experiment's exact state is a git tag
+python tools/analyze4.py                   # re-check experiment 4's verdict from the logs
 ```
 
 The analysis scripts refuse to run if any frozen file changed, so re-check an experiment from its
-own tag (`experiment-1`, `experiment-2`, `experiment-3`): later versions of the harness change
+own tag (`experiment-1` to `experiment-4`): later versions of the harness change
 shared files.
 
-Built 4-5 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
+Built 4-6 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
