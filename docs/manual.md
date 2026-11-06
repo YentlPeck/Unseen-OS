@@ -7,6 +7,8 @@
 - Names use the letters a-z and A-Z, digits, `-`, `_` and `.`, at most 24 characters, no
   spaces. `desk` can't be used as a name.
 - A **path** joins names with `:`. Example: `letters:mira` is the page `mira` inside the drawer `letters`.
+- The desk holds at most 5000 drawers and pages in all (the apps' drawers included), all pages
+  together at most 1 MB of text, and a path is at most 120 characters long.
 
 ## Where you are
 
@@ -50,6 +52,12 @@ last command. Commands can be at most 200 characters long.
 | `calendar` | open the Calendar app |
 | `settings` | open the Settings app |
 | `calc` | open the Calculator app |
+| `stamp <note>` | save the desk as it is now as a new numbered stamp (see History below) |
+| `stamps` | list the stamps |
+| `changes [page or drawer]` | show what changed since the stamp the desk is on |
+| `compare <stamp> [stamp] [page or drawer]` | show what changed from one stamp to another, or to the desk now |
+| `bring <page> <stamp>` | bring back one page as it was in a stamp |
+| `rewind <stamp>` | put the whole desk back as it was in a stamp |
 
 If a command can't be done, the computer explains why in yellow, and nothing is changed.
 
@@ -62,6 +70,7 @@ the bottom bar shows the keys.
 - Enter splits the line; Backspace and Delete remove characters (and can join lines).
 - In Notes you can't type a line longer than 78 characters, or join two lines that together
   would be longer. (Longer lines made with `write` stay as they are.)
+- Notes holds at most 3000 lines: a longer page can't be opened in Notes (`read` shows it).
 - **Ctrl+K keeps (saves) the page.** The bottom bar then says "Kept."
 - **Esc leaves.** If there are changes that were not kept, the first Esc only warns you; a
   second Esc leaves and throws the changes away.
@@ -130,6 +139,46 @@ Backspace.
 - Type a sum with `+ - * / ( )` and press Enter; Up brings back the last sum. Esc leaves.
 - Whole answers are exact. Others show up to 6 decimals, with "about" if they were rounded.
   Numbers must be below 1000000000000.
+
+## History (stamps)
+
+The computer can keep earlier versions of your desk. A **stamp** is a saved copy of every
+drawer and page at one moment, with a number (`#1`, `#2`, ...), a date and a short note.
+The drawers looked after by an app (`mail`, `contacts`, `calendar`, `system`) are **not** part
+of stamps: a rewind never un-sends a mail.
+
+- When the computer starts, the desk is already stamped: `#1` is the desk as it started (some
+  desks come with more stamps; `stamps` lists them), unless it is too big to stamp (see the
+  limits below).
+- Once there is a stamp, the desk is always **on** one stamp. `stamps` marks it with `*`.
+- `changes` compares the desk with that stamp. Each changed item is listed as `new`, `gone` or
+  `changed`; for a changed page you see the lines that went **out** (`-`) and came **in** (`+`),
+  with their line numbers, and one unchanged line around them. `changes tools` shows only what
+  is inside the drawer `tools` (or only that page).
+- `stamp fixed the totals` saves the desk as the next stamp, on top of the one the desk is on.
+  The note is one line, at most 60 characters. Stamping when nothing changed is refused.
+- `compare 2 4` shows what changed from stamp #2 to stamp #4; `compare 2` shows what changed
+  from stamp #2 to the desk now. Add a page or drawer to see only that part:
+  `compare 2 4 tools`. Stamp numbers can be written `2` or `#2` (a number is always read as a
+  stamp, so for a page named `3` write `desk:3`).
+- `rewind 2` puts the **whole desk** back as it was in stamp #2. Later stamps are kept, so you
+  can rewind forward again. A rewind is refused while the desk has changes that are not
+  stamped yet (stamp them first), so nothing is lost.
+- `bring tools:total 2` brings back **one page** as it was in stamp #2 (its drawer is made again
+  if needed). It is refused if that page has changes that are not stamped yet, or if one of the
+  drawers above it is now a page. A page that is gone can always be brought back, even if
+  tossing it was not stamped.
+- A stamp made after a rewind is made on top of the stamp you rewound to; `stamps` shows this
+  as `(made on #2)`.
+- At most 99 stamps, and the history has room for 2 MB. Every text is kept only once, however
+  many stamps (or names) it appears under; each drawer and page in a stamp also takes a little
+  room (so a desk with many pages fills the history sooner). `stamps` shows how much is used.
+  A desk with more than 5000 drawers and pages (not counting the app drawers) can't be stamped.
+
+`stamps`, `changes` and `compare` open a screen you can scroll with Up/Down; Esc goes back.
+A very long list is cut off, and says so: then name one page or drawer to see less at once.
+Pages longer than 3000 lines are not compared line by line (you see only that they changed).
+Like every command, a history command that can't be done changes nothing.
 
 ## Chores (small programs)
 

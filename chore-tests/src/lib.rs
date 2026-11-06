@@ -5,6 +5,9 @@ extern crate alloc;
 #[allow(dead_code)]
 pub mod fs;
 
+#[path = "../../kernel/src/history.rs"]
+pub mod history;
+
 #[path = "../../kernel/src/chore.rs"]
 pub mod chore;
 
@@ -13,3 +16,6 @@ mod tests;
 
 #[cfg(test)]
 mod fuzz;
+
+#[cfg(test)]
+mod history_tests;

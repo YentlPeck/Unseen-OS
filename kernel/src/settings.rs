@@ -95,7 +95,7 @@ impl Settings {
             Key::Ctrl(b'k') => {
                 let text: Vec<String> =
                     SETTINGS.iter().zip(&self.values).map(|((k, _, _), v)| format!("{k}: {v}")).collect();
-                fs.app_write(PAGE, &text.join("\n"));
+                let _ = fs.app_write(PAGE, &text.join("\n")); // the settings page always exists
                 screen::set_theme(&self.values[1]);
                 self.changed = false;
                 self.message = "Kept.".into();

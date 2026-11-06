@@ -67,14 +67,14 @@ const SUBJECT_MAX: usize = 60;
 const BODY_MAX: usize = 4096;
 
 /// Put a message in the Sent box (used by the Mail app and by chores).
-pub fn deliver(fs: &mut Fs, to: &str, subject: &str, body: &str) -> String {
+pub fn deliver(fs: &mut Fs, to: &str, subject: &str, body: &str) -> Result<String, String> {
     let mut n = 1;
     while fs.exists(&format!("mail:sent:s{n}")) {
         n += 1;
     }
     let path = format!("mail:sent:s{n}");
-    fs.app_write(&path, &format!("from: me\nto: {to}\nsubject: {subject}\n\n{}", body.trim_end()));
-    path
+    fs.app_write(&path, &format!("from: me\nto: {to}\nsubject: {subject}\n\n{}", body.trim_end()))?;
+    Ok(path)
 }
 
 /// The checks a chore's send(to, subject, text) must pass. Stricter than the
@@ -151,7 +151,7 @@ impl Mail {
                 "No contact has the address '{to}' (addresses must match exactly). Ctrl+K again sends anyway."
             ));
         }
-        deliver(fs, to, c.form.value(1), &c.body.text());
+        deliver(fs, to, c.form.value(1), &c.body.text())?;
         Ok(format!("Sent to {to}."))
     }
 

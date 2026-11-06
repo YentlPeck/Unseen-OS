@@ -10,8 +10,12 @@
 //!   SCREEN  -> SCREEN <the 25 screen rows as text>
 //!   CURSOR  -> CURSOR <row> <column> (counted from 1, like the screen rows)
 //!   DUMP    -> DUMP  <every drawer and page, for scoring a task>
+//!   STAMPS  -> STAMPS <the history: "BASE <n>", then one "S <n> <from> <date> <note>" line
+//!              per stamp (from is "-" for none), then "E <problem>" for each #stamp line of
+//!              the start files that failed>
 
 use crate::fs::{self, Entry, Fs};
+use crate::history::History;
 use crate::screen::{Screen, COLS, ROWS};
 use crate::serial::{self, Serial};
 use alloc::format;
@@ -25,6 +29,7 @@ pub struct Inspector {
 pub struct State<'a> {
     pub screen: &'a Screen,
     pub fs: &'a Fs,
+    pub history: &'a History,
     pub keys_handled: u64,
     pub session: &'a str,
 }
@@ -83,6 +88,21 @@ fn answer(cmd: &str, state: &State) {
                 }
             }
             reply("DUMP", &text);
+        }
+        "STAMPS" => {
+            let h = state.history;
+            let mut text = match h.base() {
+                Some(b) => format!("BASE {b}\n"),
+                None => String::from("BASE -\n"),
+            };
+            for s in h.stamps() {
+                let from = s.from.map_or(String::from("-"), |f| format!("{f}"));
+                text.push_str(&format!("S {} {from} {} {}\n", s.number, s.date, s.note));
+            }
+            for e in &h.start_errors {
+                text.push_str(&format!("E {e}\n"));
+            }
+            reply("STAMPS", &text);
         }
         "" => {}
         _ => reply("ERROR", "unknown inspector command"),

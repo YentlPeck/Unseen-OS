@@ -107,10 +107,10 @@ fn event_text(date: &str, time: &str, title: &str, with: &str) -> String {
 }
 
 /// Add a new event (used by chores; the app uses the same checks and format).
-pub fn add_event(fs: &mut Fs, date: &str, time: &str, title: &str, with: &str) -> String {
+pub fn add_event(fs: &mut Fs, date: &str, time: &str, title: &str, with: &str) -> Result<String, String> {
     let path = new_event_path(fs);
-    fs.app_write(&path, &event_text(date, time, title, with));
-    path
+    fs.app_write(&path, &event_text(date, time, title, with))?;
+    Ok(path)
 }
 
 /// A time for display, following the clock setting.
@@ -161,7 +161,7 @@ impl Calendar {
             Some(p) => p.clone(),
             None => new_event_path(fs),
         };
-        fs.app_write(&path, &event_text(date, time, title, with));
+        fs.app_write(&path, &event_text(date, time, title, with))?;
         Ok(format!("Kept: {title}."))
     }
 
