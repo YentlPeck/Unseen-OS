@@ -26,6 +26,15 @@ impl Notes {
         if !fs.is_drawer(fs::parent(&path)) {
             return Err(format!("there is no drawer called {}", fs::display(fs::parent(&path))));
         }
+        if let Ok(t) = fs.read_page(&path) {
+            if t.bytes().filter(|&b| b == b'\n').count() >= crate::ui::MAX_AREA_LINES {
+                return Err(format!(
+                    "{} has more than {} lines, too many for Notes (read shows it)",
+                    fs::display(&path),
+                    crate::ui::MAX_AREA_LINES
+                ));
+            }
+        }
         let (text, message) = match fs.read_page(&path) {
             Ok(t) => (t.to_string(), String::new()),
             Err(_) => (String::new(), "New page. It is not on the desk until you keep it.".to_string()),

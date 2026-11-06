@@ -13,6 +13,7 @@ use crate::files::{Files, Outcome};
 use crate::mail::Mail;
 use crate::settings::{self, Settings};
 use crate::fs::{self, Entry, Fs};
+use crate::history::{self, History};
 use crate::keyboard::Key;
 use crate::notes::Notes;
 use crate::screen::{Screen, ACCENT, BRIGHT, NORMAL, WARN};
@@ -53,6 +54,12 @@ const COMMANDS: &[Command] = &[
     Command { name: "settings", usage: "settings", about: "open the Settings app", run: cmd_settings },
     Command { name: "calc", usage: "calc", about: "open the Calculator app", run: cmd_calc },
     Command { name: "do", usage: "do <page>", about: "carry out the chore written on a page (guide do explains chores)", run: cmd_do },
+    Command { name: "stamp", usage: "stamp <note>", about: "save the desk as it is now as a new numbered stamp, with a short note", run: cmd_stamp },
+    Command { name: "stamps", usage: "stamps", about: "list the stamps (the saved versions of the desk)", run: cmd_stamps },
+    Command { name: "changes", usage: "changes [page or drawer]", about: "show what changed since the stamp the desk is on", run: cmd_changes },
+    Command { name: "compare", usage: "compare <stamp> [stamp] [page or drawer]", about: "show what changed from one stamp to another (or to the desk now)", run: cmd_compare },
+    Command { name: "bring", usage: "bring <page> <stamp>", about: "bring back one page as it was in a stamp", run: cmd_bring },
+    Command { name: "rewind", usage: "rewind <stamp>", about: "put the whole desk back as it was in a stamp (later stamps are kept)", run: cmd_rewind },
     Command { name: "show", usage: "show <text>", about: "write text on the screen", run: cmd_show },
     Command { name: "wipe", usage: "wipe", about: "clean the screen", run: cmd_wipe },
     Command { name: "clock", usage: "clock", about: "today's date and time", run: cmd_clock },
@@ -76,6 +83,7 @@ pub struct Shell {
     last: String,
     here: String,
     fs: Fs,
+    history: History,
     apps: Vec<App>,
     memory_mb: u32,
     /// The date from the start files, if the experiment froze it.
@@ -83,8 +91,22 @@ pub struct Shell {
 }
 
 impl Shell {
-    pub fn new(fs: Fs, memory_mb: u32, today: Option<String>) -> Self {
-        Self { line: String::new(), too_long: false, last: String::new(), here: String::new(), fs, apps: Vec::new(), memory_mb, today }
+    pub fn new(fs: Fs, history: History, memory_mb: u32, today: Option<String>) -> Self {
+        Self {
+            line: String::new(),
+            too_long: false,
+            last: String::new(),
+            here: String::new(),
+            fs,
+            history,
+            apps: Vec::new(),
+            memory_mb,
+            today,
+        }
+    }
+
+    pub fn history(&self) -> &History {
+        &self.history
     }
 
     /// Today's date as YYYY-MM-DD (frozen by the start files, or the clock's).
@@ -306,11 +328,12 @@ fn usage(screen: &mut Screen, word: &str) {
 
 // ---- commands -------------------------------------------------------------
 
-const GROUPS: [(&str, &[&str]); 5] = [
+const GROUPS: [(&str, &[&str]); 6] = [
     ("Drawers", &["here", "peek", "enter", "leave", "build"]),
     ("Pages", &["read", "write", "add", "copy", "rename", "move", "toss", "seek"]),
     ("Apps", &["notes", "files", "mail", "contacts", "calendar", "settings", "calc"]),
     ("Chores", &["do"]),
+    ("History", &["stamp", "stamps", "changes", "compare", "bring", "rewind"]),
     ("Other", &["show", "wipe", "clock", "about", "guide"]),
 ];
 
@@ -508,6 +531,91 @@ fn cmd_do(sh: &mut Shell, screen: &mut Screen, rest: &str) {
     let viewer = chores::run(&mut sh.fs, &page, today);
     sh.apps.push(App::Viewer(viewer));
     sh.redraw(screen);
+}
+
+fn open_viewer(sh: &mut Shell, screen: &mut Screen, title: &str, text: fs::Result<Vec<String>>) {
+    match text {
+        Ok(lines) => {
+            sh.apps.push(App::Viewer(Viewer::from_lines(title, "", lines, ACCENT)));
+            sh.redraw(screen);
+        }
+        Err(e) => warn(screen, &format!("Could not do that: {e}.")),
+    }
+}
+
+fn stamp_number(screen: &mut Screen, word: &str) -> Option<usize> {
+    let n = history::parse_number(word);
+    if n.is_none() {
+        warn(screen, &format!("'{word}' is not a stamp number (stamps lists them, e.g. #2)."));
+    }
+    n
+}
+
+fn cmd_stamp(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "stamp");
+    }
+    let before = sh.history.base();
+    let changed = sh.history.unstamped_count(&sh.fs);
+    let date = sh.today();
+    let r = sh.history.stamp(&sh.fs, &date, rest).map(|n| {
+        let s = if changed == 1 { "" } else { "s" };
+        match before {
+            Some(b) => format!("Stamped #{n}: {rest} ({changed} change{s} since #{b})."),
+            None => format!("Stamped #{n}: {rest}."),
+        }
+    });
+    done(screen, r);
+}
+
+fn cmd_stamps(sh: &mut Shell, screen: &mut Screen, _: &str) {
+    let lines = sh.history.list(&sh.fs);
+    open_viewer(sh, screen, "Stamps", Ok(lines));
+}
+
+fn cmd_changes(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let filter = if rest.is_empty() { Ok(String::new()) } else { sh.path(rest) };
+    let r = filter.and_then(|f| sh.history.changes(&sh.fs, &f));
+    open_viewer(sh, screen, "Changes", r);
+}
+
+fn cmd_compare(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "compare");
+    }
+    let mut words = rest.split_whitespace();
+    let Some(a) = words.next().and_then(|w| stamp_number(screen, w)) else { return };
+    // compare <stamp> [stamp] [page or drawer]: a second number is a stamp, a name is the filter
+    let mut next = words.next();
+    let b = next.and_then(history::parse_number);
+    if b.is_some() {
+        next = words.next();
+    }
+    if words.next().is_some() {
+        return usage(screen, "compare");
+    }
+    let filter = match next {
+        Some(w) => sh.path(w),
+        None => Ok(String::new()),
+    };
+    let r = filter.and_then(|f| sh.history.compare(&sh.fs, a, b, &f));
+    open_viewer(sh, screen, "Compare", r);
+}
+
+fn cmd_bring(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, n)) = two_args(rest) else { return usage(screen, "bring") };
+    let Some(n) = stamp_number(screen, n) else { return };
+    let r = sh.path(page).and_then(|p| sh.history.bring(&mut sh.fs, &p, n));
+    done(screen, r);
+}
+
+fn cmd_rewind(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if rest.is_empty() {
+        return usage(screen, "rewind");
+    }
+    let Some(n) = stamp_number(screen, rest) else { return };
+    let r = sh.history.rewind(&mut sh.fs, n);
+    done(screen, r);
 }
 
 fn cmd_show(_: &mut Shell, screen: &mut Screen, rest: &str) {

@@ -100,6 +100,8 @@ pub struct TextArea {
 }
 
 pub const MAX_LINE: usize = COLS - 2;
+/// A text area holds at most this many lines (memory: one String per line).
+pub const MAX_AREA_LINES: usize = 3000;
 
 impl TextArea {
     pub fn new(text: &str) -> Self {
@@ -127,6 +129,9 @@ impl TextArea {
             Key::Char(_) => {
                 self.overflow = true;
                 message = Some("This line is full (78 characters): that letter was not added. Press Enter for a new line.");
+            }
+            Key::Enter if self.lines.len() >= MAX_AREA_LINES => {
+                message = Some("This page is full (3000 lines): no new line was added.");
             }
             Key::Enter => {
                 let rest = self.lines[self.row].split_off(self.col);

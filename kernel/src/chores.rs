@@ -117,11 +117,11 @@ pub fn apply(desk: &mut Fs, actions: &[Action]) -> Result<Vec<String>, String> {
                 format!("tossed {}", fs::display(page))
             }
             Action::Send { to, subject, text } => {
-                let path = mail::deliver(&mut copy, to, subject, text);
+                let path = mail::deliver(&mut copy, to, subject, text)?;
                 format!("sent a mail to {to} ({})", fs::display(&path))
             }
             Action::Event { date, time, title, with } => {
-                let path = calendar::add_event(&mut copy, date, time, title, with);
+                let path = calendar::add_event(&mut copy, date, time, title, with)?;
                 format!("added the event {date} {time} {title} ({})", fs::display(&path))
             }
         };
@@ -197,6 +197,20 @@ impl Viewer {
         let mut lines = Vec::new();
         for t in text {
             lines.extend(ui::wrap(t, WIDTH));
+        }
+        Self { title: title.into(), right: right.into(), lines, first_color, top: 0 }
+    }
+
+    /// Like new, but takes the lines: short lines are moved, not copied, so a long
+    /// listing is not held twice in memory.
+    pub fn from_lines(title: &str, right: &str, text: Vec<String>, first_color: u8) -> Self {
+        let mut lines = Vec::with_capacity(text.len());
+        for t in text {
+            if t.len() <= WIDTH && !t.contains('\n') {
+                lines.push(t);
+            } else {
+                lines.extend(ui::wrap(&t, WIDTH));
+            }
         }
         Self { title: title.into(), right: right.into(), lines, first_color, top: 0 }
     }

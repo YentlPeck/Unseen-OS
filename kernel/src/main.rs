@@ -13,6 +13,7 @@ mod chores;
 mod contacts;
 mod files;
 mod fs;
+mod history;
 mod inspector;
 mod keyboard;
 mod mail;
@@ -90,23 +91,55 @@ extern "C" fn kernel_main(multiboot_info: u32) -> ! {
         .map(|s| s.trim())
         .filter(|s| calendar::parse_date(s).is_some())
         .map(|s| alloc::string::String::from(s));
+    let date = today.clone().unwrap_or_else(|| {
+        let t = rtc::now();
+        alloc::format!("{:04}-{:02}-{:02}", t.year, t.month, t.day)
+    });
+    // Stamps written in the start files ("#stamp <note>") become the history;
+    // without any, the desk as it starts is stamp #1.
+    let mut stamps = history::History::new();
     let desk = match start {
         Some(text) => {
             log!("loading start files ({} bytes)", text.len());
-            fs::Fs::from_start_files(text)
+            fs::Fs::load_start_files(text, |fs, note| {
+                if let Err(e) = stamps.start_stamp(fs, note, &date) {
+                    log!("START FILES ERROR: {}", e);
+                }
+            })
         }
         None => fs::Fs::sample(),
     };
     let mut desk = desk;
+    if desk.skipped > 0 {
+        log!("START FILES ERROR: {} drawers/pages left out", desk.skipped);
+        stamps.start_error(&alloc::format!(
+            "{} drawers or pages were left out (more than {} in all, or a path over {} characters)",
+            desk.skipped,
+            fs::MAX_ITEMS,
+            fs::MAX_PATH
+        ));
+    }
     desk.ensure_system();
-    let mut shell = shell::Shell::new(desk, memory_mb(multiboot_info), today);
+    if stamps.stamps().is_empty() {
+        if let Err(e) = stamps.stamp(&desk, &date, "the desk as it started") {
+            log!("START FILES ERROR: first stamp: {}", e);
+            stamps.start_error(&alloc::format!("first stamp: {e}"));
+        }
+    }
+    let mut shell = shell::Shell::new(desk, stamps, memory_mb(multiboot_info), today);
     let mut inspector = inspector::Inspector::new();
     let mut keys_handled: u64 = 0;
     shell.start(&mut screen);
     log!("ready");
 
     loop {
-        inspector.poll(&inspector::State { screen: &screen, fs: shell.fs(), keys_handled, session });
+        inspector.poll(&inspector::State {
+            screen: &screen,
+            fs: shell.fs(),
+            history: shell.history(),
+            keys_handled,
+            session,
+        });
         if let Some(key) = keyboard.poll() {
             shell.key(&mut screen, key);
             keys_handled += 1;

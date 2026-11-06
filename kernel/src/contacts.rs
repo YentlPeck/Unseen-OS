@@ -116,7 +116,7 @@ impl Contacts {
             fs.app_toss(o);
         }
         let text = Self::page_text(form, old_text);
-        fs.app_write(&path, &text);
+        fs.app_write(&path, &text)?;
         Ok(format!("Kept {name}."))
     }
 

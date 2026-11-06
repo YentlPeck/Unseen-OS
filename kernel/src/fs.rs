@@ -21,6 +21,8 @@ pub struct Fs {
     /// (old path, new path) of every rename/move, so the shell can follow
     /// along if the drawer it is in gets moved.
     moves: Vec<(String, String)>,
+    /// Drawers and pages in the start files that were left out (too many, or a path too long).
+    pub skipped: usize,
 }
 
 pub type Result<T> = core::result::Result<T, String>;
@@ -62,12 +64,25 @@ pub const APP_DRAWERS: [(&str, &str, &str); 4] = [
 /// all-or-nothing copy of the desk needs room for a second copy).
 pub const MAX_DESK: usize = 1024 * 1024;
 
+/// At most this many drawers and pages in all (with the app drawers), and paths of at most
+/// MAX_PATH characters: with MAX_DESK this bounds the memory the desk can take.
+pub const MAX_ITEMS: usize = 5000;
+pub const MAX_PATH: usize = 120;
+
 pub const DEFAULT_SETTINGS: &str = "name: friend\ntheme: blue\nstart: shell\nclock: 24h";
 
 /// The app that looks after this path, if any: (app name, command).
 pub fn owner(path: &str) -> Option<(&'static str, &'static str)> {
     let top = path.split(':').next().unwrap_or("");
     APP_DRAWERS.iter().find(|(d, _, _)| *d == top).map(|(_, app, cmd)| (*app, *cmd))
+}
+
+fn check_path(path: &str) -> Result<()> {
+    if path.len() > MAX_PATH {
+        Err(format!("that path is too long (at most {MAX_PATH} characters)"))
+    } else {
+        Ok(())
+    }
 }
 
 fn guard(path: &str) -> Result<()> {
@@ -79,7 +94,7 @@ fn guard(path: &str) -> Result<()> {
 
 impl Fs {
     pub fn new() -> Self {
-        Self { entries: BTreeMap::new(), moves: Vec::new() }
+        Self { entries: BTreeMap::new(), moves: Vec::new(), skipped: 0 }
     }
 
     /// Make sure the app drawers and the settings page exist.
@@ -91,9 +106,57 @@ impl Fs {
     }
 
     /// For apps only: write a page inside an app drawer (no protection check).
-    pub fn app_write(&mut self, path: &str, text: &str) {
+    pub fn app_write(&mut self, path: &str, text: &str) -> Result<()> {
+        self.check_room(self.needed(path))?;
+        self.check_bytes(path, text)?;
         self.ensure_drawers(parent(path));
         self.entries.insert(path.to_string(), Entry::Page(text.to_string()));
+        Ok(())
+    }
+
+    /// How many new entries writing `path` would make (missing drawers above it, and itself).
+    pub fn needed(&self, path: &str) -> usize {
+        let mut n = 0;
+        let mut p = path;
+        while !p.is_empty() && !self.entries.contains_key(p) {
+            n += 1;
+            p = parent(p);
+        }
+        n
+    }
+
+    /// Is there room for this many new drawers and pages?
+    pub fn check_room(&self, new_entries: usize) -> Result<()> {
+        if self.entries.len() + new_entries > MAX_ITEMS {
+            Err(format!("the desk is full (at most {MAX_ITEMS} drawers and pages in all)"))
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Would writing `text` to `path` keep all pages together within MAX_DESK?
+    pub fn check_bytes(&self, path: &str, text: &str) -> Result<()> {
+        let old = match self.entries.get(path) { Some(Entry::Page(t)) => t.len(), _ => 0 };
+        if self.total_bytes() - old + text.len() > MAX_DESK {
+            Err("the desk is full (all pages together can hold at most 1 MB of text)".into())
+        } else {
+            Ok(())
+        }
+    }
+
+    /// How many drawers and pages there are (with the app drawers).
+    pub fn count(&self) -> usize {
+        self.entries.len()
+    }
+
+    /// For the start files: leave out what doesn't fit (room is kept for the app drawers).
+    fn loadable(&mut self, path: &str) -> bool {
+        if path.len() > MAX_PATH || self.entries.len() + self.needed(path) > MAX_ITEMS - 16 {
+            self.skipped += 1;
+            false
+        } else {
+            true
+        }
     }
 
     /// For apps only: remove a page inside an app drawer.
@@ -123,31 +186,77 @@ impl Fs {
     ///   text lines...
     ///   #end
     /// Paths leave out "desk:". Missing parent drawers are created.
+    #[allow(dead_code)] // the kernel uses load_start_files; host tests use this
     pub fn from_start_files(text: &str) -> Self {
+        Self::load_start_files(text, |_, _| {})
+    }
+
+    /// Like from_start_files, with two more lines for building a history:
+    ///   #toss letters:mira   remove a page or drawer (and what is inside it)
+    ///   #stamp <note>        calls `on_stamp` with the desk loaded so far
+    pub fn load_start_files(text: &str, mut on_stamp: impl FnMut(&Fs, &str)) -> Self {
         let mut fs = Self::new();
-        let mut page: Option<(String, Vec<&str>)> = None;
+        // (path, text so far, has a line yet, too big): the text is built directly, without
+        // a list of lines, and never grows past what the desk can still hold
+        let mut page: Option<(String, String, bool, bool)> = None;
+        let mut room = MAX_DESK - DEFAULT_SETTINGS.len();
         for line in text.lines() {
             let line = line.trim_end_matches('\r');
             if !line.bytes().all(|b| (0x20..0x7f).contains(&b)) {
                 continue; // only plain ASCII text is allowed in start files
             }
-            if let Some((path, body)) = &mut page {
+            if let Some((path, body, started, too_big)) = &mut page {
                 if line == "#end" {
                     let path = core::mem::take(path);
-                    fs.ensure_drawers(parent(&path));
-                    fs.entries.insert(path, Entry::Page(body.join("\n")));
+                    let mut body = core::mem::take(body);
+                    body.shrink_to_fit();
+                    let old = match fs.entries.get(&path) { Some(Entry::Page(t)) => t.len(), _ => 0 };
+                    if *too_big || body.len() > room + old {
+                        fs.skipped += 1;
+                    } else if fs.loadable(&path) {
+                        room = room + old - body.len();
+                        fs.ensure_drawers(parent(&path));
+                        fs.entries.insert(path, Entry::Page(body));
+                    }
                     page = None;
-                } else {
-                    body.push(line);
+                } else if !*too_big {
+                    let add = line.len() + usize::from(*started);
+                    if body.len() + add > room + match fs.entries.get(path.as_str()) {
+                        Some(Entry::Page(t)) => t.len(),
+                        _ => 0,
+                    } {
+                        *too_big = true;
+                        *body = String::new();
+                    } else {
+                        if *started {
+                            body.push('\n');
+                        }
+                        body.push_str(line);
+                        *started = true;
+                    }
                 }
             } else if let Some(p) = line.strip_prefix("#drawer ") {
-                fs.ensure_drawers(p.trim());
+                if fs.loadable(p.trim()) {
+                    fs.ensure_drawers(p.trim());
+                }
             } else if let Some(p) = line.strip_prefix("#page ") {
-                page = Some((p.trim().to_string(), Vec::new()));
+                page = Some((p.trim().to_string(), String::new(), false, false));
+            } else if let Some(p) = line.strip_prefix("#toss ") {
+                let p = p.trim();
+                let inside = format!("{p}:");
+                fs.entries.retain(|k, _| k != p && !k.starts_with(&inside));
+            } else if let Some(note) = line.strip_prefix("#stamp ") {
+                on_stamp(&fs, note);
             }
         }
         fs.moves.clear();
         fs
+    }
+
+    /// Replace every drawer and page outside the app drawers (for a rewind).
+    pub fn replace_tracked(&mut self, entries: Vec<(String, Entry)>) {
+        self.entries.retain(|k, _| owner(k).is_some());
+        self.entries.extend(entries.into_iter().filter(|(k, _)| owner(k).is_none()));
     }
 
     pub fn ensure_drawers(&mut self, path: &str) {
@@ -182,6 +291,9 @@ impl Fs {
                 return Err(format!("'{part}' is not a valid name (use letters, digits, - _ . and at most 24 characters)"));
             }
             path = join(&path, part);
+        }
+        if path.len() > MAX_PATH {
+            return Err(format!("that path is too long (at most {MAX_PATH} characters)"));
         }
         Ok(path)
     }
@@ -227,6 +339,7 @@ impl Fs {
 
     pub fn write_page(&mut self, path: &str, text: &str) -> Result<()> {
         guard(path)?;
+        check_path(path)?;
         let old = match self.entries.get(path) { Some(Entry::Page(t)) => t.len(), _ => 0 };
         if self.total_bytes() - old + text.len() > MAX_DESK {
             return Err("the desk is full (all pages together can hold at most 1 MB of text)".into());
@@ -235,16 +348,21 @@ impl Fs {
             return Err(format!("{} is a drawer, not a page", display(path)));
         }
         self.check_parent(path)?;
+        if !self.entries.contains_key(path) {
+            self.check_room(1)?;
+        }
         self.entries.insert(path.to_string(), Entry::Page(text.to_string()));
         Ok(())
     }
 
     pub fn build_drawer(&mut self, path: &str) -> Result<()> {
         guard(path)?;
+        check_path(path)?;
         if self.exists(path) {
             return Err(format!("{} already exists", display(path)));
         }
         self.check_parent(path)?;
+        self.check_room(1)?;
         self.entries.insert(path.to_string(), Entry::Drawer);
         Ok(())
     }
@@ -284,6 +402,10 @@ impl Fs {
         let prefix = format!("{from}:");
         let moving: Vec<String> =
             self.entries.keys().filter(|k| *k == from || k.starts_with(&prefix)).cloned().collect();
+        let longest = moving.iter().map(|k| k.len() - from.len()).max().unwrap_or(0);
+        if to.len() + longest > MAX_PATH {
+            return Err(format!("the paths inside would get too long (at most {MAX_PATH} characters)"));
+        }
         for old in moving {
             let entry = self.entries.remove(&old).unwrap();
             let new = format!("{to}{}", &old[from.len()..]);
