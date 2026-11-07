@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-haiku-plain-015cac",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "haiku",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "it starts empty, with F: ?": [
+        true,
+        ""
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        true,
+        ""
+      ],
+      "minus and a point work; other characters are not added": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 72,
+  "seconds": 294,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "I built the app on `desk:apps:temp` and checked it in the running app: 77 gives F: 170.6, 2 gives 35.6, -40.5 gives -40.9, and letters are ignored.\n\nIt is a 29-line page with no other pages touched; nothing else on the desk changed.\n\nOne choice I made: numbers too large for Unseen Script (13 digits and up) would have closed the app, so for those the app shows `F: ?` instead. The spec didn't cover that case.",
+  "files": {
+    "desk:apps:temp": "app 'Celsius to Fahrenheit'\ntask start()\ngive ''\ndone\ntask typed(k)\ngive (k is '-') or (k is '.') or (find('0123456789', k) > 0)\ndone\ntask key(s, k)\nwhen k is 'backspace'\ngive edit_text(s, k)\ndone\nwhen typed(k)\ngive edit_text(s, k)\ndone\ngive s\ndone\ntask draw(s)\ntitle('Celsius to Fahrenheit')\nshow(1, 1, 'C: ' & s)\nwhen is_number(s)\ntry\nshow(2, 1, 'F: ' & text(number(s) * 9 / 5 + 32))\ninstead err\nshow(2, 1, 'F: ?')\ndone\notherwise\nshow(2, 1, 'F: ?')\ndone\ndone"
+  }
+}

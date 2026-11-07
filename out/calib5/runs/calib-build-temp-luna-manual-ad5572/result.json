@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-luna-manual-ad5572",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "luna",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "it starts empty, with F: ?": [
+        true,
+        ""
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        true,
+        ""
+      ],
+      "minus and a point work; other characters are not added": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 31,
+  "seconds": 330,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created `desk:apps:temp` and confirmed empty input, `25 \u2192 77`, backspace behavior, ignored characters, and `-40 \u2192 -40`.",
+  "files": {
+    "desk:apps:temp": "app 'Celsius to Fahrenheit'\ntask start()\ngive {c: ''}\ndone\ntask key(s, k)\nwhen k is 'backspace'\nset s.c to edit_text(s.c, k)\nor when '0123456789-.' has k\nset s.c to edit_text(s.c, k)\ndone\ngive s\ndone\ntask draw(s)\nshow(1, 1, 'C: ' & s.c)\nwhen is_number(s.c)\nshow(2, 1, 'F: ' & (number(s.c) * 9 / 5 + 32))\notherwise\nshow(2, 1, 'F: ?')\ndone\ndone"
+  }
+}

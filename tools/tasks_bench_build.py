@@ -25,7 +25,10 @@ def only_pages(*names):
 
 
 def make(path):
-    return (f"Make an app on the page {path} (the drawer desk:apps is there already). ")
+    # calibration (docs/calibration5.md): say the column, or a careful app that indents its rows
+    # (as the manual's counter example does) fails the hidden tests for no good reason
+    return (f"Make an app on the page {path} (the drawer desk:apps is there already). Everything it shows "
+            "starts at column 1 of its row, as written below. ")
 
 
 # ------------------------------------------------------------------------------- light --

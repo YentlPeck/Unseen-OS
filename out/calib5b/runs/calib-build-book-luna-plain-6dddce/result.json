@@ -1,0 +1,44 @@
+{
+  "game": "calib-build-book-luna-plain-6dddce",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 74,
+  "seconds": 546,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Built and tried `desk:apps:book`; it works, and testing saved \u201cMir\u201d and \u201cZoe\u201d to `desk:guestbook`.",
+  "files": {
+    "desk:apps:book": "app 'Guest Book'\ntask decorate(names)\nset out to []\nset row to 3\nfor each n in reverse(names)\nadd {row: row, name: n} to out\nset row to row + 1\ndone\ngive out\ndone\ntask start()\nset guests to []\nwhen exists('desk:guestbook')\nset guests to lines(read('desk:guestbook'))\ndone\ngive {guests: guests, display: decorate(guests), name: ''}\ndone\ntask key(s, k)\nwhen k is 'enter' and s.name is not ''\nadd('desk:guestbook', s.name)\nadd s.name to s.guests\nset s.display to decorate(s.guests)\nset s.name to ''\nor when k is 'backspace'\nset s.name to edit_text(s.name, k)\nor when count(k) is 1\nset s.name to edit_text(s.name, k)\ndone\ngive s\ndone\ntask draw(s)\ntitle('Guest Book')\nshow(1, 1, count(s.guests) & ' guests')\nfor each g in s.display\nwhen g.row <= 22\nshow(g.row, 1, g.name)\ndone\ndone\nshow(23, 1, 'name: ' & s.name)\ndone",
+    "desk:guestbook": "Mir\nZoe"
+  }
+}

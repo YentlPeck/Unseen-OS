@@ -31,11 +31,14 @@ import run_task as R  # noqa: E402
 from audit_apps import audit_apps  # noqa: E402
 from broker_apps import AppBroker  # noqa: E402
 from tasks import parse_start  # noqa: E402
-from tasks_bench import TASKS, scope  # noqa: E402
+from tasks_bench import TASKS as BENCH, scope  # noqa: E402
+from tasks_calib import TASKS as CALIB  # noqa: E402
+
+TASKS = {**BENCH, **CALIB}  # calibration ids start with calib-
 from unseen import Machine  # noqa: E402
 
 RUNS = Path(os.environ.get("UNSEEN_APPS_RUNS") or ROOT / "out" / "apps-dev" / "runs")
-MAX_ACTIONS = 200
+MAX_ACTIONS = 250  # calibration (docs/calibration5.md): most used 185
 TIME_LIMIT = 45 * 60
 CONDITIONS = ("plain", "reference", "manual")
 INTROS = {"manual": "Here is the manual for this computer:",
@@ -178,6 +181,10 @@ def play_app_game(task_id, player, text=None, max_actions=MAX_ACTIONS, condition
         cli_error = f"player CLI exited with code {exit_code}"
     if player != "robot" and not cli_error:
         cli_error = R.infrastructure_problem(run_dir / "player.log", commands, summary, broker.used)
+    if player != "robot" and not cli_error and broker.used == 0 and not violations:
+        # calibration: a player's first `look` never reached the computer, and it gave up; a game in
+        # which no action at all arrived was not played, so it is ours to re-run, not the player's loss
+        cli_error = "no action reached the computer (0 actions)"
     grade = {"passed": False, "tests": {}, "problem": None, "extra": []}
     os_crash = broker.os_crash
     if files is not None and not final_error:

@@ -1,0 +1,49 @@
+{
+  "game": "calib-agenda-next-haiku-reference-44b43e",
+  "task": "calib-agenda-next",
+  "kind": "feature",
+  "level": "hard",
+  "player": "haiku",
+  "condition": "reference",
+  "context_sha256": "6491d4ac52578e61d269770418c9e2b26a1f1d7ca621d878176264ee158c7d4c",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "enter goes to the next day that has events": [
+        true,
+        ""
+      ],
+      "with no later events enter does nothing": [
+        true,
+        ""
+      ],
+      "the day and its events are still shown, and right still works": [
+        true,
+        ""
+      ],
+      "right then left comes back to the same day": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "4 of 4 hidden tests passed",
+  "os_crash": null,
+  "actions": 40,
+  "seconds": 194,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Enter in the agenda app now jumps to the next day after the shown day that has an event, and does nothing if no later day has one; the existing agenda tests and a new enter test both pass.\n\nThe change is a new `when k is 'enter'` branch in `desk:apps:agenda`'s key task (lines 15\u201325), which takes the earliest later date from the loaded events. The new test is on a separate page, `desk:apps:agenda-enter-tests`, which loads the app with `use`. I did not change the existing tests page or the help text.",
+  "files": {
+    "desk:apps:agenda": "app 'Agenda'\ntask start()\n  set events to []\n  for each p in pages('calendar')\n    add fields(p) to events\n  done\n  give {events: events, day: today()}\ndone\ntask key(s, k)\n  when k is 'right'\n    set s.day to add_days(s.day, 1)\n  or when k is 'left'\n    set s.day to add_days(s.day, -1)\n  done\n    when k is 'enter'\n      set best to ''\n      for each e in s.events\n        when (e.date > s.day) and ((best is '') or (e.date < best))\n          set best to e.date\n          done\n        done\n      when best is not ''\n          set s.day to best\n        done\n      done\n  give s\ndone\ntask draw(s)\n  title('Agenda')\n  show(1, 1, s.day & ' ' & weekday(s.day))\n  set rows to []\n  for each e in s.events\n    when e.date is s.day\n      add e.time & ' ' & e.title to rows\n    done\n  done\n  set rows to sort(rows)\n  when count(rows) is 0\n    show(3, 1, '(no events)')\n  done\n  set r to 3\n  for each l in rows\n    when r <= 23\n      show(r, 1, l)\n    done\n    set r to r + 1\n  done\n  help('Left/Right change the day')\ndone",
+    "desk:apps:agenda-enter-tests": "use 'desk:apps:agenda'\n\ntask ev(d, t, ti)\n  give 'date: ' & d & newline() & 'time: ' & t & newline() & 'title: ' & ti\ndone\n\ntest 'enter goes to the next day with an event'\n  pretend today is '2026-12-01'\n  pretend 'calendar:e1' holds ev('2026-12-01', '15:00', 'Dentist')\n  pretend 'calendar:e2' holds ev('2026-12-05', '10:00', 'Trip')\n  pretend 'calendar:e3' holds ev('2026-12-03', '09:00', 'Gym')\n  launch 'desk:apps:agenda'\n  press 'enter'\n  check screen_line(1) is '2026-12-03 thursday'\n  check screen_line(3) is '09:00 Gym'\n  press 'enter'\n  check screen_line(1) is '2026-12-05 saturday'\n  press 'enter'\n  check screen_line(1) is '2026-12-05 saturday'\ndone",
+    "desk:apps:agenda-tests": "use 'desk:apps:agenda'\n\ntest 'it shows the events of today, by time'\n  pretend today is '2026-12-01'\n  pretend 'calendar:e1' holds 'date: 2026-12-01' & newline() & 'time: 15:00' & newline() & 'title: Dentist' & newline() & 'with: '\n  pretend 'calendar:e2' holds 'date: 2026-12-01' & newline() & 'time: 09:30' & newline() & 'title: Standup' & newline() & 'with: team'\n  launch 'desk:apps:agenda'\n  check screen_line(1) is '2026-12-01 tuesday'\n  check screen_line(3) is '09:30 Standup'\n  check screen_line(4) is '15:00 Dentist'\ndone\n\ntest 'right goes to the next day'\n  pretend today is '2026-12-01'\n  launch 'desk:apps:agenda'\n  press 'right'\n  check screen_line(1) is '2026-12-02 wednesday'\n  check screen_line(3) is '(no events)'\ndone"
+  }
+}

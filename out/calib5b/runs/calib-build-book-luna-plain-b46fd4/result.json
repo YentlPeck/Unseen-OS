@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-book-luna-plain-b46fd4",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": false,
+  "visible_passed": false,
+  "hidden": {
+    "passed": false,
+    "tests": {
+      "the names are read and shown newest first": [
+        false,
+        "line 3: there is no page cal"
+      ],
+      "enter adds the typed name at the end of the page": [
+        false,
+        "line 17: there is no"
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        false,
+        "l"
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "0 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 13,
+  "seconds": 2688,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [
+    "codex turn.failed: {\"type\": \"turn.failed\", \"error\": {\"message\": \"Incomplete response returned, reason: max_output_tokens\"}}"
+  ],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "I\u2019ll inspect the page desk and build the app through the provided interface, then try its save and display behavior.",
+  "files": {}
+}

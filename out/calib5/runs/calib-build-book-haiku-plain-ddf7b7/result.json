@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-book-haiku-plain-ddf7b7",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "haiku",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 185,
+  "seconds": 695,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "The guest book app is built on `desk:apps:book` and tested: it shows the count and names newest-first, saves each typed name to `desk:guestbook` on Enter, ignores an empty Enter, and handles Backspace. I removed the test page `desk:guestbook` and my scratch page, so the page is absent again until someone uses the app. Only rows 3\u201322 hold names, so with more than 20 guests the oldest ones are not shown.",
+  "files": {
+    "desk:apps:book": "app 'Guest book'\ntask start()\ngive {typed: '', names: guests(), last: ''}\ndone\ntask guests()\nset r to []\nwhen exists('desk:guestbook')\nset r to lines(read('desk:guestbook'))\ndone\ngive r\ndone\ntask key(s, k)\nset t to s.typed\nset n to guests()\nset l to ''\nset m to 0\nwhen k is 'enter'\nset m to 1\ndone\nwhen m is 1\nwhen t is ''\nset m to 2\ndone\nwhen m is 1\nset h to 0\nwhen exists('desk:guestbook')\nset h to 1\ndone\nwhen h is 1\nadd('desk:guestbook', t)\ndone\nwhen h is 0\nwrite('desk:guestbook', t)\ndone\nset l to t\nset t to ''\ndone\ndone\nwhen m is 0\nset t to edit_text(t, k)\ndone\ngive {typed: t, names: n, last: l}\ndone\ntask draw(s)\nset off to 1\nwhen s.last is ''\nset off to 0\ndone\nshow(1, 1, (count(s.names) + off) & ' guests')\nshow(3, 1, s.last)\nset i to 0\nfor each nm in s.names\nset i to i + 1\nset row to 3 + off + count(s.names) - i\nwhen row < 23\nshow(row, 1, nm)\ndone\ndone\nshow(23, 1, 'name: ' & s.typed)\ndone"
+  }
+}

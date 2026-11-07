@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-haiku-reference-48276b",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "haiku",
+  "condition": "reference",
+  "context_sha256": "6491d4ac52578e61d269770418c9e2b26a1f1d7ca621d878176264ee158c7d4c",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "it starts empty, with F: ?": [
+        true,
+        ""
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        true,
+        ""
+      ],
+      "minus and a point work; other characters are not added": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 37,
+  "seconds": 139,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "The Celsius-to-Fahrenheit app is written on `desk:apps:temp` and works: I tested it in the running app (-35.5 gives F: -31.9, Backspace trims the text, letters are ignored, 77 gives 170.6), then closed it with Ctrl+Q.\n\nI used a record state `{t: ''}`, with the digit check written as `find('0123456789-.', k) > 0`. The app reads and changes no pages, and I added no extra pages.",
+  "files": {
+    "desk:apps:temp": "app \"Celsius to Fahrenheit\"\ntask start()\ngive {t: ''}\ndone\ntask key(s, k)\nset t to s.t\nwhen find('0123456789-.', k) > 0\nset t to t & k\ndone\nwhen k is 'backspace'\nwhen count(t) > 0\nset t to slice(t, 1, count(t) - 1)\ndone\ndone\ngive {t: t}\ndone\ntask draw(s)\nset f to '?'\nwhen count(s.t) > 0\nwhen is_number(s.t)\nset f to text((number(s.t) * 9) / 5 + 32)\ndone\ndone\nshow(1, 1, 'C: ' & s.t)\nshow(2, 1, 'F: ' & f)\ndone"
+  }
+}

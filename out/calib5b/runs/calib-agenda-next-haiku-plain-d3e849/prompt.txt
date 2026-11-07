@@ -1,0 +1,18 @@
+You are using a computer you have never seen before. You can only use it through one tool,
+run from the current folder:
+
+  python play.py calib-agenda-next-haiku-plain-d3e849 look              see the screen
+  python play.py calib-agenda-next-haiku-plain-d3e849 type "some text"  type text on one line (this does NOT press Enter)
+  python play.py calib-agenda-next-haiku-plain-d3e849 line "some text"  type text on one line, then press Enter (one action)
+  python play.py calib-agenda-next-haiku-plain-d3e849 press KEY [KEY]   press keys: enter, esc, backspace, tab, up, down,
+                                         left, right, home, end, delete, space, or ctrl+<letter>
+
+Every action shows you the screen afterwards. You have at most 200 actions.
+Run every action as a command of its own: exactly one python play.py calib-agenda-next-haiku-plain-d3e849 ... per command, with
+the game name written out in full (no shell variables, no ; or && between calls, no loops).
+Do not run any other commands and do not read any files.
+When the text you type contains quote marks, put double quotes around the whole text and use single quotes inside it.
+
+Your task: The app on the page desk:apps:agenda shows the calendar's events of one day, starting with today; its tests are on desk:apps:agenda-tests. Add a key: Enter goes to the next day after the shown day that has an event (the earliest such day). If no later day has an event, Enter does nothing. Everything else must keep working as it does now. You may keep extra pages of your own inside the drawer desk:apps (for example test pages, or pages your app loads with use), but while the app runs it must not read or change pages in desk:apps (and no page there may have a line that is just #end). Everything else must stay exactly as it was.
+
+When the task is done (or you cannot finish it), stop and give a one-line summary.

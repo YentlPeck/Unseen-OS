@@ -22,7 +22,10 @@ TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
 import apps_grade as G  # noqa: E402
 from tasks import parse_start  # noqa: E402
-from tasks_bench import TASKS  # noqa: E402
+from tasks_bench import TASKS as BENCH  # noqa: E402
+from tasks_calib import TASKS as CALIB  # noqa: E402
+
+TASKS = {**BENCH, **CALIB}
 from unseen import Machine  # noqa: E402
 
 NL = "\n"
@@ -133,7 +136,7 @@ def main():
     args = sys.argv[1:]
     if args and args[0] == "validate":
         host = "--host" in args
-        names = [a for a in args[1:] if not a.startswith("--")] or list(TASKS)
+        names = [a for a in args[1:] if not a.startswith("--")] or list(CALIB if "--calib" in args else BENCH)
         return validate(names, host)
     print(__doc__)
     return 2

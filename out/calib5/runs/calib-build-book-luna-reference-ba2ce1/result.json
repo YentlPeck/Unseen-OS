@@ -1,0 +1,44 @@
+{
+  "game": "calib-build-book-luna-reference-ba2ce1",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "condition": "reference",
+  "context_sha256": "6491d4ac52578e61d269770418c9e2b26a1f1d7ca621d878176264ee158c7d4c",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 46,
+  "seconds": 325,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created desk:apps:book; it shows guests newest first and saved \u201cMira\u201d to desk:guestbook when submitted.",
+  "files": {
+    "desk:apps:book": "app 'Guest Book'\ntask start()\nset guests to []\nwhen exists('desk:guestbook')\nwhen read('desk:guestbook') is not ''\nset guests to lines(read('desk:guestbook'))\ndone\ndone\ngive {guests: guests, typed: ''}\ndone\ntask key(s, k)\nwhen k is 'enter'\nwhen s.typed is not ''\nadd('desk:guestbook', s.typed)\nadd s.typed to s.guests\nset s.typed to ''\ndone\nor when count(k) is 1\nset s.typed to edit_text(s.typed, k)\nor when k is 'backspace'\nset s.typed to edit_text(s.typed, k)\ndone\ngive s\ndone\ntask draw(s)\ntitle('Guest Book')\nshow(1, 1, count(s.guests) & ' guests')\nset row to 3\nfor each guest in slice(reverse(s.guests), 1, 20)\nshow(row, 1, guest)\nset row to row + 1\ndone\nshow(23, 1, 'name: ' & s.typed)\nhelp('Type name; Enter saves; Backspace edits')\ndone",
+    "desk:guestbook": "Mira"
+  }
+}

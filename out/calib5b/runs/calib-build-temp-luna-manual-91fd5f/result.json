@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-luna-manual-91fd5f",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "luna",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "it starts empty, with F: ?": [
+        true,
+        ""
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        true,
+        ""
+      ],
+      "minus and a point work; other characters are not added": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 55,
+  "seconds": 309,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created `desk:apps:temp`; it converts typed Celsius values correctly, filters input, and Backspace clears the last character. Verified `2` displays `F: 35.6` and clearing it displays `F: ?`.",
+  "files": {
+    "desk:apps:temp": "app 'Celsius to Fahrenheit'\ntask start()\ngive {c: '' }\ndone\ntask key(s, k)\nwhen k is 'backspace'\nwhen count(s.c) > 0\nset s.c to slice(s.c, 1, count(s.c) - 1)\ndone\notherwise\nwhen ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '.'] has k\nset s.c to s.c & k\ndone\ndone\ngive s\ndone\ntask draw(s)\nshow(1, 1, 'C: ' & s.c)\nwhen is_number(s.c)\nshow(2, 1, 'F: ' & (number(s.c) * 9 / 5 + 32))\notherwise\nshow(2, 1, 'F: ?')\ndone\ndone"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "game": "calib-build-book-luna-manual-51fc51",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 41,
+  "seconds": 288,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created `desk:apps:book`; verified typing, Backspace, Enter saving, and reopening with \u201cAlice\u201d displayed.",
+  "files": {
+    "desk:apps:book": "app 'Guest Book'\ntask start()\nset names to []\nwhen exists('desk:guestbook')\nset names to lines(read('desk:guestbook'))\ndone\ngive {names: names, typed: ''}\ndone\ntask key(s, k)\nwhen k is 'backspace'\nwhen count(s.typed) > 0\nset s.typed to slice(s.typed, 1, count(s.typed) - 1)\ndone\nor when k is 'enter'\nwhen s.typed is not ''\nadd('desk:guestbook', s.typed)\nadd s.typed to s.names\nset s.typed to ''\ndone\notherwise\nwhen count(k) is 1\nset s.typed to edit_text(s.typed, k)\ndone\ndone\ngive s\ndone\ntask draw(s)\nshow(1, 1, count(s.names) & ' guests')\nfor each n in range(1, min(20, count(s.names)))\nshow(2 + n, 1, item(s.names, count(s.names) - n + 1))\ndone\nshow(23, 1, 'name: ' & s.typed)\ndone",
+    "desk:guestbook": "Alice"
+  }
+}

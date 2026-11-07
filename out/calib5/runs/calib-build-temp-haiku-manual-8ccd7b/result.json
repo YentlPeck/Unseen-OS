@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-haiku-manual-8ccd7b",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "haiku",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": false,
+  "visible_passed": false,
+  "hidden": {
+    "passed": false,
+    "tests": {
+      "it starts empty, with F: ?": [
+        false,
+        "line 3: check failed: got '  C:', expected"
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        false,
+        "line 16: check failed: g"
+      ],
+      "minus and a point work; other characters are not added": [
+        false,
+        "line 30: check"
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "0 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 30,
+  "seconds": 139,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "The Celsius-to-Fahrenheit app is built on `desk:apps:temp` (22 lines) and tested: digits, `-` and `.` build the text, Backspace deletes, other keys are ignored, `2` shows `F: 35.6`, `-4.5` shows `F: 23.9`, and `1-` shows `F: ?`.\n\nI took \"row 2 shows `F:` followed by the number\" to mean the `F:` label with the converted value, and I used `is_number` for the \"not a number\" check. The app reads and changes no pages, and no other pages were created or changed.",
+  "files": {
+    "desk:apps:temp": "app 'Celsius to Fahrenheit'\ntask start()\n  give {t: ''}\ndone\ntask key(s, k)\n  set t to s.t\n  when k is 'backspace' or ('0123456789-.' has k)\n    set t to edit_text(t, k)\n  done\n  give {t: t}\ndone\ntask draw(s)\n  title('Celsius to Fahrenheit')\n  show(1, 3, 'C: ' & s.t, 'bright')\n  when is_number(s.t)\n    set f to number(s.t) * 9 / 5 + 32\n    show(2, 3, 'F: ' & f)\n  otherwise\n    show(2, 3, 'F: ?')\n  done\n  help('Digits - . type   Backspace deletes')\ndone"
+  }
+}

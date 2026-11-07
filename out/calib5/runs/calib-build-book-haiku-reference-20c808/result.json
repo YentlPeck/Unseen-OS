@@ -1,0 +1,44 @@
+{
+  "game": "calib-build-book-haiku-reference-20c808",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "haiku",
+  "condition": "reference",
+  "context_sha256": "6491d4ac52578e61d269770418c9e2b26a1f1d7ca621d878176264ee158c7d4c",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 55,
+  "seconds": 509,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "The guest book app is on `desk:apps:book` and works: it reads `desk:guestbook` on open, lists names newest first, and Enter saves a typed name to the page.\n\nI tested it by adding \"Ann\" and \"Bo'b\" (Backspace worked, and Enter with nothing typed did nothing), then reopening the app. The page now holds those two names, which the task allows.",
+  "files": {
+    "desk:apps:book": "app 'Guest book'\ntask start()\n  give {names: read_names(), typed: ''}\ndone\ntask key(s, k)\n  when k is 'enter'\n      give add_name(s)\n    done\n  give {names: s.names, typed: edit_text(s.typed, k)}\ndone\ntask draw(s)\n  title('Guest book')\n  help('Type a name, Enter adds it. Ctrl+Q closes.')\n  show(1, 1, count(s.names) & ' guests')\n  set row to 3\n  for each n in slice(reverse(s.names), 1, 20)\n    show(row, 1, n)\n    set row to row + 1\n  done\n  show(23, 1, 'name: ' & s.typed)\ndone\ntask read_names()\n  set names to []\n  when exists('desk:guestbook')\n    for each l in lines(read('desk:guestbook'))\n      when l is not ''\n        add l to names\n      done\n    done\n  done\n  give names\ndone\ntask add_name(s)\n  when trim(s.typed) is ''\n    give s\n  done\n  add('desk:guestbook', s.typed)\n  set names to read_names()\n  add s.typed to names\n  give {names: names, typed: ''}\ndone",
+    "desk:guestbook": "Ann\nBo'b"
+  }
+}

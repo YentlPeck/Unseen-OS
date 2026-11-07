@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-luna-reference-67c8a8",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "luna",
+  "condition": "reference",
+  "context_sha256": "6491d4ac52578e61d269770418c9e2b26a1f1d7ca621d878176264ee158c7d4c",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "it starts empty, with F: ?": [
+        true,
+        ""
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        true,
+        ""
+      ],
+      "minus and a point work; other characters are not added": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 37,
+  "seconds": 320,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created `desk:apps:temp`; the Celsius converter opens and correctly shows 25\u00b0C \u2192 77\u00b0F, with decimal entry and Backspace working.",
+  "files": {
+    "desk:apps:temp": "app 'Temperature Converter'\ntask start()\ngive ''\ndone\ntask key(s, k)\nset next to s\nwhen k is 'backspace'\nwhen count(next) > 0\nset next to slice(next, 1, count(next) - 1)\ndone\ndone\nwhen (is_number(k) or k is '-' or k is '.')\nset next to next & k\ndone\ngive next\ndone\ntask draw(s)\nshow(1, 1, 'C: ' & s)\nwhen is_number(s)\nshow(2, 1, 'F: ' & (number(s) * 9 / 5 + 32))\notherwise\nshow(2, 1, 'F: ?')\ndone\ndone"
+  }
+}

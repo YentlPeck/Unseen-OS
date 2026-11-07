@@ -1,0 +1,44 @@
+{
+  "game": "calib-build-book-haiku-manual-3d2d54",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "haiku",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 54,
+  "seconds": 213,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "The guest book app is built on `desk:apps:book` (40 lines) and works: names load from `desk:guestbook` on open, typing and Backspace edit the name on row 23, and Enter saves it and shows the newest name first. I left two test names (`Ana's` and `Bo`) on `desk:guestbook`, which didn't exist before, since the task allows that page to change.",
+  "files": {
+    "desk:apps:book": "app 'Guest book'\n\ntask start()\n  set names to []\n  when exists('desk:guestbook')\n    set names to lines(read('desk:guestbook'))\n  done\n  give {names: names, typed: ''}\ndone\n\ntask key(s, k)\n  when k is 'enter'\n    when s.typed is not ''\n      add('desk:guestbook', s.typed)\n      set names to s.names\n      add s.typed to names\n      set s.names to names\n      set s.typed to ''\n    done\n  or when k is 'backspace'\n    when s.typed is not ''\n      set s.typed to slice(s.typed, 1, count(s.typed) - 1)\n    done\n  or when count(k) is 1\n    set s.typed to s.typed & k\n  done\n  give s\ndone\n\ntask draw(s)\n  show(1, 1, count(s.names) & ' guests')\n  set row to 3\n  for each n in reverse(s.names)\n    when row < 23\n      show(row, 1, n)\n    done\n    set row to row + 1\n  done\n  show(23, 1, 'name: ' & s.typed)\ndone",
+    "desk:guestbook": "Ana's\nBo"
+  }
+}

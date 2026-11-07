@@ -1,0 +1,49 @@
+{
+  "game": "calib-agenda-next-haiku-plain-5b58b0",
+  "task": "calib-agenda-next",
+  "kind": "feature",
+  "level": "hard",
+  "player": "haiku",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "enter goes to the next day that has events": [
+        true,
+        ""
+      ],
+      "with no later events enter does nothing": [
+        true,
+        ""
+      ],
+      "the day and its events are still shown, and right still works": [
+        true,
+        ""
+      ],
+      "right then left comes back to the same day": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "4 of 4 hidden tests passed",
+  "os_crash": null,
+  "actions": 101,
+  "seconds": 606,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Enter in the agenda app now jumps to the earliest later day that has an event, and stays put if none exists. The original agenda tests and two new ones for the Enter key pass (2 of 2 each).\n\nThe change is a new `or when k is 'enter'` branch in the key task of `desk:apps:agenda` (lines 14\u201327). The new tests are in `desk:apps:agenda-enter-tests`, a page I added to the drawer. The app never reads `desk:apps`, and no page there has a `#end` line.",
+  "files": {
+    "desk:apps:agenda": "app 'Agenda'\ntask start()\n  set events to []\n  for each p in pages('calendar')\n    add fields(p) to events\n  done\n  give {events: events, day: today()}\ndone\ntask key(s, k)\n  when k is 'right'\n    set s.day to add_days(s.day, 1)\n  or when k is 'left'\n    set s.day to add_days(s.day, -1)\nor when k is 'enter'\nset best to ''\nfor each e in s.events\nwhen e.date > s.day\nwhen best is ''\nset best to e.date\nor when e.date < best\nset best to e.date\ndone\ndone\ndone\nwhen best > ''\nset s.day to best\ndone\n  done\n  give s\ndone\ntask draw(s)\n  title('Agenda')\n  show(1, 1, s.day & ' ' & weekday(s.day))\n  set rows to []\n  for each e in s.events\n    when e.date is s.day\n      add e.time & ' ' & e.title to rows\n    done\n  done\n  set rows to sort(rows)\n  when count(rows) is 0\n    show(3, 1, '(no events)')\n  done\n  set r to 3\n  for each l in rows\n    when r <= 23\n      show(r, 1, l)\n    done\n    set r to r + 1\n  done\n  help('Left/Right change the day')\ndone",
+    "desk:apps:agenda-enter-tests": "use 'desk:apps:agenda'\nfixed e1 is 'date: 2026-12-05' & newline() & 'time: 15:00'\nfixed e2 is 'date: 2026-12-03' & newline() & 'time: 09:30'\nfixed f1 is 'date: 2026-12-01' & newline() & 'time: 15:00'\nfixed f2 is 'date: 2026-11-30' & newline() & 'time: 09:30'\ntest 'enter goes to the earliest later day that has an event'\n  pretend today is '2026-12-01'\npretend 'calendar:e1' holds e1 & newline() & 'title: Dentist'\npretend 'calendar:e2' holds e2 & newline() & 'title: Standup'\nlaunch 'desk:apps:agenda'\npress 'enter'\ncheck screen_line(1) is '2026-12-03 thursday'\ncheck screen_line(3) is '09:30 Standup'\ndone\ntest 'enter does nothing when no later day has an event'\npretend today is '2026-12-01'\npretend 'calendar:e1' holds f1 & newline() & 'title: Dentist'\npretend 'calendar:e2' holds f2 & newline() & 'title: Standup'\nlaunch 'desk:apps:agenda'\npress 'enter'\ncheck screen_line(1) is '2026-12-01 tuesday'\ncheck screen_line(3) is '15:00 Dentist'\ndone",
+    "desk:apps:agenda-tests": "use 'desk:apps:agenda'\n\ntest 'it shows the events of today, by time'\n  pretend today is '2026-12-01'\n  pretend 'calendar:e1' holds 'date: 2026-12-01' & newline() & 'time: 15:00' & newline() & 'title: Dentist' & newline() & 'with: '\n  pretend 'calendar:e2' holds 'date: 2026-12-01' & newline() & 'time: 09:30' & newline() & 'title: Standup' & newline() & 'with: team'\n  launch 'desk:apps:agenda'\n  check screen_line(1) is '2026-12-01 tuesday'\n  check screen_line(3) is '09:30 Standup'\n  check screen_line(4) is '15:00 Dentist'\ndone\n\ntest 'right goes to the next day'\n  pretend today is '2026-12-01'\n  launch 'desk:apps:agenda'\n  press 'right'\n  check screen_line(1) is '2026-12-02 wednesday'\n  check screen_line(3) is '(no events)'\ndone"
+  }
+}

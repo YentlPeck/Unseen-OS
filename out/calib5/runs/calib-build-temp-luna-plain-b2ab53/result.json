@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-luna-plain-b2ab53",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "luna",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "it starts empty, with F: ?": [
+        true,
+        ""
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        true,
+        ""
+      ],
+      "minus and a point work; other characters are not added": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 51,
+  "seconds": 324,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created and opened `desk:apps:temp`; it starts empty and shows `F: ?`.",
+  "files": {
+    "desk:apps:temp": "app 'Celsius to Fahrenheit'\ntask start()\ngive ''\ndone\ntask key(s, k)\nwhen k is 'backspace'\nwhen count(s) > 0\ngive slice(s, 1, count(s) - 1)\ndone\ngive s\ndone\nwhen ('0123456789' has k) or k is '.' or k is '-'\ngive s & k\ndone\ngive s\ndone\ntask draw(s)\nshow(1, 1, 'C: ' & s)\nwhen is_number(s)\nshow(2, 1, 'F: ' & (number(s) * 9 / 5 + 32))\notherwise\nshow(2, 1, 'F: ?')\ndone\ndone"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "game": "calib-scores-fix-down-luna-reference-37dd57",
+  "task": "calib-scores-fix-down",
+  "kind": "fix",
+  "level": "medium",
+  "player": "luna",
+  "condition": "reference",
+  "context_sha256": "6491d4ac52578e61d269770418c9e2b26a1f1d7ca621d878176264ee158c7d4c",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "down on the last player changes nothing": [
+        true,
+        ""
+      ],
+      "picking and changing points still work": [
+        true,
+        ""
+      ],
+      "minus takes one point away": [
+        true,
+        ""
+      ],
+      "minus never goes below 0": [
+        true,
+        ""
+      ],
+      "six players are all shown": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "5 of 5 hidden tests passed",
+  "os_crash": null,
+  "actions": 7,
+  "seconds": 134,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Changed the Down condition in `desk:apps:scores` so picking stays on the last player.",
+  "files": {
+    "desk:apps:scores": "app 'Scores'\ntask start()\n  set players to []\n  when exists('desk:scores')\n    for each l in lines(read('desk:scores'))\n      set parts to split(l, ': ')\n      add {name: item(parts, 1), points: number(item(parts, 2))} to players\n    done\n  done\n  give {players: players, picked: 1}\ndone\ntask save(players)\n  set out to []\n  for each p in players\n    add p.name & ': ' & p.points to out\n  done\n  write('desk:scores', join(out, newline()))\ndone\ntask change(p, by)\n  set p.points to max(p.points + by, 0)\n  give p\ndone\ntask key(s, k)\n  when k is 'up' and s.picked > 1\n    set s.picked to s.picked - 1\nor when k is 'down' and s.picked < count(s.players)\n    set s.picked to s.picked + 1\n  or when k is '+' and count(s.players) > 0\n    set s.players at s.picked to change(item(s.players, s.picked), 1)\n    save(s.players)\n  or when k is '-' and count(s.players) > 0\n    set s.players at s.picked to change(item(s.players, s.picked), -1)\n    save(s.players)\n  done\n  give s\ndone\ntask draw(s)\n  title('Scores')\n  for each n in range(1, min(count(s.players), 20))\n    set p to item(s.players, n)\n    set mark to '  '\n    when n is s.picked\n      set mark to '> '\n    done\n    show(n, 1, mark & p.name & ': ' & p.points)\n  done\n  help('Up/Down pick  + and - change the points')\ndone",
+    "desk:apps:scores-tests": "use 'desk:apps:scores'\n\ntest 'plus adds a point to the picked player and saves'\n  pretend 'desk:scores' holds 'Ana: 3' & newline() & 'Bo: 5'\n  launch 'desk:apps:scores'\n  press 'down'\n  press '+'\n  check screen_line(2) is '> Bo: 6'\n  check page_now('desk:scores') is 'Ana: 3' & newline() & 'Bo: 6'\ndone\n\ntest 'minus takes a point away'\n  pretend 'desk:scores' holds 'Cy: 2'\n  launch 'desk:apps:scores'\n  press '-'\n  check screen_line(1) is '> Cy: 1'\ndone",
+    "desk:scores": "Mira: 4\nOmar: 2\nLina: 7"
+  }
+}

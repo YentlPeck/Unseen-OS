@@ -1,0 +1,49 @@
+{
+  "game": "calib-agenda-next-luna-reference-c71499",
+  "task": "calib-agenda-next",
+  "kind": "feature",
+  "level": "hard",
+  "player": "luna",
+  "condition": "reference",
+  "context_sha256": "6491d4ac52578e61d269770418c9e2b26a1f1d7ca621d878176264ee158c7d4c",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "enter goes to the next day that has events": [
+        true,
+        ""
+      ],
+      "with no later events enter does nothing": [
+        true,
+        ""
+      ],
+      "the day and its events are still shown, and right still works": [
+        true,
+        ""
+      ],
+      "right then left comes back to the same day": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "4 of 4 hidden tests passed",
+  "os_crash": null,
+  "actions": 103,
+  "seconds": 798,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Added Enter navigation to the earliest later event day; Enter stays put when none exists, and both agenda test pages pass.",
+  "files": {
+    "desk:apps:agenda": "app 'Agenda'\ntask start()\n  set events to []\n  for each p in pages('calendar')\n    add fields(p) to events\n  done\n  give {events: events, day: today()}\ndone\ntask key(s, k)\n  when k is 'right'\n    set s.day to add_days(s.day, 1)\n  or when k is 'left'\n    set s.day to add_days(s.day, -1)\n    done\n    when k is 'enter'\n      set later to []\n      for each e in s.events\n        when days_between(s.day, e.date) > 0\n          add e.date to later\n        done\n      done\n      when count(later) > 0\n        set later to sort(later)\n        set s.day to first(later)\n      done\n  done\n  give s\ndone\ntask draw(s)\n  title('Agenda')\n  show(1, 1, s.day & ' ' & weekday(s.day))\n  set rows to []\n  for each e in s.events\n    when e.date is s.day\n      add e.time & ' ' & e.title to rows\n    done\n  done\n  set rows to sort(rows)\n  when count(rows) is 0\n    show(3, 1, '(no events)')\n  done\n  set r to 3\n  for each l in rows\n    when r <= 23\n      show(r, 1, l)\n    done\n    set r to r + 1\n  done\n    help('Left/Right change day; Enter jumps to next event day')\ndone",
+    "desk:apps:agenda-enter-check": "use 'desk:apps:agenda'\nfixed shortdate is 'date: 2026-12-02' & newline() & 'time: 09:00'\nfixed eventdata is shortdate & newline() & 'title: Soon'\ntest 'enter picks the earliest later event day'\n  pretend today is '2026-12-01'\n  pretend 'calendar:e1' holds 'date: 2026-12-04'\n  pretend 'calendar:e2' holds eventdata\n  launch 'desk:apps:agenda'\n  press 'enter'\n  check screen_line(1) is '2026-12-02 wednesday'\ndone\ntest 'enter stays when there is no later event'\n  pretend today is '2026-12-01'\n  pretend 'calendar:old' holds 'date: 2026-11-30'\n  launch 'desk:apps:agenda'\n  press 'enter'\n  check screen_line(1) is '2026-12-01 tuesday'\ndone",
+    "desk:apps:agenda-tests": "use 'desk:apps:agenda'\n\ntest 'it shows the events of today, by time'\n  pretend today is '2026-12-01'\n  pretend 'calendar:e1' holds 'date: 2026-12-01' & newline() & 'time: 15:00' & newline() & 'title: Dentist' & newline() & 'with: '\n  pretend 'calendar:e2' holds 'date: 2026-12-01' & newline() & 'time: 09:30' & newline() & 'title: Standup' & newline() & 'with: team'\n  launch 'desk:apps:agenda'\n  check screen_line(1) is '2026-12-01 tuesday'\n  check screen_line(3) is '09:30 Standup'\n  check screen_line(4) is '15:00 Dentist'\ndone\n\ntest 'right goes to the next day'\n  pretend today is '2026-12-01'\n  launch 'desk:apps:agenda'\n  press 'right'\n  check screen_line(1) is '2026-12-02 wednesday'\n  check screen_line(3) is '(no events)'\ndone"
+  }
+}

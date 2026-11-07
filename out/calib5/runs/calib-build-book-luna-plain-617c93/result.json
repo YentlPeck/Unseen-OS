@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-book-luna-plain-617c93",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 65,
+  "seconds": 398,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Built `desk:apps:book` as the guest book app, verified typing, Backspace, and saving, and removed the test entry.",
+  "files": {
+    "desk:apps:book": "app 'Guest Book'\ntask start()\nset names to []\nwhen exists('desk:guestbook')\nset names to lines(read('desk:guestbook'))\ndone\ngive {names: names, typed: ''}\ndone\ntask key(s, k)\nwhen k is 'enter'\nwhen count(s.typed) > 0\nadd('desk:guestbook', s.typed)\nadd s.typed to s.names\nset s.typed to ''\ndone\notherwise\nset s.typed to edit_text(s.typed, k)\ndone\ngive s\ndone\ntask draw(s)\ntitle('Guest Book')\nhelp('Type a name; Enter saves; Ctrl+Q closes')\nshow(1, 1, count(s.names) & ' guests')\nset i to count(s.names)\nset row to 3\nwhile i > max(count(s.names) - 20, 0)\nshow(row, 1, item(s.names, i))\nset i to i - 1\nset row to row + 1\ndone\nshow(23, 1, 'name: ' & s.typed)\ncursor(23, 7 + count(s.typed))\ndone"
+  }
+}

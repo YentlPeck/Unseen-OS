@@ -1,0 +1,44 @@
+{
+  "game": "calib-build-book-luna-manual-c6fb89",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 45,
+  "seconds": 281,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created and verified `desk:apps:book`; it saves names to `desk:guestbook` and reloads them newest first. The guest book now contains the test entry `Ada`.",
+  "files": {
+    "desk:apps:book": "app 'Guest Book'\ntask start()\nset names to []\nwhen exists('desk:guestbook')\nset names to lines(read('desk:guestbook'))\ndone\ngive {names: names, name: ''}\ndone\ntask key(s, k)\nwhen k is 'enter'\nwhen count(s.name) > 0\nadd('desk:guestbook', s.name)\nadd s.name to s.names\nset s.name to ''\ndone\nor when k is 'backspace'\nset s.name to edit_text(s.name, k)\notherwise\nset s.name to edit_text(s.name, k)\ndone\ngive s\ndone\ntask draw(s)\ntitle('Guest Book')\nshow(1, 1, count(s.names) & ' guests')\nset row to 3\nfor each n in reverse(s.names)\nwhen row < 23\nshow(row, 1, n)\nset row to row + 1\ndone\ndone\nshow(23, 1, 'name: ' & s.name)\nhelp('Type name  Enter save  Backspace erase')\ndone",
+    "desk:guestbook": "Ada"
+  }
+}

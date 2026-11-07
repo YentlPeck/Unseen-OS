@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tasks_bench import TASKS  # noqa: E402
+from apps_game import TASKS  # noqa: E402
 
 
 def main():

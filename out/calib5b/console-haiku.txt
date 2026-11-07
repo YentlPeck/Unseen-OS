@@ -1,0 +1,46 @@
+[11/07/26 17:18:00] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_apps (10 samples): mockllm/model                                        
+fail_on_error: False, max_samples: 4, player: haiku, conditions: manual,plain, 
+seed: 7, taskset: calib, dataset: (samples)                                    
+---------------------------------------------------------                      
+                                                                               
+app_player   | Steps:   1/10  10% | Samples:   0/ 10 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   2/10  20% | Samples:   1/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   3/10  30% | Samples:   3/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   4/10  40% | Samples:   3/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   5/10  50% | Samples:   5/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   6/10  60% | Samples:   5/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   7/10  70% | Samples:   6/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   8/10  80% | Samples:   7/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   9/10  90% | Samples:   8/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  10/10 100% | Samples:   9/ 10 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_apps (10 samples): mockllm/model                                        
+fail_on_error: False, max_samples: 4, player: haiku, conditions: manual,plain, 
+seed: 7, taskset: calib, dataset: (samples)                                    
+                                                                               
+total time:                                   0:11:57                          
+hidden_tests                                                                   
+accuracy      1.000                                                            
+stderr        0.000                                                            
+manual        1.000                                                            
+plain         1.000                                                            
+all           1.000                                                            
+feature       1.000                                                            
+build         1.000                                                            
+fix           1.000                                                            
+all2          1.000                                                            
+hard          1.000                                                            
+medium        1.000                                                            
+easy          1.000                                                            
+all3          1.000                                                            
+Log:                                                                           
+out/calib5b/logs/2026-11-07T16-18-00-00-00_unseen-apps_2zZtfnunhokXUCsbZLo5Zn.…
+---------------------------------------------------------                      
+                                                                               

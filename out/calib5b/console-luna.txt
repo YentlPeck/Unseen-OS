@@ -1,0 +1,46 @@
+[11/07/26 17:18:05] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_apps (10 samples): mockllm/model                                        
+fail_on_error: False, max_samples: 4, player: luna, conditions: manual,plain,  
+seed: 7, taskset: calib, dataset: (samples)                                    
+---------------------------------------------------------                      
+                                                                               
+app_player   | Steps:   1/10  10% | Samples:   0/ 10 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   2/10  20% | Samples:   1/ 10 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   3/10  30% | Samples:   2/ 10 | accuracy: 0.50 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   4/10  40% | Samples:   3/ 10 | accuracy: 0.33 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   5/10  50% | Samples:   4/ 10 | accuracy: 0.50 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   6/10  60% | Samples:   5/ 10 | accuracy: 0.60 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   7/10  70% | Samples:   6/ 10 | accuracy: 0.67 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   8/10  80% | Samples:   7/ 10 | accuracy: 0.71 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   9/10  90% | Samples:   8/ 10 | accuracy: 0.62 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  10/10 100% | Samples:   9/ 10 | accuracy: 0.67 | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_apps (10 samples): mockllm/model                                        
+fail_on_error: False, max_samples: 4, player: luna, conditions: manual,plain,  
+seed: 7, taskset: calib, dataset: (samples)                                    
+                                                                               
+total time:                                   1:02:48                          
+hidden_tests                                                                   
+accuracy      0.700                                                            
+stderr        0.153                                                            
+manual        0.800                                                            
+plain         0.600                                                            
+all           0.700                                                            
+feature       0.750                                                            
+build         0.750                                                            
+fix           0.500                                                            
+all2          0.700                                                            
+hard          1.000                                                            
+medium        0.750                                                            
+easy          0.500                                                            
+all3          0.700                                                            
+Log:                                                                           
+out/calib5b/logs/2026-11-07T16-18-05-00-00_unseen-apps_3NgQa3ZaWyATmwLSndkzf7.…
+---------------------------------------------------------                      
+                                                                               

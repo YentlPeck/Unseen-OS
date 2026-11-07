@@ -1,0 +1,84 @@
+== calib-build-temp (build, easy)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:temp as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'letters added' is caught
+       caught by: ['minus and a point work; other characters are not added']
+ok   wrong solution 'wrong formula' is caught
+       caught by: ['typed degrees Celsius are shown in Fahrenheit', 'minus and a point work; other characters are not added']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== calib-build-book (build, medium)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:book as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'oldest first' is caught
+       caught by: ['the names are read and shown newest first', 'enter adds the typed name at the end of the page']
+ok   wrong solution 'new name at the start' is caught
+       caught by: ['enter adds the typed name at the end of the page']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== calib-shop-home (feature, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:shop as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'end picks one too far' is caught
+       caught by: ['end picks the last item, home the first']
+ok   wrong solution 'no home' is caught
+       caught by: ['end picks the last item, home the first']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== calib-scores-fix-down (fix, medium)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 2 of 2 tests passed
+ok   the solution's commands make desk:apps:scores as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'only + made safe' is caught
+       caught by: ['down on the last player changes nothing']
+ok   wrong solution 'down wraps to the top' is caught
+       caught by: ['down on the last player changes nothing']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== calib-agenda-next (feature, hard)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:agenda as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'next day always' is caught
+       caught by: ['enter goes to the next day that has events', 'with no later events enter does nothing']
+ok   wrong solution 'the last day with events' is caught
+       caught by: ['enter goes to the next day that has events']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+ALL GOOD
+exit 0

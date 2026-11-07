@@ -43,7 +43,8 @@ sys.path.insert(0, str(TOOLS))
 import apps_game as A  # noqa: E402
 from audit_apps import audit_apps  # noqa: E402
 from run_task import MODELS, player_events  # noqa: E402
-from tasks_bench import TASKS  # noqa: E402
+from tasks_bench import TASKS as BENCH  # noqa: E402
+from tasks_calib import TASKS as CALIB  # noqa: E402
 
 LEDGER = Path(os.environ.get("UNSEEN_LEDGER") or TOOLS.parent / "out" / "apps-dev" / "attempts-ledger.jsonl")
 _ledger_lock = threading.Lock()
@@ -293,7 +294,10 @@ def _list(x):
 @task
 def unseen_apps(player: str = "robot", conditions: str | list[str] = "manual", kinds: str | list[str] | None = None,
                 level: str | None = None, tasks: str | list[str] | None = None, seed: int | None = None,
-                max_actions: int = A.MAX_ACTIONS, manifest: str | None = None):
+                max_actions: int = A.MAX_ACTIONS, manifest: str | None = None, taskset: str = "bench"):
+    if taskset not in ("bench", "calib"):
+        raise ValueError(f"taskset must be bench or calib, got {taskset!r}")
+    TASKS = BENCH if taskset == "bench" else CALIB
     conds = _list(conditions)
     if not conds or len(set(conds)) != len(conds) or any(c not in A.CONDITIONS for c in conds):
         raise ValueError(f"conditions must be distinct values from {A.CONDITIONS}, got {conds}")
@@ -310,5 +314,5 @@ def unseen_apps(player: str = "robot", conditions: str | list[str] = "manual", k
     if seed is not None:
         dataset.shuffle(seed=seed)
     return Task(dataset=dataset, solver=app_player(player, texts, max_actions), scorer=hidden_tests(),
-                metadata={"player": player, "conditions": conds, "seed": seed, "max_actions": max_actions,
+                metadata={"player": player, "conditions": conds, "seed": seed, "max_actions": max_actions, "taskset": taskset,
                           "context_sha256": {c: A.sha256(t) for c, t in texts.items()}})

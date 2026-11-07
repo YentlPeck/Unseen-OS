@@ -1,0 +1,49 @@
+{
+  "game": "calib-agenda-next-haiku-manual-461db5",
+  "task": "calib-agenda-next",
+  "kind": "feature",
+  "level": "hard",
+  "player": "haiku",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "enter goes to the next day that has events": [
+        true,
+        ""
+      ],
+      "with no later events enter does nothing": [
+        true,
+        ""
+      ],
+      "the day and its events are still shown, and right still works": [
+        true,
+        ""
+      ],
+      "right then left comes back to the same day": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "4 of 4 hidden tests passed",
+  "os_crash": null,
+  "actions": 53,
+  "seconds": 305,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Enter in the agenda app now jumps to the earliest later day with an event and does nothing if none exists; the existing tests and a new test for Enter all pass.\n\nI added an `enter` branch to the `key` task in `desk:apps:agenda` (lines 14\u201323), and left the help text and other keys unchanged. I put the new test in `desk:apps:enter-tests`; it uses `fixed` lines for the event text, which the app's `use` reads only inside the test world. The app itself never reads or changes pages in `desk:apps`, and no page there has a `#end` line.",
+  "files": {
+    "desk:apps:agenda": "app 'Agenda'\ntask start()\n  set events to []\n  for each p in pages('calendar')\n    add fields(p) to events\n  done\n  give {events: events, day: today()}\ndone\ntask key(s, k)\n  when k is 'right'\n    set s.day to add_days(s.day, 1)\n  or when k is 'left'\n    set s.day to add_days(s.day, -1)\n  or when k is 'enter'\n    set best to ''\n    for each e in s.events\n      when e.date > s.day and (best is '' or e.date < best)\n        set best to e.date\n      done\n    done\n    when best is not ''\n      set s.day to best\n    done\n  done\n  give s\ndone\ntask draw(s)\n  title('Agenda')\n  show(1, 1, s.day & ' ' & weekday(s.day))\n  set rows to []\n  for each e in s.events\n    when e.date is s.day\n      add e.time & ' ' & e.title to rows\n    done\n  done\n  set rows to sort(rows)\n  when count(rows) is 0\n    show(3, 1, '(no events)')\n  done\n  set r to 3\n  for each l in rows\n    when r <= 23\n      show(r, 1, l)\n    done\n    set r to r + 1\n  done\n  help('Left/Right change the day')\ndone",
+    "desk:apps:agenda-tests": "use 'desk:apps:agenda'\n\ntest 'it shows the events of today, by time'\n  pretend today is '2026-12-01'\n  pretend 'calendar:e1' holds 'date: 2026-12-01' & newline() & 'time: 15:00' & newline() & 'title: Dentist' & newline() & 'with: '\n  pretend 'calendar:e2' holds 'date: 2026-12-01' & newline() & 'time: 09:30' & newline() & 'title: Standup' & newline() & 'with: team'\n  launch 'desk:apps:agenda'\n  check screen_line(1) is '2026-12-01 tuesday'\n  check screen_line(3) is '09:30 Standup'\n  check screen_line(4) is '15:00 Dentist'\ndone\n\ntest 'right goes to the next day'\n  pretend today is '2026-12-01'\n  launch 'desk:apps:agenda'\n  press 'right'\n  check screen_line(1) is '2026-12-02 wednesday'\n  check screen_line(3) is '(no events)'\ndone",
+    "desk:apps:enter-tests": "use 'desk:apps:agenda'\nfixed n is newline()\nfixed a is 'date: 2026-12-05' & n & 'time: 10:00' & n & 'title: Gym'\nfixed b is 'date: 2026-12-03' & n & 'time: 09:00' & n & 'title: Run'\ntest 'enter jumps to the next day that has an event'\n  pretend today is '2026-12-01'\n  pretend 'calendar:e1' holds a\n  pretend 'calendar:e2' holds b\nlaunch 'desk:apps:agenda'\npress 'enter'\ncheck app_mistake() is ''\ncheck screen_line(1) is '2026-12-03 thursday'\npress 'enter'\ncheck screen_line(1) is '2026-12-05 saturday'\npress 'enter'\ncheck screen_line(1) is '2026-12-05 saturday'\ncheck screen_line(3) has '10:00'\ndone"
+  }
+}

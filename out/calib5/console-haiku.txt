@@ -1,0 +1,52 @@
+[11/07/26 16:25:23] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_apps (15 samples): mockllm/model                                        
+fail_on_error: False, max_samples: 2, player: haiku, conditions:               
+plain,reference,manual, seed: 20261108, taskset: calib, dataset: (samples)     
+---------------------------------------------------------                      
+                                                                               
+app_player   | Steps:   1/15   6% | Samples:   0/ 15 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   2/15  13% | Samples:   1/ 15 | accuracy: 0.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   3/15  20% | Samples:   3/ 15 | accuracy: 0.67 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   4/15  26% | Samples:   3/ 15 | accuracy: 0.67 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   5/15  33% | Samples:   4/ 15 | accuracy: 0.75 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   6/15  40% | Samples:   5/ 15 | accuracy: 0.80 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   7/15  46% | Samples:   6/ 15 | accuracy: 0.83 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   8/15  53% | Samples:   7/ 15 | accuracy: 0.86 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   9/15  60% | Samples:   8/ 15 | accuracy: 0.88 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  10/15  66% | Samples:   9/ 15 | accuracy: 0.89 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  11/15  73% | Samples:  10/ 15 | accuracy: 0.90 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  12/15  80% | Samples:  11/ 15 | accuracy: 0.91 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  13/15  86% | Samples:  12/ 15 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  14/15  93% | Samples:  13/ 15 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  15/15 100% | Samples:  14/ 15 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_apps (15 samples): mockllm/model                                        
+fail_on_error: False, max_samples: 2, player: haiku, conditions:               
+plain,reference,manual, seed: 20261108, taskset: calib, dataset: (samples)     
+                                                                               
+total time:                                   0:32:16                          
+hidden_tests                                                                   
+accuracy      0.867                                                            
+stderr        0.091                                                            
+manual        0.600                                                            
+reference     1.000                                                            
+plain         1.000                                                            
+all           0.867                                                            
+feature       1.000                                                            
+build         0.667                                                            
+fix           1.000                                                            
+all2          0.867                                                            
+hard          1.000                                                            
+easy          0.833                                                            
+medium        0.833                                                            
+all3          0.867                                                            
+Log:                                                                           
+out/calib5/logs/2026-11-07T15-25-23-00-00_unseen-apps_htPCNdcryGYqiKtT4g4aVX.e…
+---------------------------------------------------------                      
+                                                                               

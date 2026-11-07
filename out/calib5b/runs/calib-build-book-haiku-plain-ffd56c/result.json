@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-book-haiku-plain-ffd56c",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "haiku",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 70,
+  "seconds": 269,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "The guest book app is at `desk:apps:book` and works: it shows \"N guests\", lists names newest first from row 3, takes typed input on row 23, and Enter appends to `desk:guestbook`.\n\nI tested it with Enter on an empty name (nothing happened), typing, Backspace, and Enter, then removed the test guestbook page I had created, so `desk:guestbook` is missing again as it was at the start.\n\nChoices I made:\n- The list shows at most the newest 20 names (rows 3\u201322), so it never overwrites the typed line on row 23.\n- The count reads \"1 guests\" for a single name, following the literal \"N guests\" format.\n- The app re-reads `desk:guestbook` on every key press, so outside edits to that page show up. It never reads anything in `desk:apps`, and I created no extra pages there.",
+  "files": {
+    "desk:apps:book": "app 'Guest book'\ntask names_now()\nset raw to ''\nwhen exists('desk:guestbook')\nset raw to read('desk:guestbook')\ndone\nset found to []\nfor each l in lines(raw)\nwhen l is not ''\nadd l to found\ndone\ndone\ngive found\ndone\ntask start()\ngive {typed: '', names: names_now()}\ndone\ntask key(s, k)\nset names to names_now()\nset typed to s.typed\nwhen (k is 'enter') and (count(typed) > 0)\nadd('desk:guestbook', typed)\nadd typed to names\nset typed to ''\ndone\nwhen (k is 'backspace') and (count(typed) > 0)\nset typed to edit_text(typed, k)\ndone\nwhen count(k) is 1\nset typed to edit_text(typed, k)\ndone\ngive {typed: typed, names: names}\ndone\ntask draw(s)\nshow(1, 1, text(count(s.names)) & ' guests')\nset newest to reverse(s.names)\nfor each i in range(1, min(count(newest), 20))\nshow(i + 2, 1, item(newest, i))\ndone\nshow(23, 1, 'name: ' & s.typed)\ndone"
+  }
+}

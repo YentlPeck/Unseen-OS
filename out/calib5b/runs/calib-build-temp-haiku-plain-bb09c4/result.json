@@ -1,0 +1,43 @@
+{
+  "game": "calib-build-temp-haiku-plain-bb09c4",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "haiku",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "it starts empty, with F: ?": [
+        true,
+        ""
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        true,
+        ""
+      ],
+      "minus and a point work; other characters are not added": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 151,
+  "seconds": 275,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "The app is built at `desk:apps:temp` and works in my manual checks: typing `35` shows `F: 95`, `35.6` shows `F: 96.08`, and `-40` shows `F: -40`. Non-numbers and empty text show `F: ?`, letters are ignored, and Backspace removes the last character.\n\nI wrote it as a single 27-line page with no extra pages, so `desk:apps` holds only `temp`. Its `start` gives `''`, `key` takes digits, `-` and `.` and handles Backspace, and `draw` shows row 1 as `C: \u2026` and row 2 as `F: \u2026` at column 1. It never reads or changes other pages. I did not run the Unseen OS `test` command, since that would have needed an extra test page.",
+  "files": {
+    "desk:apps:temp": "app 'Celsius to Fahrenheit'\ntask start()\ngive ''\ndone\ntask key(s, k)\n  set r to s\n  when k is 'backspace'\n    when count(s) is 1\n      set r to ''\n    done\n    when count(s) > 1\n      set r to slice(s, 1, count(s) - 1)\n    done\n  done\n  when find('0123456789-.', k) > 0\n    set r to s & k\n  done\n  give r\ndone\ntask draw(s)\n  set f to 'F: ?'\n  when is_number(s)\n    set f to 'F: ' & text((number(s) * 9 / 5) + 32)\n  done\n  show(1, 1, 'C: ' & s)\n  show(2, 1, f)\ndone"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "game": "calib-build-temp-luna-plain-6f2357",
+  "task": "calib-build-temp",
+  "kind": "build",
+  "level": "easy",
+  "player": "luna",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": false,
+  "visible_passed": false,
+  "hidden": {
+    "passed": false,
+    "tests": {
+      "it starts empty, with F: ?": [
+        false,
+        "line 2: there is no page called desk:apps:t"
+      ],
+      "typed degrees Celsius are shown in Fahrenheit": [
+        false,
+        "line 13: there is no pag"
+      ],
+      "minus and a point work; other characters are not added": [
+        false,
+        "line 28: there"
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "0 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 18,
+  "seconds": 2704,
+  "timed_out": true,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "I\u2019ll inspect the page and build the app through the on-screen interface, keeping each tool action to one command.",
+  "files": {}
+}
