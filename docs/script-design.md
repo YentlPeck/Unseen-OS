@@ -641,6 +641,12 @@ runs the guide's own example and every `script`, `tests` and `lab` example of th
 the same desk as the reference). Its `commands` examples run in QEMU (`tools/test_apps_os.py`),
 and every non-empty line of its examples (and of the guide's example) is typed through PowerShell and bash
 (`tools/test_script_typing.py`). The Chores chapter is unchanged.
+
+**As built (M7):** the pilot ran 7 Nov (docs/pilot5.md): 3 app tasks (build, feature, fix)
+x Haiku and Luna, manual condition, one game each. 4 of 6 passed; every finished app passed
+its hidden tests. Haiku's two losses were audit failures from batching game commands in one
+shell command (one of them after a correct fix). The tasks are fair and the harness works;
+before an experiment, the prompt or the game tool must deal with batching (see the report).
 | M7 | pilot: Haiku and Luna build 2-3 small apps | the tasks are fair and the harness works (a check, not a result) |
 
 ## 12. Later: app benchmark (SWE-bench style)
