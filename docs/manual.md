@@ -21,7 +21,7 @@ To mean a place starting from the top, begin the path with `desk:`, like `desk:l
 ## Typing commands
 
 Type a command and press Enter. `guide` lists all commands; `guide <word>` explains one
-(`guide do` opens the chore reference). The Up arrow brings back the
+(`guide do` opens the chore reference, `guide script` the Unseen Script reference). The Up arrow brings back the
 last command. Commands can be at most 200 characters long.
 
 | Command | What it does |
@@ -47,6 +47,14 @@ last command. Commands can be at most 200 characters long.
 | `clock` | show the date and time |
 | `about` | about this computer |
 | `do <page>` | carry out the chore written on a page (see Chores below) |
+| `run <page>` | run the Unseen Script program on a page (see Unseen Script below) |
+| `test <page>` | run the tests on a test page and show which pass |
+| `open <page>` | open the Unseen Script app on a page (Ctrl+Q closes it) |
+| `lab` | try Unseen Script one line at a time (changes are only shown, never made) |
+| `view <page> [from] [to]` | show the lines of a page with their numbers |
+| `edit <page> <line> <text>` | replace one line of a page |
+| `insert <page> <line> <text>` | put a new line before line N (last + 1 adds it at the end) |
+| `cut <page> <line> [to]` | remove one line, or lines from..to, of a page |
 | `mail` | open the Mail app |
 | `contacts` | open the Contacts app |
 | `calendar` | open the Calendar app |
@@ -384,6 +392,567 @@ done
   end, so a page it writes can't be read back in the same run.
 - **Quotes:** text can be written in `'single'` or `"double"` quotes. Single quotes are usually
   easier to type through a command line.
+
+## Unseen Script (programs and apps)
+
+**Unseen Script** is the language for bigger programs and for **apps**: full-screen programs
+like Mail or Calendar that you write yourself. It has everything chores have (every chore is
+also an Unseen Script program), and more: tasks, records, pages that use other pages, tests,
+and apps.
+
+`guide script` opens the complete reference on the screen (Up/Down scroll, Esc back). This
+chapter explains the same rules with examples.
+
+### Writing and running a program
+
+A program is a page. These commands make and change a page one line at a time, so you can see
+the line numbers a mistake talks about:
+
+| Command | What it does |
+|---|---|
+| `insert <page> <line> <text>` | put a new line before line N; N = last + 1 adds it at the end, and line 1 makes a page that isn't there yet |
+| `edit <page> <line> <text>` | replace one line |
+| `cut <page> <line> [to]` | remove one line, or the lines from..to |
+| `view <page> [from] [to]` | show the lines with their numbers (at most 20 at a time) |
+
+The text starts after exactly one space, so spaces at its start are kept (lines keep their
+indent). A line is at most 78 characters. The drawer a new page goes in must exist: to type
+the pages `apps:counter` or `tools:money` below, first `build apps` or `build tools`. Notes
+shows line numbers too: **Ctrl+G** goes to a line and **Ctrl+F** finds a word.
+
+`run <page>` runs the program. An Output screen shows `Finished` or `Stopped` on the first
+line, then what the program said with `say`, then the changes it made. **A program that stops
+because of a mistake changes nothing.** The mistake names the page and the line:
+
+```commands
+insert hello 1 set name to 'Mira'
+insert hello 2 say 'Hello ' & name & '!'
+run hello
+```
+
+```script
+set name to 'Mira'
+say 'Hello ' & name & '!'
+```
+```output
+Hello Mira!
+```
+
+### Trying lines out: the lab
+
+`lab` opens a screen where you type one line at a time. A value is shown as you would type it
+(texts in quotes, lists in `[ ]`, records in `{ }`); an instruction is carried out. Names,
+tasks and `use` lines are kept while the lab is open. **Changes are only shown, never made.**
+Esc leaves the lab and forgets everything in it.
+
+```lab
+>   set items to ['milk']
+>   add 'tea' to items
+>   items
+['milk', 'tea']
+>   count(items) * 2
+4
+>   write('desk:list', join(items, ', '))
+would write desk:list
+>   items / 2
+mistake: / needs two numbers, got a list of 2 items
+```
+
+### Values, lists and records
+
+A **list** holds items in order (the first is item 1); a **record** holds named fields.
+`add VALUE to NAME` puts an item at the end of a list; `set r.field to VALUE` changes or makes
+a field. Values are copies: changing one never changes another.
+
+```script
+set shop to ['eggs', 'tea']
+add 'milk' to shop
+set pet to {name: 'Mira', age: 3}
+set pet.age to pet.age + 1
+say count(shop) & ' items: ' & shop
+say pet.name & ' is ' & pet.age
+say pet
+```
+```output
+3 items: eggs, tea, milk
+Mira is 4
+{name: Mira, age: 4}
+```
+
+### Choosing and repeating
+
+`when` can have `or when` parts and an `otherwise` part. `for each`, `repeat` and `while` repeat
+the lines up to `done`; `skip` goes on with the next turn and `quit` ends the loop.
+
+```script
+for each n in [3, 12, 40]
+  when n < 10
+    say n & ' is small'
+  or when n < 20
+    say n & ' is middle'
+  otherwise
+    say n & ' is big'
+  done
+done
+```
+```output
+3 is small
+12 is middle
+40 is big
+```
+
+### Tasks and fixed values
+
+A **task** is a piece of program with a name and inputs. `give` ends it and gives a value
+back. A task sees only its inputs, its own names and the **fixed values** (values that never
+change).
+
+```script
+fixed rate is 21
+task with_tax(amount)
+  give amount + amount * rate / 100
+done
+say with_tax(200)
+```
+```output
+242
+```
+
+### Pages that use pages
+
+`use 'PAGE'` at the top of a page loads the tasks and fixed values of another page. A page
+that is used can't have lines that run by themselves (its `test` blocks and `app` line are
+ignored). A mistake on it names that page, and
+the line it was called from.
+
+```page tools:money
+fixed rate is 21
+
+task tax(amount)
+  give amount * rate / 100
+done
+```
+
+```script
+use 'desk:tools:money'
+say 'tax on 200: ' & tax(200)
+```
+```output
+tax on 200: 42
+```
+
+### Mistakes you make yourself: fail and try
+
+`fail VALUE` stops the program with your own mistake. `try` ... `instead NAME` ... `done` runs
+the try lines; if a mistake happens there, **everything they did is undone** and the instead
+lines run, with the message in NAME.
+
+```script
+for each t in ['12', 'twelve']
+  try
+    say number(t) + 1
+  instead problem
+    say 'skipped: ' & problem
+  done
+done
+```
+```output
+13
+skipped: 'twelve' is not a number
+```
+
+### Tests
+
+A **test page** holds `use` lines and tests. `test <page>` runs every test and shows `PASS` or
+`FAIL` for each. A test **passes only if it reaches its `done` with at least one `check`, and
+every check is yes**; a mistake that is not caught, `stop`, or a test without checks is a
+FAIL. `check`, `pretend`, `launch`, `press` and the functions that look at the test world work
+only in the test's own lines, not inside tasks. Each test runs in
+its own **test world**: empty app drawers, the default settings, today is 2026-11-14, and the
+pages it pretends (`pretend 'PAGE' holds TEXT` at the top of the test). **Nothing a test does
+is ever made on the desk:** `after(PAGE)` shows what a page would be after the changes the test
+planned, `page_now(PAGE)` the page in the test world now (`nothing()` if there is none), and
+`sent()` and `events()` the mails and events, as records.
+
+```tests
+use 'desk:tools:money'
+
+test 'tax of 100'
+  check tax(100) is 21
+done
+
+test 'a page in the test world'
+  pretend 'desk:prices' holds '100' & newline() & '50'
+  set total to 0
+  for each p in lines(read('desk:prices'))
+    set total to total + tax(number(p))
+  done
+  check total is 31.5
+done
+```
+```report
+PASS tax of 100
+PASS a page in the test world
+2 of 2 tests passed
+```
+
+### Apps
+
+An **app** is a page that starts with `app 'TITLE'` and has three tasks: `start()` gives the
+app's first **state**; `key(s, k)` gets the state and a key and gives the new state; `draw(s)`
+shows the state on the screen. An app page holds only `use`, `fixed` and `task` lines (set
+things up in `start`). `open <page>` runs `start`, then `draw`. **Every key is one
+step**: `key`, then `draw` with the state `key` gave. A step is all or nothing: at its end its
+changes to pages are made and its state and screen are kept. If a step has a mistake, nothing of
+that step is made, the app closes and the Output screen shows the mistake (Esc goes back).
+`start` and `key` must end with `give`. `close()` in `start` or `key` closes the app at the end
+of the step (its changes are made, `draw` is skipped). **Ctrl+Q always closes an app**; `key`
+never gets it.
+
+The screen is empty at the start of every `draw`. It has rows 1 to 23 and columns 1 to 78;
+`show(row, col, value)` puts one line there (`show(row, col, value, 'bright')` in a colour),
+`fill(row, colour)` colours a row, `title` and `help` set the bars and `cursor(row, col)` shows
+the cursor. These work only in `draw`, and `draw` works only from the state: it can't read or
+change pages or use `today()`. No part of an app can use `say` or `stop`. These rules hold in
+every task a part calls, too.
+
+A small counter app:
+
+```page apps:counter
+app 'Counter'
+
+task start()
+  give {n: 0}
+done
+
+task key(s, k)
+  when k is 'up'
+    set s.n to s.n + 1
+  or when k is 'down' and s.n > 0
+    set s.n to s.n - 1
+  or when k is 'enter'
+    write('desk:count', s.n)
+  done
+  give s
+done
+
+task draw(s)
+  show(2, 3, 'The count is ' & s.n, 'bright')
+  help('Up/Down change  Enter save')
+done
+```
+
+```commands
+open apps:counter
+```
+
+Tests can use an app the way a person does: `launch 'PAGE'` opens it in the test and
+`press 'KEY'` is one key step, whose changes are made in the test world. `app_state()` is the
+state, `screen_line(row)` a row of the screen as text (0 is the top bar, 24 the bottom bar),
+`screen_colour(row, col)` the colour at a place. **A step with a mistake closes the app but
+doesn't fail the test by itself**: `app_open()` is then no and `app_mistake()` says why (it is
+`''` when there was no mistake). Pressing a key after the app has closed fails the test.
+
+```tests
+test 'up counts, enter saves'
+  launch 'desk:apps:counter'
+  press 'up'
+  press 'up'
+  press 'down'
+  check app_state().n is 1
+  check screen_line(2) has 'The count is 1'
+  press 'enter'
+  check page_now('desk:count') is '1'
+  check app_mistake() is ''
+done
+
+test 'other keys change nothing, ctrl+q closes'
+  launch 'desk:apps:counter'
+  press 'x'
+  check app_state().n is 0
+  check app_open()
+  press 'ctrl+q'
+  check not app_open()
+done
+```
+```report
+PASS up counts, enter saves
+PASS other keys change nothing, ctrl+q closes
+2 of 2 tests passed
+```
+
+### The complete reference
+
+This is exactly the text `guide script` shows on the screen.
+
+```text
+UNSEEN SCRIPT: the complete reference
+Unseen Script is the language for programs and apps on this computer. A
+program is a page. Write it with insert and edit (or in Notes), then:
+  run <page>    run a program; an Output screen shows what it said and did
+  test <page>   run the tests on a test page (PASS or FAIL for each test)
+  open <page>   open an app (Ctrl+Q closes it)
+  lab           try lines out one at a time (changes are only shown)
+Every chore is also an Unseen Script program (guide do explains chores).
+
+EXAMPLE
+  -- count Omar's mails and save the answer
+  task from_omar(m)
+    give field(m, 'from') is 'omar'
+  done
+  set total to 0
+  for each m in pages('mail:inbox')
+    when from_omar(m)
+      set total to total + 1
+    done
+  done
+  say 'Omar sent ' & total & ' mails'
+  write('desk:answer', total)
+
+LINES
+  One instruction per line. Spaces at the start of a line don't matter.
+  -- starts a comment: the rest of the line is ignored.
+  Capitals don't matter in words and names (SET = set, Total = total).
+  A page has at most 400 lines and 16000 characters. Lines made with
+  insert or edit are at most 78 characters.
+
+PAGE COMMANDS
+  view <page> [from] [to]       show lines with their numbers (20 at most)
+  edit <page> <line> <text>     replace one line
+  insert <page> <line> <text>   put a new line before line N; N = last + 1
+                                adds it at the end; line 1 makes a page
+  cut <page> <line> [to]        remove one line, or lines from..to
+  The text starts after exactly one space, so an indent is kept. The
+  drawer a new page goes in must exist (build apps makes the drawer apps).
+
+VALUES
+  numbers    12  3.5  -2      (below 1000000000000)
+  text       'hello' or "hello"; 'it''s' has one quote mark inside
+  yes / no   yes  no
+  list       [1, 'a', yes]  []     (the first item is item 1)
+  record     {name: 'Mira', age: 3}  {}
+  nothing    nothing()
+  Values are copies: set b to a, then changing b never changes a.
+  Names: letters, digits and _, not starting with a digit. These words
+  can't be names: set to say stop when otherwise done for each in repeat
+  times and or not is has yes no. A task can't have the name of a word
+  that starts an instruction (give, task, while, ...), and a task or a
+  fixed value can't have the name of a built-in function.
+
+OPERATORS
+  + - * /           numbers only: 1 + '2' is a mistake (use number(...))
+  &                 joins text: 'n = ' & 5 gives 'n = 5'
+  is   is not       same kind on both sides (anything with nothing());
+                    lists and records are the same if all parts are
+  < > <= >=         two numbers or two texts
+  has               text has text, or list has item
+  and  or  not      yes / no
+  Brackets ( ) group. One comparison at a time: [yes] has (1 < 2).
+
+INSTRUCTIONS
+  set NAME to VALUE          give a name a value
+  set r.field to VALUE       change or make a field of a record
+  set l at N to VALUE        change item N of a list (it must exist)
+  add VALUE to NAME          put an item at the end of a list
+  say VALUE                  show a line on the Output screen
+  when CONDITION             the lines up to done run only if it is yes
+  or when CONDITION          (optional) tried when the ones above were no
+  otherwise                  (optional) the lines for when all were no
+  for each NAME in LIST      the lines up to done run for every item
+  repeat NUMBER times        the lines up to done run NUMBER times
+                             (a whole number from 0 to 10000)
+  while CONDITION            the lines up to done run while it is yes
+  skip                       go on with the next turn of the loop
+  quit                       end the loop
+  done                       ends a block
+  stop                       end the program here (it still finished)
+  ACTION(...)                an action (below), on a line of its own
+
+TASKS
+  task NAME(INPUT, ...)      a piece of program with a name, up to done
+  give VALUE                 end the task and give the value back
+  Call it like a function: tax(100). On a line of its own, what it gives
+  is thrown away. Inputs are copies; a task sees only its inputs, its own
+  names and the fixed values. No give: it gives nothing(). Tasks can call
+  each other and themselves, and can be used before the line making them.
+  fixed NAME is VALUE        a value that never changes, seen everywhere
+  A fixed value may use only earlier fixed values and functions that
+  don't look at the pages or the date (no tasks, read, pages, today ...).
+  task and fixed lines are only at the top of a page (not in blocks), and
+  no two tasks or fixed values have the same name.
+
+PAGES THAT USE PAGES
+  use 'PAGE'                 load the tasks and fixed values of a page
+  use lines come first. A used page can't have lines that run by
+  themselves (only use, fixed, task, test and app lines; its tests and
+  its app line are ignored). Each page is loaded once; a loop of pages is
+  a mistake.
+
+MISTAKES
+  A mistake stops the program and nothing is changed. It names the page
+  and the line, and the lines a task was called from.
+  Before anything runs, the pages are checked: an unknown task, the wrong
+  number of inputs or a broken block stops the program at once.
+  fail VALUE                 stop with your own mistake
+  try                        if a mistake happens in the lines up to
+  instead NAME               instead, everything they did is undone and
+  done                       the instead lines run, with the message in NAME
+  Running out of steps, memory, say lines or changes, going too deep
+  (tasks in tasks, blocks in blocks), stop and a failed check can't be
+  caught by try. Other mistakes can, also a text, list or nesting of
+  lists and records that would be too big.
+
+READING PAGES (a program reads the pages as they were when it started;
+an app step, as they were when that step started, with the changes of
+the steps before it; a test's own lines see its app's changes at once)
+  pages(drawer)        the paths of the pages in a drawer, in name order
+  read(page)           the text of a page
+  field(page, key)     the text after 'key:' on a line above the first
+                       empty line ('' if there is none)
+  body(page)           the text after the first empty line
+  fields(page)         the 'key: value' lines above the first empty
+                       line, as a record (keys in small letters; a key
+                       must be a name; the first of two is kept)
+  exists(path)         yes if there is a page or drawer there
+  Paths start at the desk: 'notes:list' is desk:notes:list.
+
+ACTIONS (planned in order; made together at the end, only if the program
+finished without a mistake)
+  write(page, text)    make a page, or replace its text
+  add(page, line)      add a line at the end of a page (or make it)
+  toss(page)           throw a page away
+  send(to, subject, text)   send a mail: to is a contact's address, the
+                       subject one line of at most 60, the text at most 4096
+  event(date, time, title, with)   add a calendar event: date YYYY-MM-DD,
+                       time HH:MM (24-hour), title one line of 1-50,
+                       with one line of at most 40
+  The drawer of a page must exist. write, add and toss can't change the
+  apps' drawers (mail, contacts, calendar, system): use send and event.
+
+TEXT
+  count(t) places    upper(t)  lower(t)   trim(t) without outer spaces
+  newline()  a line break         text(value)  any value as text
+  lines(t)  words(t)  split(t, by)  join(list, by)
+  replace(t, old, new)            every old changed to new
+  find(t, part)                   where part starts (1 = first), 0 if not
+  slice(t, from, to)              places from to to, both included
+  starts(t, part)  ends(t, part)  yes / no
+  number(t)  is_number(t)         text as a number; would that work?
+  Places: every letter, digit, space and sign the keyboard types is one
+  place; other characters take more (slice never cuts one in half).
+  pad(t, width)                   spaces after t up to width (below 0:
+                                  in front)
+
+NUMBERS
+  round(n, decimals) (0 to 6)  floor(n)  ceil(n)  abs(n)
+  min(a, b)  max(a, b)         two numbers or two texts
+
+LISTS
+  count(l)  item(l, n)         item(l, n) must exist
+  first(l)  last(l)            a mistake if the list is empty
+  slice(l, from, to)           items from to to (both included; past the
+                               end means the end)
+  sum(l)                       the numbers added up (0 for [])
+  sort(l)                      in order: all numbers, or all texts
+  reverse(l)  unique(l)        the other way round; without repeats
+  range(from, to)              whole numbers from to to ([] if to < from)
+  position(l, value)           where it is, 0 if it isn't there
+  without(l, n)                the list without item n
+
+RECORDS
+  r.name  count(r)  keys(r)  has_key(r, name)
+
+DATES (text written YYYY-MM-DD)
+  today()  weekday(date) ('monday' ...)  add_days(date, n)
+  days_between(a, b) (days from a to b)  month(date)  year(date)
+
+TEST PAGES (run with test <page>)
+  A test page holds use, fixed, task and test lines. check, pretend,
+  launch, press and the functions below work only in a test's own lines,
+  not in tasks: give their values to a task as inputs.
+  test 'TITLE'               one test, up to done
+  check CONDITION            the test fails here if it is no
+  pretend 'PAGE' holds TEXT  a page of the test world (top of a test)
+  pretend today is 'DATE'    the test world's date (top of a test)
+  A test passes only if it reaches its done, with at least one check and
+  every check yes. A mistake, stop or no check at all is a FAIL. Each
+  test runs in its own test world: the empty app drawers, the default
+  settings and what it pretends (today is 2026-11-14). The code comes
+  from the desk; nothing a test does is ever made on the desk.
+  after(page)    the page with the changes the test planned (nothing()
+                 if there would be no page)
+  page_now(page) the page in the test world now (nothing() if none)
+  sent()         the mails, as records {to, subject, text}
+  events()       the events, as records {date, time, title, with}
+  said()         the say lines so far, as a list
+
+APPS (open with open <page>)
+  An app page starts with app 'TITLE' and holds only use, fixed and
+  task lines (nothing outside a task runs: set things up in start). It
+  has three tasks:
+  task start()         gives the first state (usually a record)
+  task key(s, k)       gets the state and a key; gives the new state
+  task draw(s)         shows the state with the screen functions
+  open runs start, then draw. Every key is one step: key, then draw with
+  the state key gave. A step is all or nothing: at its end its changes
+  are made and its state and screen are kept. A mistake in a step closes
+  the app and shows it; nothing of that step is made. start and key must
+  end with give. Ctrl+Q always closes the app and never reaches key.
+  Keys: 'a' 'A' '7' ' ' '.'  'enter' 'esc' 'backspace' 'tab' 'delete'
+  'up' 'down' 'left' 'right' 'home' 'end'  'ctrl+a' to 'ctrl+z'
+  edit_text(t, k)      t with the key typed into it (backspace too)
+  close()              (start or key) the step still ends with give; its
+                       changes are made, draw is skipped, the app closes
+  The screen is empty at the start of every draw. Rows 1-23, columns
+  1-78. Only in draw:
+  show(row, col, value)          show it there (cut at column 78; one
+                                 line: a line break is a mistake)
+  show(row, col, value, colour)  normal bright accent warn select
+  fill(row, colour)    colour a whole row (show without a colour keeps it)
+  title(text)  help(text)   the top and bottom bars (Ctrl+Q close is added)
+  cursor(row, col)     show the cursor there (otherwise it is hidden)
+  What each part may do (also inside the tasks it calls):
+    start, key   read and change pages, close(); no say, no stop
+    draw         only the state: no reading pages, no today(), no
+                 changes, no say, no stop
+  The state kept between steps is at most 256 KB.
+
+TESTING APPS
+  launch 'PAGE'      open the app in the test (start, then draw)
+  press 'KEY'        one key step; its changes are made in the test world
+                     ('ctrl+q' closes the app)
+  app_state()        the app's state after the last step
+  screen_line(row)   a row as text (0 is the top bar, 24 the bottom bar)
+  screen_colour(row, col)   the colour at that place
+  app_open()         yes while the app is open
+  app_mistake()      the mistake that closed it ('' if none)
+  A failing step closes the app but doesn't fail the test by itself:
+  check app_open() or app_mistake(). A press after the app closed fails
+  the test. launch and press can't be in the try part of a try.
+
+LIMITS
+  8000 characters per text; 2000 items per list or fields per record;
+  lists and records 16 deep; blocks 16 deep; brackets 12 deep in a line;
+  48 operators in a chain in one line; tasks 40 calls deep, and at most
+  256 levels in all (a block is 1, a try 2, a task call 4, and one more
+  for every value being worked out); 16 pages per program and 1 MB for
+  their checked code and fixed values; 500 say lines; 300 changes;
+  500000 steps and 1 MB of memory per program or app step; 2000 screen
+  calls per draw; an app's state 256 KB; a page a program makes 16384
+  characters. A test: 5000000 steps in all, a test world of 1 MB and 5000
+  drawers and pages.
+```
+
+### Things to know
+
+- **Paths start at the desk** inside programs: `'notes:list'` means `desk:notes:list`.
+- **Text is not a number.** Use `number(...)` before adding up text read from pages;
+  `1 + '2'` and `1 is '1'` are mistakes.
+- **A program sees the pages as they were when it started.** Its changes are made together at
+  the end, so a page it writes can't be read back in the same run (in an app: in the same step).
+- **The lab and tests never change the desk.** Use them to try things safely.
+- **Quotes:** text can be written in `'single'` or `"double"` quotes; single quotes are easier
+  to type through a command line.
 
 ## Tips
 

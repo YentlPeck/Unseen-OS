@@ -1,5 +1,5 @@
 """Typing round trip for Unseen Script (design §10): every line of every example in
-docs/script-reference.md is typed the way a player types it, through bash and through the real
+docs/script-reference.md (and the manual's Unseen Script chapter) is typed the way a player types it, through bash and through the real
 powershell.exe, with a play.py that only prints the arguments it received. Passes if the audit
 allows every command and play.py received exactly the line, for both shells.
 
@@ -28,12 +28,21 @@ ECHO = 'import json, sys\nprint("ARGV " + json.dumps(sys.argv[1:]))\n'
 
 def example_lines():
     md = (TOOLS.parent / "docs" / "script-reference.md").read_text(encoding="utf-8")
+    # and the Unseen Script chapter of the manual (M6)
+    manual = (TOOLS.parent / "docs" / "manual.md").read_text(encoding="utf-8")
+    md += manual.split("## Unseen Script", 1)[1].split("\n## ", 1)[0]
     blocks = re.findall(r"```(?:script|tests|commands|page [^\n]*)\n(.*?)\n```", md, re.S)
     lines = [[l for l in b.split("\n") if l.strip()] for b in blocks]
     # in a lab block only the lines after the prompt are typed (the others are what it shows)
     for b in re.findall(r"```lab\n(.*?)\n```", md, re.S):
         blocks.append(b)
         lines.append([l[4:] for l in b.split("\n") if l.startswith((">   ", "... ")) and l[4:].strip()])
+    # the example of guide script (inside the manual's text block, indented by two spaces)
+    guide = (TOOLS.parent / "kernel" / "src" / "script_guide.txt").read_text(encoding="utf-8")
+    example = guide.split("EXAMPLE\n", 1)[1].split("\n\n", 1)[0]
+    blocks.append(example)
+    lines.append([l[2:] for l in example.split("\n") if l.strip()])
+    # (empty lines are not typed: an empty line is made with insert PAGE N and no text)
     return blocks, lines
 
 

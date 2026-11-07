@@ -1,4 +1,5 @@
-//! Every example in docs/script-reference.md is a test (design §10):
+//! Every example in docs/script-reference.md, and in the Unseen Script chapter of
+//! docs/manual.md, is a test (design §10, M6):
 //! - a `script` block must give exactly the `output` block after it, or a mistake containing
 //!   the `mistake` block's text;
 //! - a `tests` block is run as a test page and must give exactly the `report` block after it;
@@ -34,10 +35,55 @@ fn blocks(md: &str) -> Vec<(String, String)> {
     out
 }
 
+fn read(path: &str) -> String {
+    std::fs::read_to_string(format!("{}/../{path}", env!("CARGO_MANIFEST_DIR"))).unwrap().replace("\r\n", "\n")
+}
+
+/// The Unseen Script chapter of the manual.
+fn manual_chapter() -> String {
+    let md = read("docs/manual.md");
+    let start = md.find("## Unseen Script").expect("the manual has an Unseen Script chapter");
+    let rest = &md[start..];
+    let end = rest[3..].find("\n## ").map_or(rest.len(), |i| i + 3);
+    rest[..end].to_string()
+}
+
 #[test]
 fn every_reference_example_gives_its_result() {
-    let md = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../docs/script-reference.md")).unwrap();
-    let b = blocks(&md);
+    let n = check_examples(&read("docs/script-reference.md"));
+    assert!(n >= 30, "only {n} examples");
+}
+
+#[test]
+fn every_manual_example_gives_its_result() {
+    let n = check_examples(&manual_chapter());
+    assert!(n >= 9, "only {n} examples");
+}
+
+/// The manual's reference block is exactly what `guide script` shows, every line fits the
+/// screen, and the guide's own example works.
+#[test]
+fn the_manual_has_the_guide_word_for_word() {
+    let guide = read("kernel/src/script_guide.txt");
+    let chapter = manual_chapter();
+    let texts: Vec<String> = blocks(&chapter).into_iter().filter(|(k, _)| k == "text").map(|(_, t)| t).collect();
+    assert_eq!(texts.len(), 1, "one text block");
+    assert_eq!(texts[0], guide.trim_end_matches('\n'), "the manual must have the guide script text word for word");
+    assert!(guide.is_ascii(), "the screen shows only ASCII");
+    for l in guide.lines() {
+        // the Viewer shows 76 bytes a line (kernel/src/chores.rs WIDTH) without wrapping
+        assert!(l.len() <= 76, "a guide line is too wide for the screen: {l:?}");
+    }
+    let example: Vec<&str> = guide.split("EXAMPLE\n").nth(1).unwrap().split("\n\n").next().unwrap().lines().map(|l| &l[2..]).collect();
+    let o = script::run("main", &example.join("\n"), &TestWorld::new());
+    assert_eq!(o.error, None);
+    assert_eq!(o.output, ["Omar sent 2 mails"]);
+    assert_eq!(o.actions.len(), 1);
+}
+
+/// Check every example of a markdown text; gives how many were checked.
+fn check_examples(md: &str) -> usize {
+    let b = blocks(md);
     let mut start = String::from(common::START);
     for (kind, text) in &b {
         if let Some(name) = kind.strip_prefix("page ") {
@@ -87,5 +133,5 @@ fn every_reference_example_gives_its_result() {
         }
         checked += 1;
     }
-    assert!(checked >= 30, "only {checked} examples");
+    checked
 }

@@ -633,6 +633,14 @@ step:** 500 `say` lines; 300 planned changes.
 | M4 | **in the OS**: `run`, `test`, `lab`, `view`/`edit`/`insert`/`cut`, Notes upgrades | robot in QEMU: writes a two-page program with `edit`/`insert`, tests it with `test`, runs it with `run` |
 | M5 | **apps**: `app`, `open`, the loop, screen functions, Ctrl+Q, `launch`/`press` and the app checks in tests | robot in QEMU: builds the shopping list app, its tests pass, and it works by keys |
 | M6 | **manual** chapter and `guide script` | every manual example passes (it is the reference, written up) |
+
+**As built (M6):** `guide script` shows `kernel/src/script_guide.txt` (255 lines, ASCII, each at most
+76 characters, the width of the Viewer; it was made fuller after Sol's review and re-check of M6). The manual's new chapter "Unseen Script (programs and apps)" explains it with
+examples and holds that text word for word (checked by `script/tests/reference.rs`, which also
+runs the guide's own example and every `script`, `tests` and `lab` example of the chapter, on
+the same desk as the reference). Its `commands` examples run in QEMU (`tools/test_apps_os.py`),
+and every non-empty line of its examples (and of the guide's example) is typed through PowerShell and bash
+(`tools/test_script_typing.py`). The Chores chapter is unchanged.
 | M7 | pilot: Haiku and Luna build 2-3 small apps | the tasks are fair and the harness works (a check, not a result) |
 
 ## 12. Later: app benchmark (SWE-bench style)

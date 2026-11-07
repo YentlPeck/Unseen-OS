@@ -17,6 +17,9 @@ use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 use script::{Action, Lab, World};
 
+/// What `guide script` shows: the complete reference (docs/manual.md has it word for word).
+pub const SCRIPT_GUIDE: &str = include_str!("script_guide.txt");
+
 /// Pages a program makes may not grow beyond this (as chores; Notes stays usable).
 const MAX_PAGE: usize = 16 * 1024;
 /// A line made with edit or insert fits on one Notes line.

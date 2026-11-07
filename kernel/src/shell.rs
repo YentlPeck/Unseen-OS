@@ -364,9 +364,9 @@ const GROUPS: [(&str, &[&str]); 7] = [
 ];
 
 fn cmd_guide(sh: &mut Shell, screen: &mut Screen, rest: &str) {
-    if rest == "do" {
-        // chores have a full reference of their own
-        sh.apps.push(App::Viewer(Viewer::guide()));
+    if rest == "do" || rest == "script" {
+        // chores and Unseen Script have a full reference of their own
+        sh.apps.push(App::Viewer(if rest == "do" { Viewer::guide() } else { Viewer::script_guide() }));
         sh.redraw(screen);
         return;
     }
@@ -386,6 +386,10 @@ fn cmd_guide(sh: &mut Shell, screen: &mut Screen, rest: &str) {
         screen.write_colored(&words.join("  "), ACCENT);
         screen.write_byte(b'\n');
     }
+    screen.write_colored("  guide do", ACCENT);
+    screen.write_colored(" explains chores, ", NORMAL);
+    screen.write_colored("guide script", ACCENT);
+    screen.write_colored(" programs and apps.\n", NORMAL);
 }
 
 fn cmd_here(sh: &mut Shell, screen: &mut Screen, _: &str) {

@@ -8,6 +8,7 @@ checks a failing step (the Output screen), Ctrl+Q, how long the slowest step tak
 kernel stack with the deepest app steps (STACK on the inspector).
 """
 
+import re
 import sys
 import tempfile
 import time
@@ -152,8 +153,21 @@ def down_task(whens, brackets):
     )
 
 
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def manual_blocks():
+    """(kind, text) of the fenced blocks of the manual's Unseen Script chapter (M6)."""
+    md = (ROOT / "docs" / "manual.md").read_text(encoding="utf-8")
+    chapter = md.split("## Unseen Script", 1)[1].split(NL + "## ", 1)[0]
+    return re.findall(r"```([^" + NL + r"]*)" + NL + r"(.*?)" + NL + "```", chapter, re.S)
+
+
 def start_files():
     parts = ["#today 2026-11-07"]
+    for kind, text in manual_blocks():
+        if kind.startswith("page "):
+            parts.append(f"#page {kind[5:]}{NL}{text}{NL}#end")
     pages = {
         # a step that fails, and one that never uses a key (Ctrl+Q still closes it)
         "apps:broken": app("Broken", "  when k is 'x'\n    give 1 / 0\n  done\n  set s to s + 1",
@@ -187,6 +201,25 @@ def main():
         try:
             scr = run(m, "guide")
             check("guide lists open", "open" in scr, scr)
+
+            # ---- M6: guide script, and the manual's examples at the prompt ----
+            scr = run(m, "guide script")
+            check("guide script opens the reference", "UNSEEN SCRIPT: the complete reference" in scr, scr)
+            keys(m, "esc")
+            commands = [b for k, b in manual_blocks() if k == "commands"]
+            for line in commands[0].split(NL):
+                scr = run(m, line)
+            check("the manual's first program runs", "Finished:" in scr and "Hello Mira!" in scr, scr)
+            keys(m, "esc")
+            scr = run(m, commands[1])
+            check("the manual's counter app opens", "The count is 0" in scr and "Ctrl+Q close" in scr, scr)
+            keys(m, "up")
+            keys(m, "up")
+            scr = keys(m, "down")
+            check("it counts by keys", "The count is 1" in scr, scr)
+            keys(m, "enter")
+            check("Enter saves the count", page(m, "desk:count") == "1", page(m, "desk:count"))
+            keys(m, "ctrl+q")
 
             # ---- the robot builds the shopping list app ----
             scr = type_page(m, "apps:shop-lib", SHOP_LIB)

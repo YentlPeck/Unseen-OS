@@ -286,6 +286,12 @@ impl Viewer {
         Self::new("Guide - chores", "", &text, ACCENT)
     }
 
+    /// `guide script`: the complete Unseen Script reference (the manual has it word for word).
+    pub fn script_guide() -> Self {
+        let text: Vec<String> = crate::programs::SCRIPT_GUIDE.lines().map(|l| l.to_string()).collect();
+        Self::new("Guide - Unseen Script", "", &text, ACCENT)
+    }
+
     fn max_top(&self) -> usize {
         self.lines.len().saturating_sub(BODY_ROWS)
     }
