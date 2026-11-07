@@ -209,6 +209,90 @@ impl TextArea {
     }
 }
 
+impl TextArea {
+    /// Keep the cursor row on screen after it moved.
+    fn follow(&mut self, view_rows: usize) {
+        if self.row < self.top {
+            self.top = self.row;
+        } else if self.row >= self.top + view_rows {
+            self.top = self.row + 1 - view_rows;
+        }
+    }
+
+    /// Put the cursor at the start of line `n` (counted from 1).
+    pub fn go_to(&mut self, n: usize, view_rows: usize) -> bool {
+        if n == 0 || n > self.lines.len() {
+            return false;
+        }
+        self.row = n - 1;
+        self.col = 0;
+        // show the line in the middle of the screen when it was off screen
+        if self.row < self.top || self.row >= self.top + view_rows {
+            self.top = self.row.saturating_sub(view_rows / 2);
+        }
+        self.follow(view_rows);
+        true
+    }
+
+    /// Put the cursor on the next place `word` is (capitals don't matter), after the cursor,
+    /// going round to the top at the end. Returns the line it is on (from 1).
+    pub fn find(&mut self, word: &str, view_rows: usize) -> Option<usize> {
+        if word.is_empty() {
+            return None;
+        }
+        let w = word.to_ascii_lowercase();
+        let n = self.lines.len();
+        for k in 0..=n {
+            let r = (self.row + k) % n;
+            let line = self.lines[r].to_ascii_lowercase();
+            // on the cursor's own line: only after the cursor the first time, before it at the end
+            let from = if k == 0 { self.col + 1 } else { 0 };
+            let hit = line.get(from..).and_then(|rest| rest.find(&w)).map(|i| i + from);
+            let hit = match hit {
+                Some(i) if k == n && i >= self.col + 1 => None,
+                h => h,
+            };
+            if let Some(i) = hit {
+                self.row = r;
+                self.col = i;
+                if self.row < self.top || self.row >= self.top + view_rows {
+                    self.top = self.row.saturating_sub(view_rows / 2);
+                }
+                self.follow(view_rows);
+                return Some(r + 1);
+            }
+        }
+        None
+    }
+
+    /// Draw with line numbers on the left. Long lines scroll sideways with the cursor.
+    /// Returns the cursor position (col, row).
+    pub fn draw_numbered(&self, screen: &mut Screen, first: usize, rows: usize) -> (usize, usize) {
+        let width = COLS - GUTTER - 1;
+        let left = if self.col >= width { self.col + 1 - width } else { 0 };
+        for i in 0..rows {
+            screen.fill_row(first + i, NORMAL);
+            let n = self.top + i;
+            if let Some(line) = self.lines.get(n) {
+                screen.put_str(0, first + i, &alloc::format!("{:>4}", n + 1), ACCENT);
+                let shown = line.get(left..).unwrap_or("");
+                let end = shown.len().min(width);
+                screen.put_str(GUTTER, first + i, shown.get(..end).unwrap_or(""), NORMAL);
+                if left > 0 && !line.is_empty() {
+                    screen.put_str(GUTTER - 1, first + i, "<", ACCENT); // more text to the left
+                }
+                if shown.len() > width {
+                    screen.put_str(COLS - 1, first + i, ">", ACCENT); // more text to the right
+                }
+            }
+        }
+        (GUTTER + self.col - left, first + self.row - self.top)
+    }
+}
+
+/// Columns used by the line numbers in Notes ("1234 ").
+const GUTTER: usize = 5;
+
 /// A form: labelled one-line fields. Up/Down/Tab move between fields.
 pub struct Form {
     pub fields: Vec<(&'static str, LineEdit)>,
@@ -313,7 +397,11 @@ pub fn wrap(text: &str, width: usize) -> Vec<String> {
         }
         let mut rest = line;
         while !rest.is_empty() {
-            let cut = rest.len().min(width);
+            // cut at a character boundary (at least one character per screen line)
+            let mut cut = rest.len().min(width.max(1));
+            while !rest.is_char_boundary(cut) {
+                cut += 1;
+            }
             out.push(rest[..cut].to_string());
             rest = &rest[cut..];
         }

@@ -16,6 +16,7 @@ use crate::fs::{self, Entry, Fs};
 use crate::history::{self, History};
 use crate::keyboard::Key;
 use crate::notes::Notes;
+use crate::programs::{self, LabApp};
 use crate::screen::{Screen, ACCENT, BRIGHT, NORMAL, WARN};
 use alloc::format;
 use alloc::string::{String, ToString};
@@ -54,6 +55,13 @@ const COMMANDS: &[Command] = &[
     Command { name: "settings", usage: "settings", about: "open the Settings app", run: cmd_settings },
     Command { name: "calc", usage: "calc", about: "open the Calculator app", run: cmd_calc },
     Command { name: "do", usage: "do <page>", about: "carry out the chore written on a page (guide do explains chores)", run: cmd_do },
+    Command { name: "run", usage: "run <page>", about: "run the Unseen Script program on a page", run: cmd_run },
+    Command { name: "test", usage: "test <page>", about: "run the tests on a test page and show which pass", run: cmd_test },
+    Command { name: "lab", usage: "lab", about: "try Unseen Script one line at a time (changes are only shown, never made)", run: cmd_lab },
+    Command { name: "view", usage: "view <page> [from] [to]", about: "show the lines of a page with their numbers", run: cmd_view },
+    Command { name: "edit", usage: "edit <page> <line> <text>", about: "replace one line of a page", run: cmd_edit },
+    Command { name: "insert", usage: "insert <page> <line> <text>", about: "put a new line before line N (last + 1 adds it at the end)", run: cmd_insert },
+    Command { name: "cut", usage: "cut <page> <line> [to]", about: "remove one line, or lines from..to, of a page", run: cmd_cut },
     Command { name: "stamp", usage: "stamp <note>", about: "save the desk as it is now as a new numbered stamp, with a short note", run: cmd_stamp },
     Command { name: "stamps", usage: "stamps", about: "list the stamps (the saved versions of the desk)", run: cmd_stamps },
     Command { name: "changes", usage: "changes [page or drawer]", about: "show what changed since the stamp the desk is on", run: cmd_changes },
@@ -75,6 +83,7 @@ enum App {
     Settings(Settings),
     Calc(Calc),
     Viewer(Viewer),
+    Lab(LabApp),
 }
 
 pub struct Shell {
@@ -220,6 +229,7 @@ impl Shell {
             Some(App::Settings(a)) => if a.key(&mut self.fs, key) { Next::Close } else { Next::Redraw },
             Some(App::Calc(a)) => if a.key(key) { Next::Close } else { Next::Redraw },
             Some(App::Viewer(v)) => if v.key(key) { Next::Close } else { Next::Redraw },
+            Some(App::Lab(a)) => if a.key(&self.fs, key) { Next::Close } else { Next::Redraw },
             None => return,
         };
         match next {
@@ -266,6 +276,7 @@ impl Shell {
             Some(App::Settings(a)) => a.draw(screen),
             Some(App::Calc(a)) => a.draw(screen),
             Some(App::Viewer(v)) => v.draw(screen),
+            Some(App::Lab(a)) => a.draw(screen),
             None => {
                 self.status(screen);
                 screen.clear();
@@ -328,11 +339,12 @@ fn usage(screen: &mut Screen, word: &str) {
 
 // ---- commands -------------------------------------------------------------
 
-const GROUPS: [(&str, &[&str]); 6] = [
+const GROUPS: [(&str, &[&str]); 7] = [
     ("Drawers", &["here", "peek", "enter", "leave", "build"]),
     ("Pages", &["read", "write", "add", "copy", "rename", "move", "toss", "seek"]),
     ("Apps", &["notes", "files", "mail", "contacts", "calendar", "settings", "calc"]),
     ("Chores", &["do"]),
+    ("Programs", &["run", "test", "lab", "view", "edit", "insert", "cut"]),
     ("History", &["stamp", "stamps", "changes", "compare", "bring", "rewind"]),
     ("Other", &["show", "wipe", "clock", "about", "guide"]),
 ];
@@ -531,6 +543,147 @@ fn cmd_do(sh: &mut Shell, screen: &mut Screen, rest: &str) {
     let viewer = chores::run(&mut sh.fs, &page, today);
     sh.apps.push(App::Viewer(viewer));
     sh.redraw(screen);
+}
+
+/// The page named first in `rest`, as a path (with a warning if there is none).
+fn page_arg<'r>(sh: &Shell, screen: &mut Screen, rest: &'r str, word: &str) -> Option<(String, &'r str)> {
+    let (page, after) = match rest.find(' ') {
+        Some(i) => (&rest[..i], &rest[i + 1..]),
+        None => (rest, ""),
+    };
+    if page.is_empty() {
+        usage(screen, word);
+        return None;
+    }
+    match sh.path(page) {
+        Ok(p) => Some((p, after)),
+        Err(e) => {
+            warn(screen, &format!("Could not do that: {e}."));
+            None
+        }
+    }
+}
+
+/// A line number written by the user.
+fn line_arg(screen: &mut Screen, word: &str) -> Option<usize> {
+    match word.parse::<usize>() {
+        Ok(n) if !word.starts_with('+') => Some(n),
+        _ => {
+            warn(screen, &format!("'{word}' is not a line number (view shows the line numbers)."));
+            None
+        }
+    }
+}
+
+/// "<line> <text>": the number, and the text after exactly one space (spaces at its start
+/// are kept, so a line keeps its indent). No text means an empty line.
+fn line_and_text<'r>(screen: &mut Screen, rest: &'r str, word: &str) -> Option<(usize, &'r str)> {
+    let (n, text) = match rest.find(' ') {
+        Some(i) => (&rest[..i], &rest[i + 1..]),
+        None => (rest, ""),
+    };
+    if n.is_empty() {
+        usage(screen, word);
+        return None;
+    }
+    Some((line_arg(screen, n)?, text))
+}
+
+fn cmd_run(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, extra)) = page_arg(sh, screen, rest, "run") else { return };
+    if !extra.trim().is_empty() {
+        return usage(screen, "run");
+    }
+    if let Err(e) = sh.fs.read_page(&page) {
+        return warn(screen, &format!("Could not do that: {e}."));
+    }
+    crate::log!("program: {}", fs::display(&page));
+    let today = sh.today();
+    let viewer = programs::run(&mut sh.fs, &page, today);
+    sh.apps.push(App::Viewer(viewer));
+    sh.redraw(screen);
+}
+
+fn cmd_test(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, extra)) = page_arg(sh, screen, rest, "test") else { return };
+    if !extra.trim().is_empty() {
+        return usage(screen, "test");
+    }
+    if let Err(e) = sh.fs.read_page(&page) {
+        return warn(screen, &format!("Could not do that: {e}."));
+    }
+    crate::log!("tests: {}", fs::display(&page));
+    let today = sh.today();
+    let viewer = programs::test(&sh.fs, &page, today);
+    sh.apps.push(App::Viewer(viewer));
+    sh.redraw(screen);
+}
+
+fn cmd_lab(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    if !rest.is_empty() {
+        return usage(screen, "lab");
+    }
+    sh.apps.push(App::Lab(LabApp::new(sh.today())));
+    sh.redraw(screen);
+}
+
+fn cmd_view(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, after)) = page_arg(sh, screen, rest, "view") else { return };
+    let mut nums = after.split_whitespace();
+    let mut next = |screen: &mut Screen| -> Result<Option<usize>, ()> {
+        match nums.next() {
+            None => Ok(None),
+            Some(w) => line_arg(screen, w).map(Some).ok_or(()),
+        }
+    };
+    let Ok(from) = next(screen) else { return };
+    let Ok(to) = next(screen) else { return };
+    if nums.next().is_some() {
+        return usage(screen, "view");
+    }
+    match programs::view(&sh.fs, &page, from, to) {
+        Ok(lines) => {
+            for (i, l) in lines.iter().enumerate() {
+                if i == 0 {
+                    screen.write_colored(l, BRIGHT);
+                    screen.write_byte(b'\n');
+                } else {
+                    let _ = writeln!(screen, "{l}");
+                }
+            }
+        }
+        Err(e) => warn(screen, &format!("Could not do that: {e}.")),
+    }
+}
+
+fn cmd_edit(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, after)) = page_arg(sh, screen, rest, "edit") else { return };
+    let Some((n, text)) = line_and_text(screen, after, "edit") else { return };
+    done(screen, programs::edit(&mut sh.fs, &page, n, text));
+}
+
+fn cmd_insert(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, after)) = page_arg(sh, screen, rest, "insert") else { return };
+    let Some((n, text)) = line_and_text(screen, after, "insert") else { return };
+    done(screen, programs::insert(&mut sh.fs, &page, n, text));
+}
+
+fn cmd_cut(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, after)) = page_arg(sh, screen, rest, "cut") else { return };
+    let mut nums = after.split_whitespace();
+    let Some(first) = nums.next() else { return usage(screen, "cut") };
+    let Some(from) = line_arg(screen, first) else { return };
+    let to = match nums.next() {
+        Some(w) => match line_arg(screen, w) {
+            Some(n) => Some(n),
+            None => return,
+        },
+        None => None,
+    };
+    if nums.next().is_some() {
+        return usage(screen, "cut");
+    }
+    done(screen, programs::cut(&mut sh.fs, &page, from, to));
 }
 
 fn open_viewer(sh: &mut Shell, screen: &mut Screen, title: &str, text: fs::Result<Vec<String>>) {

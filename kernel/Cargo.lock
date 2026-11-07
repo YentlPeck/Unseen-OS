@@ -40,4 +40,9 @@ name = "unseen-kernel"
 version = "0.1.0"
 dependencies = [
  "linked_list_allocator",
+ "unseen-script",
 ]
+
+[[package]]
+name = "unseen-script"
+version = "0.1.0"

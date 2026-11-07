@@ -12,7 +12,7 @@
 //! it was in an older stamp (later stamps are kept, so nothing is ever lost), and
 //! `bring` brings back one page from a stamp. A command that fails changes nothing.
 //!
-//! Memory (the heap is 8 MB): the history keeps at most MAX_HISTORY bytes, counting
+//! Memory (the heap is 16 MB): the history keeps at most MAX_HISTORY bytes, counting
 //! new text, new names and ENTRY_COST per drawer or page per stamp. A listing of
 //! changes is cut off at MAX_LINES lines / MAX_OUT_BYTES bytes while it is made, and
 //! pages longer than MAX_PAGE_LINES lines are not compared line by line.

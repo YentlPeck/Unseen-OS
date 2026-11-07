@@ -11,3 +11,4 @@
 /out/experiment/aborted-1/console-*.txt
 __pycache__/
 /out/dev
+/script/target

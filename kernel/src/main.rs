@@ -18,6 +18,7 @@ mod inspector;
 mod keyboard;
 mod mail;
 mod notes;
+mod programs;
 mod port;
 mod rtc;
 mod screen;
@@ -29,12 +30,53 @@ mod ui;
 use core::panic::PanicInfo;
 use linked_list_allocator::LockedHeap;
 
-/// Memory for files and apps (the "heap"): 8 MB.
-const HEAP_SIZE: usize = 8 * 1024 * 1024;
+/// Memory for files and apps (the "heap"): 16 MB. The desk (1 MB, and a copy while changes
+/// are made), the history (2 MB) and a running program (at most about 5 MB, see
+/// docs/script-design.md §9) together stay well below it.
+const HEAP_SIZE: usize = 16 * 1024 * 1024;
 static mut HEAP: [u8; HEAP_SIZE] = [0; HEAP_SIZE];
 
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
+
+/// Bytes of the heap in use now (for the inspector).
+pub fn heap_used() -> usize {
+    ALLOCATOR.lock().used()
+}
+
+extern "C" {
+    /// The bottom of the kernel stack (boot.rs). The stack grows down towards it.
+    static boot_stack: u8;
+}
+const STACK_SIZE: usize = 256 * 1024;
+
+/// What the free part of the stack is painted with at boot.
+const PAINT: u8 = 0xA5;
+
+/// Paint the stack below the current frame (less a margin), so stack_used can see how deep
+/// it ever went.
+#[inline(never)]
+fn paint_stack() {
+    let here = 0u8;
+    let sp = core::ptr::addr_of!(here) as usize;
+    let base = core::ptr::addr_of!(boot_stack) as usize;
+    let end = sp.saturating_sub(4096).max(base);
+    for a in base..end {
+        unsafe { (a as *mut u8).write_volatile(PAINT) };
+    }
+}
+
+/// A watermark of the stack: how far down a byte of the painted part was ever changed. This
+/// is the deepest place written, not a proof of the peak (a frame that is reserved but never
+/// written to is not seen; it also can't harm the memory below the stack).
+pub fn stack_used() -> usize {
+    let base = core::ptr::addr_of!(boot_stack);
+    let mut untouched = 0;
+    while untouched < STACK_SIZE && unsafe { base.add(untouched).read_volatile() } == PAINT {
+        untouched += 1;
+    }
+    STACK_SIZE - untouched
+}
 
 /// Memory size in MB, from the multiboot info the loader hands us.
 fn memory_mb(info: u32) -> u32 {
@@ -73,6 +115,7 @@ fn start_files(info: u32) -> Option<&'static str> {
 
 #[no_mangle]
 extern "C" fn kernel_main(multiboot_info: u32) -> ! {
+    paint_stack();
     serial::init();
     log!("Unseen OS booting");
     unsafe { ALLOCATOR.lock().init(core::ptr::addr_of_mut!(HEAP) as *mut u8, HEAP_SIZE) };

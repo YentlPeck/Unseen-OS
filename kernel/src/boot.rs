@@ -96,7 +96,8 @@ gdt64_ptr:
 pml4: .skip 4096
 pdpt: .skip 4096
 pd:   .skip 4096
-boot_stack: .skip 262144  # 256 KB: chores need up to ~96 KB in the worst case
+.globl boot_stack
+boot_stack: .skip 262144  # 256 KB: chores need up to ~96 KB, programs are measured by the STACK probe
 boot_stack_top:
 "#,
     options(att_syntax)

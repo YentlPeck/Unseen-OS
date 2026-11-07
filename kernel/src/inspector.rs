@@ -13,6 +13,8 @@
 //!   STAMPS  -> STAMPS <the history: "BASE <n>", then one "S <n> <from> <date> <note>" line
 //!              per stamp (from is "-" for none), then "E <problem>" for each #stamp line of
 //!              the start files that failed>
+//!   STACK   -> STACK <a watermark of the kernel stack: bytes down to the deepest byte written>
+//!   HEAP    -> HEAP  <bytes of the heap in use now>
 
 use crate::fs::{self, Entry, Fs};
 use crate::history::History;
@@ -104,6 +106,8 @@ fn answer(cmd: &str, state: &State) {
             }
             reply("STAMPS", &text);
         }
+        "STACK" => reply("STACK", &format!("{}", crate::stack_used())),
+        "HEAP" => reply("HEAP", &format!("{}", crate::heap_used())),
         "" => {}
         _ => reply("ERROR", "unknown inspector command"),
     }

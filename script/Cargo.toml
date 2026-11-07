@@ -1,0 +1,13 @@
+[package]
+name = "unseen-script"
+version = "0.1.0"
+edition = "2021"
+
+# The Unseen Script engine (design: docs/script-design.md). no_std + alloc, so the kernel can
+# use it; the tests in tests/ run it on the PC with cargo test.
+
+[lib]
+name = "script"
+path = "src/lib.rs"
+
+[dependencies]

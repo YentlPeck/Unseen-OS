@@ -92,6 +92,14 @@ pub fn apply(desk: &mut Fs, actions: &[Action]) -> Result<Vec<String>, String> {
     if desk.total_bytes() + adds > fs::MAX_DESK {
         return Err("the desk would be too full (all pages together can hold at most 1 MB of text)".into());
     }
+    make(desk, actions)
+}
+
+/// Make the changes on a copy of the desk, which replaces the real one only if every change
+/// worked. Each change checks the room it needs (the net size: replacing a page with a text
+/// of the same length needs no more room). Unseen Script programs use this directly: the
+/// engine has already counted how much their changes make the desk grow.
+pub fn make(desk: &mut Fs, actions: &[Action]) -> Result<Vec<String>, String> {
     let mut copy = desk.clone();
     let mut done = Vec::new();
     for a in actions {
@@ -178,6 +186,76 @@ pub fn run(desk: &mut Fs, page: &str, today: String) -> Viewer {
     Viewer::new(&title, state, &text, color)
 }
 
+/// An Output screen keeps at most this many screen lines; the rest are only counted, so
+/// the screen never needs much more memory than the text it shows.
+const MAX_VIEW_LINES: usize = 6400;
+/// The last line of a text is always shown if it fits in this many screen lines (a cut
+/// listing, like the history's, ends with a line that says how to see less).
+const TAIL_ROWS: usize = 8;
+
+/// The screen lines being made, and how many did not fit.
+struct Rows {
+    lines: Vec<String>,
+    hidden: usize,
+    room: usize,
+}
+
+impl Rows {
+    /// Add one line of text (no new lines in it), cut into pieces of at most WIDTH bytes at
+    /// character boundaries; pieces that don't fit are only counted.
+    fn line(&mut self, line: &str) {
+        let mut rest = line;
+        loop {
+            let mut cut = rest.len().min(WIDTH);
+            while !rest.is_char_boundary(cut) {
+                cut += 1;
+            }
+            if self.lines.len() < self.room {
+                self.lines.push(rest[..cut].to_string());
+            } else {
+                self.hidden += 1;
+            }
+            rest = &rest[cut..];
+            if rest.is_empty() {
+                break;
+            }
+        }
+    }
+
+    fn text(&mut self, text: &str) {
+        for line in text.split('\n') {
+            self.line(line);
+        }
+    }
+}
+
+/// The screen lines for a text given as lines (short lines are moved, not copied).
+fn screen_lines(mut text: Vec<String>) -> Vec<String> {
+    let tail_rows = |t: &str| t.split('\n').map(|l| l.len().div_ceil(WIDTH).max(1)).sum::<usize>();
+    let tail = match text.last() {
+        Some(t) if tail_rows(t) <= TAIL_ROWS => text.pop(),
+        _ => None,
+    };
+    let reserve = tail.as_deref().map_or(0, tail_rows) + 1; // the tail, and the "not shown" line
+    let mut rows = Rows { lines: Vec::with_capacity(text.len().min(MAX_VIEW_LINES)), hidden: 0, room: MAX_VIEW_LINES - reserve };
+    for t in text {
+        if t.len() <= WIDTH && !t.contains('\n') && rows.lines.len() < rows.room {
+            rows.lines.push(t);
+        } else {
+            rows.text(&t);
+        }
+    }
+    if rows.hidden > 0 {
+        let n = rows.hidden;
+        rows.lines.push(format!("({n} more lines are not shown: at most {MAX_VIEW_LINES} fit on this screen)"));
+    }
+    if let Some(t) = tail {
+        rows.room = usize::MAX;
+        rows.text(&t);
+    }
+    rows.lines
+}
+
 const BODY_TOP: usize = 2;
 const BODY_ROWS: usize = 22;
 const WIDTH: usize = 76;
@@ -194,25 +272,13 @@ pub struct Viewer {
 
 impl Viewer {
     pub fn new(title: &str, right: &str, text: &[String], first_color: u8) -> Self {
-        let mut lines = Vec::new();
-        for t in text {
-            lines.extend(ui::wrap(t, WIDTH));
-        }
-        Self { title: title.into(), right: right.into(), lines, first_color, top: 0 }
+        Self::from_lines(title, right, text.to_vec(), first_color)
     }
 
     /// Like new, but takes the lines: short lines are moved, not copied, so a long
     /// listing is not held twice in memory.
     pub fn from_lines(title: &str, right: &str, text: Vec<String>, first_color: u8) -> Self {
-        let mut lines = Vec::with_capacity(text.len());
-        for t in text {
-            if t.len() <= WIDTH && !t.contains('\n') {
-                lines.push(t);
-            } else {
-                lines.extend(ui::wrap(&t, WIDTH));
-            }
-        }
-        Self { title: title.into(), right: right.into(), lines, first_color, top: 0 }
+        Self { title: title.into(), right: right.into(), lines: screen_lines(text), first_color, top: 0 }
     }
 
     pub fn guide() -> Self {

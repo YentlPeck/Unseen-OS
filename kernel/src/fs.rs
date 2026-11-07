@@ -60,7 +60,7 @@ pub const APP_DRAWERS: [(&str, &str, &str); 4] = [
     ("system", "Settings", "settings"),
 ];
 
-/// All pages together may hold at most this much text (the heap is 8 MB; a chore's
+/// All pages together may hold at most this much text (the heap is 16 MB; a chore's
 /// all-or-nothing copy of the desk needs room for a second copy).
 pub const MAX_DESK: usize = 1024 * 1024;
 
