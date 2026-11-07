@@ -1,0 +1,480 @@
+== shop-empty (feature, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:shop as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'up does nothing' is caught
+       caught by: ['down and up move the pick']
+ok   wrong solution 'on row 2' is caught
+       caught by: ['an empty list shows (empty) on row 1', 'deleting the last item shows (empty) again']
+ok   wrong solution 'only when it opens' is caught
+       caught by: ['deleting the last item shows (empty) again']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== shop-edit (feature, medium)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:shop as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'does not save' is caught
+       caught by: ['ctrl+e takes the picked item out and into the new line']
+ok   wrong solution 'keeps the item' is caught
+       caught by: ['ctrl+e takes the picked item out and into the new line', 'ctrl+e on the last item, and what was typed is replaced']
+ok   wrong solution 'delete not saved' is caught
+       caught by: ['adding, picking and deleting still work']
+ok   wrong solution 'adds to the typed text' is caught
+       caught by: ['ctrl+e on the last item, and what was typed is replaced']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== scores-sort (feature, hard)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:scores as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'fewest first' is caught
+       caught by: ['ctrl+s sorts by points, the most first, and saves', 'equal points keep their order', 'points are sorted as numbers']
+ok   wrong solution 'equal points turned round' is caught
+       caught by: ['ctrl+s sorts by points, the most first, and saves', 'equal points keep their order', 'points are sorted as numbers']
+ok   wrong solution 'does not save' is caught
+       caught by: ['ctrl+s sorts by points, the most first, and saves', 'equal points keep their order', 'points are sorted as numbers']
+ok   wrong solution 'sorted as text' is caught
+       caught by: ['points are sorted as numbers']
+ok   wrong solution 'minus resets' is caught
+       caught by: ['minus takes one point away']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== scores-total (feature, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:scores as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'only when it opens' is caught
+       caught by: ['the total follows plus and minus']
+ok   wrong solution 'minus at 0 tosses the page' is caught
+       caught by: ['minus never goes below 0']
+ok   wrong solution 'three rows' is caught
+       caught by: ['five players', 'six players are all shown']
+ok   wrong solution 'on row 22' is caught
+       caught by: ['row 23 shows the total of all points', 'the total follows plus and minus', 'five players', 'no players: the total is 0']
+ok   wrong solution 'first three only' is caught
+       caught by: ['five players']
+ok   wrong solution 'plus not saved' is caught
+       caught by: ['picking and changing points still work']
+ok   wrong solution 'below 0' is caught
+       caught by: ['minus never goes below 0']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== recipes-find (feature, hard)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:recipes as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'up does nothing' is caught
+       caught by: ['down and up move the pick']
+ok   wrong solution 'pick stays' is caught
+       caught by: ['backspace takes a letter away and the pick goes to row 1']
+ok   wrong solution 'names that start with it' is caught
+       caught by: ['typing shows only the recipes whose name has the text', 'backspace takes a letter away and the pick goes to row 1', 'esc goes back to the filtered list as it was']
+ok   wrong solution 'enter opens the unfiltered one' is caught
+       caught by: ['typing shows only the recipes whose name has the text']
+ok   wrong solution 'esc clears the search' is caught
+       caught by: ['esc goes back to the filtered list as it was']
+ok   wrong solution 'nine rows' is caught
+       caught by: ['many recipes can be found', 'twelve recipes are all listed']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== recipes-fav (feature, medium)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:recipes as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'does not save' is caught
+       caught by: ['ctrl+f adds the picked recipe at the end, and again takes it away', 'the first favourite makes the page; the last one leaves it empty']
+ok   wrong solution 'does not read the page' is caught
+       caught by: ['favourites are read from desk:favourites and marked with *', 'ctrl+f adds the picked recipe at the end, and again takes it away']
+ok   wrong solution 'adds at the start' is caught
+       caught by: ['ctrl+f adds the picked recipe at the end, and again takes it away']
+ok   wrong solution 'marks the recipe page' is caught
+       caught by: ['ctrl+f adds the picked recipe at the end, and again takes it away', 'the first favourite makes the page; the last one leaves it empty']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== agenda-today (feature, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:agenda as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'left does nothing' is caught
+       caught by: ['right then left comes back to the same day']
+ok   wrong solution 't does nothing' is caught
+       caught by: ['t goes back to today']
+ok   wrong solution 't goes a day back' is caught
+       caught by: ['t goes back to today', 't on today changes nothing']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== agenda-week (feature, medium)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+ok   the visible tests pass on the start desk
+ok   the solution's commands make desk:apps:agenda as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'starts tomorrow' is caught
+       caught by: ['w shows the week: one row per day with its number of events', 'every day of the week is counted, and left moves the week back', 'right moves the week, and w goes back to the day']
+ok   wrong solution 'w does not go back' is caught
+       caught by: ['right moves the week, and w goes back to the day']
+ok   wrong solution 'six days' is caught
+       caught by: ['w shows the week: one row per day with its number of events', 'every day of the week is counted, and left moves the week back', 'right moves the week, and w goes back to the day']
+ok   wrong solution 'sixth day not counted' is caught
+       caught by: ['every day of the week is counted, and left moves the week back']
+ok   wrong solution 'left ignored in the week' is caught
+       caught by: ['every day of the week is counted, and left moves the week back']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== shop-fix-enter (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 2 of 2 tests passed
+ok   the solution's commands make desk:apps:shop as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'hides empty items' is caught
+       caught by: ['enter with nothing typed does nothing', 'enter with nothing typed on an empty list']
+ok   wrong solution 'enter never adds' is caught
+       caught by: ['adding, picking and deleting still work']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== shop-fix-up (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 2 of 2 tests passed
+ok   the solution's commands make desk:apps:shop as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'only delete made safe' is caught
+       caught by: ['up on the first item changes nothing', 'up after down goes back to the first item']
+ok   wrong solution 'up goes to the last' is caught
+       caught by: ['up on the first item changes nothing', 'up after down goes back to the first item']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== scores-fix-minus (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 2 of 2 tests passed
+ok   the solution's commands make desk:apps:scores as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'only shown as 0' is caught
+       caught by: ['minus at 0 changes nothing', 'minus never goes below 0']
+ok   wrong solution 'stops at 1' is caught
+       caught by: ['minus at 0 changes nothing', 'picking and changing points still work', 'minus never goes below 0']
+ok   wrong solution 'minus resets' is caught
+       caught by: ['minus takes one point away']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== scores-fix-save (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 1 of 2 tests passed
+ok   the solution's commands make desk:apps:scores as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'reads both forms, saves wrong' is caught
+       caught by: ['the page keeps the Name: points form', 'picking and changing points still work', 'minus takes one point away', 'minus never goes below 0']
+ok   wrong solution 'two spaces' is caught
+       caught by: ['the page keeps the Name: points form', 'picking and changing points still work', 'minus takes one point away', 'minus never goes below 0']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== recipes-fix-nine (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 2 of 2 tests passed
+ok   the solution's commands make desk:apps:recipes as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'twenty rows' is caught
+       caught by: ['all recipes are listed, up to row 23']
+ok   wrong solution 'twelve rows' is caught
+       caught by: ['all recipes are listed, up to row 23']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== recipes-fix-esc (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 1 of 2 tests passed
+ok   the solution's commands make desk:apps:recipes as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'pick goes to row 1' is caught
+       caught by: ['esc in a recipe goes back to the list, as it was', 'opening a recipe and going back still work']
+ok   wrong solution 'esc does nothing' is caught
+       caught by: ['esc in a recipe goes back to the list, as it was', 'opening a recipe and going back still work', 'down and up move the pick']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== agenda-fix-order (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 1 of 2 tests passed
+ok   the solution's commands make desk:apps:agenda as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'latest first' is caught
+       caught by: ['the events of a day are shown by time, earliest first', 'the day and its events are still shown, and right still works']
+ok   wrong solution 'turned round' is caught
+       caught by: ['the events of a day are shown by time, earliest first']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== agenda-fix-left (fix, easy)
+ok   solution lines fit the 78-character limit
+ok   f2p titles are hidden tests
+ok   the start desk fails the fail-to-pass tests
+ok   the start desk passes the pass-to-pass tests
+       visible tests on the start desk: 2 of 2 tests passed
+ok   the solution's commands make desk:apps:agenda as intended
+ok   the known solution passes every hidden test
+ok   the visible tests still pass after the solution
+ok   wrong solution 'two days back' is caught
+       caught by: ['left goes to the day before', 'right then left comes back to the same day']
+ok   wrong solution 'left does nothing' is caught
+       caught by: ['left goes to the day before', 'right then left comes back to the same day']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-light (build, easy)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:light as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'does not save' is caught
+       caught by: ['it starts off without a page; space switches and saves', 'it starts on when the page says on']
+ok   wrong solution 'always starts off' is caught
+       caught by: ['it starts on when the page says on', 'other keys change nothing']
+ok   wrong solution 'enter switches too' is caught
+       caught by: ['other keys change nothing']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-match (build, easy)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:match as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'r resets only A' is caught
+       caught by: ['r sets both to 0']
+ok   wrong solution 'one line' is caught
+       caught by: ['a and b give points, enter saves both lines', 'r sets both to 0']
+ok   wrong solution 'starts from the page' is caught
+       caught by: ['it always starts at 0 and 0']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-words (build, medium)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:words as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'replaces the page' is caught
+       caught by: ['enter adds the text as a line of desk:draft and empties it', 'a line is added at the end of an existing page']
+ok   wrong solution 'does not empty the text' is caught
+       caught by: ['enter adds the text as a line of desk:draft and empties it']
+ok   wrong solution 'counts characters' is caught
+       caught by: ['the text and its number of words are shown', 'spaces in a row, and only spaces']
+ok   wrong solution 'saves trimmed' is caught
+       caught by: ['the line is saved as typed, spaces and all']
+ok   wrong solution 'counts empty parts' is caught
+       caught by: ['the text and its number of words are shown', 'enter adds the text as a line of desk:draft and empties it', 'spaces in a row, and only spaces']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-notes (build, medium)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:notes as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'sorted as text' is caught
+       caught by: ['the order is the order pages gives', 'twelve notes are all listed']
+ok   wrong solution 'no (no notes)' is caught
+       caught by: ['no notes']
+ok   wrong solution 'nine rows' is caught
+       caught by: ['twelve notes are all listed']
+ok   wrong solution 'last line' is caught
+       caught by: ['the notes are listed, the first line of the picked one on row 23']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-pick (build, medium)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:pick as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'not sorted' is caught
+       caught by: ['the names are sorted; enter writes the mail address of the picked one', 'up at the top and down at the bottom stay']
+ok   wrong solution 'nine rows' is caught
+       caught by: ['eleven contacts are all listed']
+ok   wrong solution 'writes the name' is caught
+       caught by: ['the names are sorted; enter writes the mail address of the picked one', 'up at the top and down at the bottom stay', 'eleven contacts are all listed']
+ok   wrong solution 'enter on no contacts' is caught
+       caught by: ['no contacts: nothing is listed and enter does nothing']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-budget (build, medium)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:budget as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'letters are added' is caught
+       caught by: ['typing an amount and enter adds it and saves']
+ok   wrong solution 'three rows' is caught
+       caught by: ['many amounts are all listed']
+ok   wrong solution 'delete takes the first' is caught
+       caught by: ['delete takes the last amount away and saves']
+ok   wrong solution 'does not save on delete' is caught
+       caught by: ['delete takes the last amount away and saves']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-inbox (build, hard)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:inbox as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'nine rows' is caught
+       caught by: ['eleven mails are all listed']
+ok   wrong solution 'body from row 3' is caught
+       caught by: ['enter opens the picked mail; esc goes back with the same mail picked']
+ok   wrong solution 'esc closes the app' is caught
+       caught by: ['enter opens the picked mail; esc goes back with the same mail picked']
+ok   wrong solution 'down works in a mail' is caught
+       caught by: ['enter opens the picked mail; esc goes back with the same mail picked']
+ok   wrong solution 'writes a page' is caught
+       caught by: ['the list shows FROM: SUBJECT for every mail', 'enter opens the picked mail; esc goes back with the same mail picked', 'eleven mails are all listed', 'esc in the list changes nothing', 'no mail']
+ok   wrong solution 'up works in a mail' is caught
+       caught by: ['enter opens the picked mail; esc goes back with the same mail picked']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+== build-plan (build, hard)
+ok   solution lines fit the 78-character limit
+ok   the start desk fails every hidden test
+ok   the solution's commands make desk:apps:plan as intended
+ok   the known solution passes every hidden test
+ok   wrong solution 'saves the empty hours too' is caught
+       caught by: ['typing and enter set the picked hour and save the page in time order', 'enter with nothing typed clears the note', 'up and down stay between 08:00 and 17:00', 'up picks the hour before', 'backspace takes back what was typed']
+ok   wrong solution 'up does nothing' is caught
+       caught by: ['up picks the hour before']
+ok   wrong solution 'does not read the page' is caught
+       caught by: ['ten hours are shown, with the notes read from desk:plan', 'typing and enter set the picked hour and save the page in time order', 'enter with nothing typed clears the note']
+ok   wrong solution 'enter keeps the typed text' is caught
+       caught by: ['typing and enter set the picked hour and save the page in time order', 'backspace takes back what was typed']
+ok   a solution that adds an event in start is caught
+ok   a solution that writes an extra page in start is caught
+ok   a solution that adds an event in key is caught
+ok   a solution that writes an extra page in key is caught
+ok   a page left outside the allowed places fails
+ALL GOOD
+exit 0

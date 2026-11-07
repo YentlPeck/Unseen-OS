@@ -653,6 +653,8 @@ experiments use that harness (tools/broker_apps.py, tools/play_apps.py, tools/pi
 
 ## 12. Later: app benchmark (SWE-bench style)
 
+**Plan (7 Nov): `docs/benchmark-design.md` (experiment 5, milestones B1-B6).**
+
 - **Task kinds:** build a small app from a description; add a feature to an existing app; fix
   a bug from a short issue note ("Delete removes the wrong item").
 - **Grading by hidden tests** that launch the app, press keys and read screens and pages, as in
