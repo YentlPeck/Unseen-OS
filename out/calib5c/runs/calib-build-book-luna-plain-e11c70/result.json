@@ -1,0 +1,45 @@
+{
+  "game": "calib-build-book-luna-plain-e11c70",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "luna_effort": "high",
+  "condition": "plain",
+  "context_sha256": null,
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "the names are read and shown newest first": [
+        true,
+        ""
+      ],
+      "enter adds the typed name at the end of the page": [
+        true,
+        ""
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "3 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 69,
+  "seconds": 345,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created and opened `desk:apps:book`; it loads the guestbook, shows newest names first, and saves submitted names immediately.",
+  "files": {
+    "desk:apps:book": "app 'Guest Book'\ntask start()\n  when exists('desk:guestbook')\n    set ns to lines(read('desk:guestbook'))\n  otherwise\n    set ns to []\n  done\n  give {names: ns, draft: ''}\ndone\ntask key(s, k)\n  when k is 'enter'\n    when s.draft is not ''\n      add('desk:guestbook', s.draft)\n      add s.draft to s.names\n      set s.draft to ''\n    done\n  otherwise\n    set s.draft to edit_text(s.draft, k)\n  done\n  give s\ndone\ntask draw(s)\n  show(1, 1, count(s.names) & ' guests')\n  set row to 3\n  for each n in reverse(s.names)\n    when row <= 22\n      show(row, 1, n)\n      set row to row + 1\n    done\n  done\n  show(23, 1, 'name: ' & s.draft)\ndone",
+    "desk:guestbook": "Mira"
+  }
+}

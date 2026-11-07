@@ -1,0 +1,54 @@
+{
+  "game": "calib-shop-home-luna-manual-e38b1d",
+  "task": "calib-shop-home",
+  "kind": "feature",
+  "level": "easy",
+  "player": "luna",
+  "luna_effort": "high",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": true,
+  "visible_passed": true,
+  "hidden": {
+    "passed": true,
+    "tests": {
+      "end picks the last item, home the first": [
+        true,
+        ""
+      ],
+      "home and end on an empty list do nothing": [
+        true,
+        ""
+      ],
+      "adding, picking and deleting still work": [
+        true,
+        ""
+      ],
+      "down and up move the pick": [
+        true,
+        ""
+      ],
+      "a long list shows its items up to row 20": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "5 of 5 hidden tests passed",
+  "os_crash": null,
+  "actions": 36,
+  "seconds": 230,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Added Home/End selection with empty-list guards and regression tests; all 4 shop tests pass.",
+  "files": {
+    "desk:apps:shop": "app 'Shopping'\ntask start()\n  set items to []\n  when exists('desk:shop')\n    set items to lines(read('desk:shop'))\n  done\n  give {items: items, picked: 1, typing: ''}\ndone\ntask save(items)\n  write('desk:shop', join(items, newline()))\ndone\ntask key(s, k)\nwhen k is 'home'\nwhen count(s.items) > 0\nset s.picked to 1\ndone\nor when k is 'end'\nwhen count(s.items) > 0\nset s.picked to count(s.items)\ndone\n  or when k is 'up' and s.picked > 1\n    set s.picked to s.picked - 1\n  or when k is 'down' and s.picked < count(s.items)\n    set s.picked to s.picked + 1\n  or when k is 'enter' and s.typing is not ''\n    add s.typing to s.items\n    set s.typing to ''\n    save(s.items)\n  or when k is 'delete' and count(s.items) > 0\n    set s.items to without(s.items, s.picked)\n    set s.picked to max(min(s.picked, count(s.items)), 1)\n    save(s.items)\n  otherwise\n    set s.typing to edit_text(s.typing, k)\n  done\n  give s\ndone\ntask draw(s)\n  title('Shopping - ' & count(s.items) & ' items')\n  for each n in range(1, min(count(s.items), 20))\n    set mark to '  '\n    when n is s.picked\n      set mark to '> '\n    done\n    show(n, 1, mark & item(s.items, n))\n  done\n  show(23, 1, 'new: ' & s.typing)\n  help('Up/Down pick  Enter add  Delete remove')\ndone",
+    "desk:apps:shop-tests": "use 'desk:apps:shop'\n\ntest 'enter adds the typed item and saves the list'\n  pretend 'desk:shop' holds 'rice'\n  launch 'desk:apps:shop'\n  press 'o'\n  press 'i'\n  press 'l'\n  press 'enter'\n  check app_state().items is ['rice', 'oil']\n  check page_now('desk:shop') is 'rice' & newline() & 'oil'\n  check screen_line(2) is '  oil'\ndone\n\ntest 'down picks the next item, delete removes it'\n  pretend 'desk:shop' holds 'a' & newline() & 'b' & newline() & 'c'\n  launch 'desk:apps:shop'\n  press 'down'\n  check screen_line(2) is '> b'\n  press 'delete'\n  check app_state().items is ['a', 'c']\n  check screen_line(2) is '> c'\ndone\ntest 'home and end pick first and last'\n  pretend 'desk:shop' holds 'a' & newline() & 'b' & newline() & 'c'\n  launch 'desk:apps:shop'\n  press 'end'\n  check app_state().picked is 3\n  press 'home'\n  check app_state().picked is 1\ndone\ntest 'home and end leave an empty list alone'\n  launch 'desk:apps:shop'\n  press 'home'\n  check app_state().items is []\n  check app_state().picked is 1\n  press 'end'\n  check app_state().items is [] and app_state().picked is 1\ndone",
+    "desk:shop": "bread\nmilk\napples"
+  }
+}

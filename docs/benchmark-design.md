@@ -75,8 +75,8 @@ time budgets (the pilot used 200 actions and 45 minutes) and check that difficul
 out (not everything passes, not everything fails). Results go in `docs/calibration5.md`.
 
 **B3 done (7 Nov):** `docs/calibration5.md`. 5 calibration tasks (`tools/tasks_calib.py`), 30 games
-at 2 per player, then 20 at 4 per player. Decided: Haiku 4 games at a time, Luna 2 (Luna stalls at
-4); 250 actions and 45 minutes per game; a game in which no action reached the computer is a
+at 2 per player, then 20 at 4 per player. Decided: 4 games at a time per player (after a fix for
+Luna's slow Codex sandbox start, see the report); 250 actions and 45 minutes per game; a game in which no action reached the computer is a
 harness error; every build request says rows start at column 1. Pass rates were high in every
 condition, so actions per passed game must be a pre-registered measure too.
 

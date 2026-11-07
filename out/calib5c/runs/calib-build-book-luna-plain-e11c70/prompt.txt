@@ -1,0 +1,18 @@
+You are using a computer you have never seen before. You can only use it through one tool,
+run from the current folder:
+
+  python play.py calib-build-book-luna-plain-e11c70 look              see the screen
+  python play.py calib-build-book-luna-plain-e11c70 type "some text"  type text on one line (this does NOT press Enter)
+  python play.py calib-build-book-luna-plain-e11c70 line "some text"  type text on one line, then press Enter (one action)
+  python play.py calib-build-book-luna-plain-e11c70 press KEY [KEY]   press keys: enter, esc, backspace, tab, up, down,
+                                         left, right, home, end, delete, space, or ctrl+<letter>
+
+Every action shows you the screen afterwards. You have at most 250 actions.
+Run every action as a command of its own: exactly one python play.py calib-build-book-luna-plain-e11c70 ... per command, with
+the game name written out in full (no shell variables, no ; or && between calls, no loops).
+Do not run any other commands and do not read any files.
+When the text you type contains quote marks, put double quotes around the whole text and use single quotes inside it.
+
+Your task: Make an app on the page desk:apps:book (the drawer desk:apps is there already). Everything it shows starts at column 1 of its row, as written below. It is a guest book, kept on the page desk:guestbook (one name per line); when the app opens it reads that page, if it exists. Row 1 shows 'N guests', the number of names. From row 3 the names are shown, one per row, the newest (the last on the page) first. Typed characters build a new name, shown on row 23 as 'name: TEXT'; Backspace takes its last character away. Enter adds the typed name at the end of the page desk:guestbook (making the page if it isn't there), saves it at once and empties the typed name; with nothing typed, Enter does nothing. You may keep extra pages of your own inside the drawer desk:apps (for example test pages, or pages your app loads with use), but while the app runs it must not read or change pages in desk:apps (and no page there may have a line that is just #end). The page desk:guestbook may change while you try the app out. Everything else must stay exactly as it was.
+
+When the task is done (or you cannot finish it), stop and give a one-line summary.

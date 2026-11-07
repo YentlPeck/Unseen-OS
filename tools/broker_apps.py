@@ -15,6 +15,10 @@ USE = "use: look | type <text> | line <text> | press <key> [key ...]"
 
 
 class AppBroker(Broker):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.t0 = time.time()
+
     def handle(self, req):
         if not isinstance(req, dict) or req.get("token") != self.token:
             return {"ok": False, "error": "wrong token"}
@@ -66,5 +70,6 @@ class AppBroker(Broker):
                     self.infra_errors.append(repr(e))
                     self._log({"n": n, "infra_error": repr(e)})
                 return {"ok": False, "error": "The computer did not respond (harness error). The game is over."}
-            self._log({"n": n, "action": action, "args": args, "screen": screen, "cursor": cursor})
+            self._log({"n": n, "action": action, "args": args, "screen": screen, "cursor": cursor,
+                       "t": round(time.time() - self.t0, 2)})
             return {"ok": True, "n": n, "max": self.max_actions, "screen": screen, "cursor": cursor}

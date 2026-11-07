@@ -1,0 +1,45 @@
+{
+  "game": "calib-build-book-luna-manual-548e93",
+  "task": "calib-build-book",
+  "kind": "build",
+  "level": "medium",
+  "player": "luna",
+  "luna_effort": "high",
+  "condition": "manual",
+  "context_sha256": "bb78d5ae45941bb860dd01de11da56c01c01870b4dfe67d0d464a6d53b9558f8",
+  "passed": false,
+  "visible_passed": false,
+  "hidden": {
+    "passed": false,
+    "tests": {
+      "the names are read and shown newest first": [
+        false,
+        "line 4: check failed: got '0"
+      ],
+      "enter adds the typed name at the end of the page": [
+        false,
+        "line 25: check failed"
+      ],
+      "the first name makes the page; enter with nothing typed does nothing": [
+        true,
+        "(as the report says)"
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "rule": "1 of 3 hidden tests passed",
+  "os_crash": null,
+  "actions": 49,
+  "seconds": 270,
+  "timed_out": false,
+  "settle_failures": 0,
+  "harness_errors": [],
+  "audit_ok": true,
+  "violations": [],
+  "summary": "Created and verified `desk:apps:book`; typing, backspace, display, and saving \u201cMira\u201d to `desk:guestbook` worked.",
+  "files": {
+    "desk:apps:book": "app 'Guest Book'\ntask start()\n give {guests: [], name: ''}\n when exists('desk:guestbook')\n  set s.guests to lines(read('desk:guestbook'))\n done\n give s\ndone\ntask key(s, k)\n when k is 'enter' and s.name is not ''\n  add('desk:guestbook', s.name)\n  add s.name to s.guests\n  set s.name to ''\nor when k is 'backspace' and count(s.name) > 0\n set s.name to slice(s.name, 1, count(s.name) - 1)\nor when k is not 'enter'\n set s.name to edit_text(s.name, k)\ndone\ngive s\ndone\ntask draw(s)\n show(1, 1, count(s.guests) & ' guests')\n set names to reverse(s.guests)\n set row to 3\n for each n in names\n  when row < 23\n   show(row, 1, n)\n  done\n  set row to row + 1\n done\n show(23, 1, 'name: ' & s.name)\n help('Type name  Enter add  Backspace erase')\ndone",
+    "desk:guestbook": "Mira"
+  }
+}

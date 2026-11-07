@@ -31,10 +31,32 @@ the agenda (hard). All validated in QEMU like the experiment's tasks; the robot 
   no action reach the computer at all (Luna said `look` hung) and counted as a loss. None of this
   happened at 2 at a time (round 1), so it comes from running Luna 4 at a time, not from the tasks.
 
+## Luna's speed (found and fixed after round 2)
+
+Timing every log line (`player.times`, and the referee's time per action) showed where Luna's
+time went. In two games on the same task (reasoning effort high and medium: almost the same,
+so effort was not the cause), Luna wrote its first message after 6 seconds but ran its first
+command only after 104.3 seconds, the same in both. Probes of Codex alone found the cause:
+
+- **the Windows sandbox** (`sandbox = "unelevated"`, as in experiments 1-4) makes a new sandbox
+  identity (`cap_sid`) in every fresh Codex home, and the first command then takes about 70
+  seconds; later commands take 0.3 seconds. Every game has a fresh home, so every game paid it;
+- **since the Codex update of 7 Nov**, a fresh home also downloads a 63 MB plugin catalog and
+  installs remote plugins: extra tools in what should be a clean setup.
+
+Fix, for app games only (`tools/apps_game.py`; experiments 1-4 unchanged): one saved sandbox
+identity is copied into every game's fresh home (it is only the sandbox's identity: no memory,
+nothing from other games), and plugins and every tool a player doesn't need are switched off
+(`LUNA_FEATURES_OFF`; the exact command is kept as `player_cmd.json` in each game's record).
+Luna's first command now comes after 5-9 seconds and its longest pause is about 10-30 seconds.
+
+**Round 3: Luna, 4 games at a time, with the fix** (`out/calib5c`): **9/10 in 15 minutes** (was
+7/10 in 63 minutes), no stalls, no harness errors. The loss was Luna's own bug (its start gave
+the state before reading the page).
+
 ## Decisions for the experiment (go into PREREG5.md)
 
-- **Parallel games: Haiku 4, Luna 2.** Games are independent, so different numbers per player
-  change only the time it takes.
+- **Parallel games: 4 per player** (Luna too, after the speed fix).
 - **Actions: 250 per game** (was 200; the most used was 185). **Time: 45 minutes** (longest 15).
 - **No action reached the computer** (0 actions, audit passed): a harness error (one re-run), not a
   loss (`tools/apps_game.py`).

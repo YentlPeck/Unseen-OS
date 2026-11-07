@@ -18,7 +18,9 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -38,6 +40,18 @@ TASKS = {**BENCH, **CALIB}  # calibration ids start with calib-
 from unseen import Machine  # noqa: E402
 
 RUNS = Path(os.environ.get("UNSEEN_APPS_RUNS") or ROOT / "out" / "apps-dev" / "runs")
+# Luna's Codex in app games (measured 7 Nov, docs/calibration5.md "Luna's speed"):
+#  * the Windows sandbox makes a new identity (cap_sid) in every fresh Codex home, and its first
+#    command then takes about 70 seconds; one saved identity is copied into every game's fresh
+#    home instead (it is only the sandbox's identity: no memory, nothing from earlier games);
+#  * since the Codex update of 7 Nov, a fresh home downloads a 63 MB plugin catalog and installs
+#    remote plugins: plugins and every tool a player doesn't need are switched off.
+LUNA_FEATURES_OFF = ["plugins", "remote_plugin", "plugin_discovery_prefetch", "plugin_sharing", "browser_use",
+                     "browser_use_external", "image_generation", "multi_agent", "tool_suggest", "skill_search",
+                     "goals", "hooks", "workspace_dependencies", "skill_mcp_dependency_install"]
+LUNA_SANDBOX_ID = R.LOGINS / "luna" / "cap_sid"
+# Luna's reasoning effort in app games (run_task.py's LUNA_CONFIG says "high", as in experiments 1-4)
+LUNA_EFFORT = os.environ.get("UNSEEN_LUNA_EFFORT", "high")
 MAX_ACTIONS = 250  # calibration (docs/calibration5.md): most used 185
 TIME_LIMIT = 45 * 60
 CONDITIONS = ("plain", "reference", "manual")
@@ -65,6 +79,40 @@ When the text you type contains quote marks, put double quotes around the whole 
 Your task: {request}
 
 When the task is done (or you cannot finish it), stop and give a one-line summary."""
+
+
+def run_player_timed(cmd, prompt, cwd, log_path, env=None):
+    """run_task.run_player (frozen) with one addition: player.times gets, for every line of the
+    player's log, the seconds since the start at which it arrived (to see where the time goes)."""
+    flags = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) | getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    t0 = time.time()
+    with open(log_path, "w", encoding="utf-8") as out, open(Path(log_path).with_name("player.times"), "w") as times:
+        proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                cwd=cwd, text=True, encoding="utf-8", errors="replace", creationflags=flags, env=env)
+
+        def copy():
+            for n, line in enumerate(proc.stdout):
+                out.write(line)
+                out.flush()
+                times.write(f"{n} {time.time() - t0:.2f}\n")
+                times.flush()
+        reader = threading.Thread(target=copy, daemon=True)
+        reader.start()
+        try:
+            proc.stdin.write(prompt)
+            proc.stdin.close()
+        except OSError:
+            pass
+        try:
+            proc.wait(timeout=TIME_LIMIT)
+            reader.join(timeout=30)
+            return False, proc.returncode
+        except subprocess.TimeoutExpired:
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
+            proc.wait()
+            reader.join(timeout=30)
+            out.write("\n[harness] time limit reached; player process tree killed\n")
+            return True, proc.returncode
 
 
 def context_text(condition):
@@ -138,14 +186,24 @@ def play_app_game(task_id, player, text=None, max_actions=MAX_ACTIONS, condition
             launched = True
             if player == "robot":
                 cmd = [sys.executable, str(TOOLS / "bench_robot.py"), task_id]
-                timed_out, exit_code = R.run_player(cmd, prompt, game_dir, run_dir / "player.log")
+                timed_out, exit_code = run_player_timed(cmd, prompt, game_dir, run_dir / "player.log")
             else:
                 cmd = R.player_command(player, gid, game_dir)
                 cmd[0] = shutil.which(cmd[0]) or cmd[0]
                 env, home = R.fresh_home(player, gid)
+                if player == "luna":  # the reasoning effort of app games (default high, as before)
+                    cfg = home / "config.toml"
+                    cfg.write_text(cfg.read_text().replace('model_reasoning_effort = "high"',
+                                                           f'model_reasoning_effort = "{LUNA_EFFORT}"'))
+                    cmd[cmd.index("--json"):cmd.index("--json")] = [x for f in LUNA_FEATURES_OFF for x in ("--disable", f)]
+                    if LUNA_SANDBOX_ID.exists():
+                        shutil.copy(LUNA_SANDBOX_ID, home / "cap_sid")
+                    (run_dir / "player_cmd.json").write_text(json.dumps(cmd))
                 try:
-                    timed_out, exit_code = R.run_player(cmd, prompt, game_dir, run_dir / "player.log", env)
+                    timed_out, exit_code = run_player_timed(cmd, prompt, game_dir, run_dir / "player.log", env)
                 finally:
+                    if player == "luna" and not LUNA_SANDBOX_ID.exists() and (home / "cap_sid").exists():
+                        shutil.copy(home / "cap_sid", LUNA_SANDBOX_ID)  # the first game's identity is kept
                     R.end_home(player, home)
             broker.close()  # no more actions from here on
             R.kill_leftovers(gid)
@@ -207,6 +265,7 @@ def play_app_game(task_id, player, text=None, max_actions=MAX_ACTIONS, condition
         + [f"infra: {e}" for e in broker.infra_errors] + ([cli_error] if cli_error else []) \
         + ([final_error] if final_error else [])
     result = {"game": gid, "task": task_id, "kind": task["kind"], "level": task["level"], "player": player,
+              "luna_effort": LUNA_EFFORT if player == "luna" else None,
               "condition": condition, "context_sha256": sha256(text), "passed": passed,
               "visible_passed": passed, "hidden": grade, "rule": rule, "os_crash": os_crash,
               "actions": broker.used, "seconds": round(time.time() - started), "timed_out": timed_out,
