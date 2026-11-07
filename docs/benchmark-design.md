@@ -59,6 +59,15 @@ per task and condition, a re-run for a harness error, an attempts ledger, frozen
 the app referee and tool of pilot round 2 (`tools/broker_apps.py`, `tools/play_apps.py`: the
 `line` action and the one-command rule). Experiments 1-4 keep their files unchanged.
 
+**B2 done (7 Nov):** `tools/apps_game.py` (one game), `tools/inspect_apps.py` (the Inspect task
+`unseen_apps`), `tools/bench_robot.py`, `tools/audit_apps.py` (the one-command rule: exactly one
+`python play.py <game> ...` per command, on top of the frozen audit), `tools/test_apps_harness.py`
+(the attempt rules, with fake games). Compared with experiment 4's runner, the ledger is safe for
+two Inspect processes (an interprocess lock; a cut-off last line is put aside), attempts are
+rebuilt from the ledger after a restart, and an interrupted game keeps what its records show (an
+audit failure, an OS crash, a harness error, a time-out). The robot passed 72 of 72 games (24
+tasks x 3 conditions) through Inspect. Sol reviewed it three times (5, 2 and 0 findings).
+
 ## Calibration (B3)
 
 A small run on separate tasks (written for calibration, never reused): set the action and

@@ -82,7 +82,8 @@ def scope(task):
         named = f" The page{'s' if len(data) > 1 else ''} {names} may change while you try the app out."
     return (" You may keep extra pages of your own inside the drawer desk:apps (for example test pages, or "
             "pages your app loads with use), but while the app runs it must not read or change pages in "
-            "desk:apps." + named + " Everything else must stay exactly as it was.")
+            "desk:apps (and no page there may have a line that is just #end)." + named
+            + " Everything else must stay exactly as it was.")
 
 # ======================================================================= the shopping list ==
 
