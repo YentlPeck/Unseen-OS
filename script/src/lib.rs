@@ -1,12 +1,13 @@
 //! Unseen Script: the programming language of Unseen OS (design: docs/script-design.md).
 //!
 //! `no_std` with `alloc`: the kernel uses it, and the tests in `tests/` run it on the PC.
-//! This is milestone M1: expressions and blocks, values, lists, records, every chore function
-//! and action, and the budgets. Tasks, modules, tests and apps come in later milestones.
+//! Milestones M1 to M5: expressions and blocks, tasks and the library, modules and tests,
+//! programs and the lab in the OS, and apps (design §11).
 #![no_std]
 
 extern crate alloc;
 
+mod app;
 mod check;
 mod lab;
 pub mod lex;
@@ -21,6 +22,7 @@ pub mod value;
 pub use run::{run, Action, Mistake, Outcome, World};
 pub use testing::{run_tests, TestReport, TestResult};
 pub use lab::{Lab, LAB_PAGE};
+pub use app::{is_key, App, AppScreen, Step, APP_COLS, APP_ROWS, CLOSE_HELP, COLOURS};
 
 /// Limits (design §9). Going over one is a mistake that ends the run, never a crash.
 pub mod limits {
@@ -46,6 +48,12 @@ pub mod limits {
     pub const CALL_LEVELS: usize = 4;
     pub const MAX_REPEAT: f64 = 10_000.0;
     pub const STEP_MEMORY: usize = 1024 * 1024;
+    /// An app's state, kept between its steps.
+    pub const APP_STATE: usize = 256 * 1024;
+    /// Screen calls (show, fill, ...) in one draw.
+    pub const MAX_SHOWS: usize = 2_000;
+    /// All the steps of one test together: its own lines and its app's steps.
+    pub const MAX_TEST_STEPS: u64 = 5_000_000;
     /// The checked program: tokens and the parse tree of all its pages.
     pub const PROGRAM_MEMORY: usize = 1024 * 1024;
     /// Counted for every token (and the parse-tree node it may become), plus twice its text.
@@ -61,9 +69,12 @@ pub mod limits {
     pub const NAME_COST: usize = 48;
     /// Counted for every planned change (on top of its texts).
     pub const ACTION_COST: usize = 96;
-    /// The most a mail or event page adds to the desk's text besides the texts given to
-    /// send(...) or event(...) (its header lines, as Mail and Calendar write them).
-    pub const MAIL_COST: i64 = 32;
+    /// What a mail page adds to the desk's text besides the texts given to send(...): its
+    /// header lines and line ends, as Mail writes them (from: me, to:, subject:, a blank line).
+    pub const MAIL_COST: i64 = 25;
+    /// What an event page adds besides the texts given to event(...): its field names and
+    /// line ends, as Calendar writes them (date:, time:, title:, with:).
+    pub const EVENT_COST: i64 = 28;
     /// Text work: one step per this many characters (copying, comparing, searching).
     pub const TEXT_WORK: usize = 64;
     /// Comparing two texts: one step per this many characters (a fast memory compare).

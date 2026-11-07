@@ -1,6 +1,6 @@
-//! The OS side of Unseen Script (docs/script-design.md §7): what a program may see
-//! (`ScriptWorld`), the `run` and `test` commands' Output screens, the Lab screen, and the
-//! line commands `view`, `edit`, `insert` and `cut`.
+//! The OS side of Unseen Script (docs/script-design.md §5 and §7): what a program may see
+//! (`ScriptWorld`), the `run` and `test` commands' Output screens, apps (`open`), the Lab
+//! screen, and the line commands `view`, `edit`, `insert` and `cut`.
 //!
 //! Chores are untouched: `do` still uses chore.rs, so experiments 1-4 stay as they were.
 
@@ -10,7 +10,7 @@ use crate::chores::{self, Viewer};
 use crate::fs::{self, Fs};
 use crate::keyboard::Key;
 use crate::mail;
-use crate::screen::{Screen, ACCENT, BRIGHT, NORMAL, WARN};
+use crate::screen::{self as scr, Screen, ACCENT, BRIGHT, NORMAL, SELECT, WARN};
 use crate::ui::{self, LineEdit};
 use alloc::format;
 use alloc::string::{String, ToString};
@@ -187,6 +187,126 @@ pub fn test(desk: &Fs, page: &str, today: String) -> Viewer {
         }
     }
     Viewer::from_lines(&title, &right, lines, if all { ACCENT } else { WARN })
+}
+
+// ---- apps --------------------------------------------------------------------------------
+
+/// A script app on the OS's app stack: the checked program, its state and its last screen.
+pub struct ScriptApp {
+    app: script::App,
+    page: String,
+}
+
+/// What a key did to a script app.
+pub enum AppKey {
+    Stay,
+    Close,
+    /// A step failed: the app is replaced by this Output screen.
+    Failed(Viewer),
+}
+
+/// The Output screen of an app that stopped with a mistake.
+fn app_failed(page: &str, why: String, opening: bool) -> Viewer {
+    crate::log!("app stopped: {}: {}", fs::display(page), why);
+    let title = format!("App - {}", fs::display(page));
+    let mut lines = alloc::vec![why, String::new()];
+    lines.push(if opening {
+        "The app did not open. Nothing was changed.".to_string()
+    } else {
+        "The app was closed. Nothing from this step was changed (earlier steps were kept).".to_string()
+    });
+    Viewer::from_lines(&title, "failed", lines, WARN)
+}
+
+/// Make a step's changes; then keep its state and screen. Gives true if the app closes.
+fn finish(desk: &mut Fs, app: &mut script::App, step: script::Step) -> Result<bool, String> {
+    if !step.actions.is_empty() {
+        let actions = step.actions.clone();
+        apply(desk, actions).map_err(|e| format!("Stopped while making the changes: {e}"))?;
+    }
+    Ok(app.keep(step))
+}
+
+/// `open <page>`: check the app and run its start step. None if it closed at once.
+pub fn open(desk: &mut Fs, page: &str, today: String) -> Result<Option<ScriptApp>, Viewer> {
+    let source = match desk.read_page(page) {
+        Ok(t) => t.to_string(),
+        Err(e) => return Err(app_failed(page, format!("Could not do that: {e}."), true)),
+    };
+    let world = ScriptWorld { fs: desk, today };
+    let mut app = script::App::load(page, &source, &world).map_err(|e| app_failed(page, format!("Stopped: {e}"), true))?;
+    drop(source);
+    let step = app.start(&world).map_err(|e| app_failed(page, format!("Stopped: {e}"), true))?;
+    drop(world);
+    let closed = finish(desk, &mut app, step).map_err(|e| app_failed(page, e, true))?;
+    crate::log!("app opened: {}", fs::display(page));
+    Ok(if closed { None } else { Some(ScriptApp { app, page: page.to_string() }) })
+}
+
+/// A key as an app gets it ('a', 'enter', 'ctrl+s', ...); None for keys apps don't get.
+fn key_name(key: Key) -> Option<String> {
+    let name = match key {
+        Key::Char(c) if (0x20..0x7f).contains(&c) => return Some((c as char).to_string()),
+        Key::Char(_) => return None,
+        Key::Ctrl(c) if c.is_ascii_lowercase() => return Some(format!("ctrl+{}", c as char)),
+        Key::Ctrl(_) => return None,
+        Key::Enter => "enter",
+        Key::Escape => "esc",
+        Key::Backspace => "backspace",
+        Key::Tab => "tab",
+        Key::Delete => "delete",
+        Key::Up => "up",
+        Key::Down => "down",
+        Key::Left => "left",
+        Key::Right => "right",
+        Key::Home => "home",
+        Key::End => "end",
+    };
+    Some(name.to_string())
+}
+
+impl ScriptApp {
+    /// One key: Ctrl+Q closes the app before anything else; any other key is one step.
+    pub fn key(&mut self, desk: &mut Fs, key: Key, today: String) -> AppKey {
+        if key == Key::Ctrl(b'q') {
+            crate::log!("app closed: {}", fs::display(&self.page));
+            return AppKey::Close;
+        }
+        let Some(name) = key_name(key) else { return AppKey::Stay };
+        let step = match self.app.key(&name, &ScriptWorld { fs: desk, today }) {
+            Ok(s) => s,
+            Err(e) => return AppKey::Failed(app_failed(&self.page, format!("Stopped: {e}"), false)),
+        };
+        match finish(desk, &mut self.app, step) {
+            Ok(true) => {
+                crate::log!("app closed: {}", fs::display(&self.page));
+                AppKey::Close
+            }
+            Ok(false) => AppKey::Stay,
+            Err(e) => AppKey::Failed(app_failed(&self.page, e, false)),
+        }
+    }
+
+    /// Show the app's last screen (the OS never runs draw again just to repaint).
+    pub fn draw(&self, screen: &mut Screen) {
+        let s = self.app.screen();
+        let ascii = |t: &str| -> String { t.chars().map(|c| if c.is_ascii() { c } else { '?' }).collect() };
+        ui::bars(screen, &ascii(&s.title), "", &ascii(&s.help), "");
+        const COLOURS: [u8; 5] = [NORMAL, BRIGHT, ACCENT, WARN, SELECT];
+        for row in 1..=script::APP_ROWS {
+            scr::put(0, row, b' ', NORMAL);
+            scr::put(script::APP_COLS + 1, row, b' ', NORMAL);
+            for col in 1..=script::APP_COLS {
+                let (ch, c) = s.cell(row, col);
+                let b = if ch.is_ascii() { ch as u8 } else { b'?' };
+                scr::put(col, row, b, COLOURS[c as usize % COLOURS.len()]);
+            }
+        }
+        match s.cursor {
+            Some((row, col)) => screen.set_cursor(col, row),
+            None => screen.hide_cursor(),
+        }
+    }
 }
 
 // ---- the Lab screen ----------------------------------------------------------------------

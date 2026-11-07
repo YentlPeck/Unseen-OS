@@ -168,6 +168,15 @@ impl Screen {
         (self.col.min(COLS - 1), self.row)
     }
 
+    /// Hide the blinking cursor (it is moved off the screen; the next set_cursor shows it).
+    pub fn hide_cursor(&mut self) {
+        let pos = (ROWS * COLS) as u16;
+        outb(0x3D4, 0x0F);
+        outb(0x3D5, (pos & 0xFF) as u8);
+        outb(0x3D4, 0x0E);
+        outb(0x3D5, (pos >> 8) as u8);
+    }
+
     pub fn set_cursor(&mut self, col: usize, row: usize) {
         self.col = col.min(COLS - 1);
         self.row = row.min(ROWS - 1);

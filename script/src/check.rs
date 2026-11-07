@@ -103,7 +103,7 @@ impl<'a> Cx<'a> {
                     self.expr(e).map_err(at)?;
                     self.target(t).map_err(at)?;
                 }
-                Stmt::Say(e) | Stmt::Give(e) | Stmt::Call(e) | Stmt::Fail(e) | Stmt::Check(e) => {
+                Stmt::Say(e) | Stmt::Give(e) | Stmt::Call(e) | Stmt::Fail(e) | Stmt::Check(e) | Stmt::Launch(e) | Stmt::Press(e) => {
                     self.expr(e).map_err(at)?
                 }
                 Stmt::Pretend(Pretend::Page(a, b)) => {

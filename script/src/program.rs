@@ -94,6 +94,7 @@ impl<'a, W: World> Loader<'a, W> {
                 self.out.tests.push(t);
             }
             self.out.main = p.main;
+            self.out.app = p.app.take();
         }
         self.out.cost = self.cost;
         Ok(())

@@ -1,4 +1,4 @@
-# Unseen Script reference (M1 to M4: values, blocks, tasks, library, pages, try, tests, the OS)
+# Unseen Script reference (M1 to M5: values, blocks, tasks, library, pages, try, tests, the OS, apps)
 
 This reference grows with each milestone. **Every example here is a test**: the
 `script` block is run, and it must give exactly the `output` block below it (or, for a
@@ -792,6 +792,194 @@ buy tea
 42
 >   items / 2
 mistake: / needs two numbers, got a list of 2 items
+```
+
+## Apps
+
+An **app** is a page that starts with `app 'TITLE'` and has three tasks:
+
+- `start()` gives the app's first **state** (any value, usually a record);
+- `key(s, k)` gets the state and a key, and gives the new state;
+- `draw(s)` shows the state on the screen with the screen functions below.
+
+`open PAGE` checks the app and runs `start`, then `draw`. Every key is one more **step**:
+`key`, then `draw` with the state it gave. A step is all or nothing: when it ends, its changes
+to pages are made, its state is kept and its screen is shown. If anything in a step goes
+wrong, none of that happens: the app closes and the Output screen shows the mistake (Esc goes
+back). **Ctrl+Q** always closes the app, and is never given to `key`.
+
+```page apps:shop-lib
+fixed list_page is 'desk:shop-list'
+
+task load_items()
+  when exists(list_page)
+    give lines(read(list_page))
+  done
+  give []
+done
+
+task save_items(items)
+  write(list_page, join(items, newline()))
+done
+```
+
+```page apps:shop
+app 'Shopping list'
+use 'desk:apps:shop-lib'
+
+task start()
+  give {items: load_items(), picked: 1, typing: ''}
+done
+
+task key(s, k)
+  when k is 'down' and s.picked < count(s.items)
+    set s.picked to s.picked + 1
+  or when k is 'up' and s.picked > 1
+    set s.picked to s.picked - 1
+  or when k is 'enter' and s.typing is not ''
+    add s.typing to s.items
+    set s.typing to ''
+    save_items(s.items)
+  or when k is 'delete' and count(s.items) > 0
+    set s.items to without(s.items, s.picked)
+    set s.picked to max(min(s.picked, count(s.items)), 1)
+    save_items(s.items)
+  otherwise
+    set s.typing to edit_text(s.typing, k)
+  done
+  give s
+done
+
+task draw(s)
+  title('Shopping list - ' & count(s.items) & ' items')
+  for each n in range(1, min(count(s.items), 20))
+    when n is s.picked
+      show(n, 2, '> ' & item(s.items, n), 'bright')
+    otherwise
+      show(n, 2, '  ' & item(s.items, n))
+    done
+  done
+  show(22, 2, 'new: ' & s.typing)
+  help('Up/Down pick  Enter add  Delete remove')
+done
+```
+
+`start` and `key` must end with `give`. `close()` (in `start` or `key`) closes the app at the
+end of the step: its changes are made, and `draw` doesn't run. The state kept between steps
+is at most 256 KB.
+
+**Keys** reach `key` as text: one character (`'a'`, `'A'`, `'7'`, `' '`, `'.'`), or `'enter'`,
+`'esc'`, `'backspace'`, `'tab'`, `'delete'`, `'up'`, `'down'`, `'left'`, `'right'`, `'home'`,
+`'end'`, and `'ctrl+a'` to `'ctrl+z'`. `edit_text(text, k)` types a key into a text: a
+character is added, `'backspace'` takes the last one away, other keys change nothing.
+
+**The screen** has rows 1 to 23 and columns 1 to 78; the top bar shows the title, the bottom
+bar the help. It is empty at the start of every `draw`.
+
+| Function | What it does |
+|---|---|
+| `show(ROW, COL, TEXT)` | put TEXT there (any value is shown as text; it is cut at column 78) |
+| `show(ROW, COL, TEXT, COLOUR)` | the same, in a colour: `'normal'`, `'bright'`, `'accent'`, `'warn'` or `'select'` |
+| `fill(ROW, COLOUR)` | colour a whole row (a `show` without a colour keeps it) |
+| `title(TEXT)` | the top bar (otherwise the app's TITLE) |
+| `help(TEXT)` | the bottom bar; `Ctrl+Q close` is added if it is not in it (the help is cut so it fits) |
+| `cursor(ROW, COL)` | show the blinking cursor there (otherwise it is hidden) |
+
+**What each part may do** is checked when it happens, also in helper tasks:
+
+| Part | read pages | change pages | screen functions | `close()` | `say` |
+|---|---|---|---|---|---|
+| `run`, and a test's own lines | yes | yes | no | no | yes |
+| `start`, `key` | yes | yes | no | yes | no |
+| `draw` | no | no | yes | no | no |
+
+So `draw` works only from the state, and `stop` in an app is a mistake (use `close()`).
+
+```script
+show(1, 1, 'hello')
+```
+```mistake
+show(...) only works in an app's draw
+```
+
+```script
+use 'desk:apps:shop'
+say start().picked
+```
+```output
+1
+```
+
+### Testing an app
+
+In a test, `launch 'PAGE'` opens an app exactly as `open` does, and `press 'KEY'` is one key
+step. Each step is real: its changes are made **in the test world**, so the next step sees
+them (and nothing is ever made on the desk). `press 'ctrl+q'` closes the app. After a step, a
+test can look at:
+
+- `app_state()`: the app's state;
+- `screen_line(ROW)`: a row as text (0 is the title bar, 24 the help bar);
+- `screen_colour(ROW, COL)`: the colour at that place;
+- `app_open()`: yes while the app is open; `app_mistake()`: the mistake that closed it (`''`
+  if none). A failing step closes the app as in the OS; the test goes on.
+
+`page_now`, `sent()` and `events()` include what the app's steps made. Pressing a key after
+the app has closed fails the test. A step's changes can't be undone, so `launch` and `press`
+can't be in the try part of a `try`. The test's own lines and all its app's steps (also the
+ones that fail) may take at most 5000000 steps together; the test world holds at most 1 MB and
+5000 drawers and pages, like the desk.
+
+```tests
+use 'desk:apps:shop'
+
+test 'enter adds the typed item and saves it'
+  pretend 'desk:shop-list' holds 'milk'
+  launch 'desk:apps:shop'
+  press 'b'
+  press 'enter'
+  check app_state().items is ['milk', 'b']
+  check page_now('desk:shop-list') is 'milk' & newline() & 'b'
+  check screen_line(2) has 'b'
+done
+
+test 'the picked item is shown bright'
+  pretend 'desk:shop-list' holds 'milk' & newline() & 'eggs'
+  launch 'desk:apps:shop'
+  press 'down'
+  check screen_line(2) has '> eggs'
+  check screen_colour(2, 2) is 'bright'
+  check screen_line(24) is 'Up/Down pick  Enter add  Delete remove   Ctrl+Q close'
+done
+
+test 'up and down on an empty list change nothing'
+  launch 'desk:apps:shop'
+  press 'down'
+  press 'up'
+  check app_state().picked is 1
+  press 'x'
+  press 'enter'
+  check app_state().items is ['x']
+done
+
+test 'ctrl+q closes it'
+  launch 'desk:apps:shop'
+  press 'ctrl+q'
+  check not app_open()
+  check app_mistake() is ''
+done
+```
+```report
+PASS enter adds the typed item and saves it
+PASS the picked item is shown bright
+PASS up and down on an empty list change nothing
+PASS ctrl+q closes it
+4 of 4 tests passed
+```
+
+At the prompt:
+
+```commands
+open apps:shop
 ```
 
 ## Limits

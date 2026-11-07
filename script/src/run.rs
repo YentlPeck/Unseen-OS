@@ -13,7 +13,9 @@ use core::fmt;
 
 use crate::limits::*;
 use crate::check::check;
-use crate::parse::{builtin_name, Expr, Line, Op, Part, Program, Stmt, Target, B};
+use crate::app::{screen_op, ScreenOp};
+use crate::parse::{builtin_name, is_screen, Expr, Line, Op, Part, Program, Stmt, Target, B};
+use crate::testing::Harness;
 use crate::program::load;
 use crate::util::*;
 use crate::value::*;
@@ -155,6 +157,17 @@ pub fn run<W: World>(page: &str, source: &str, world: &W) -> Outcome {
             return Outcome { output: Vec::new(), actions: Vec::new(), steps: 0, peak_memory: 0, error: Some(error) };
         }
     };
+    if program.app.is_some() {
+        let error = Mistake {
+            page: page.into(),
+            line: 0,
+            message: "this page is an app: open it with open".into(),
+            limit: false,
+            before_running: true,
+            trail: Vec::new(),
+        };
+        return Outcome { output: Vec::new(), actions: Vec::new(), steps: 0, peak_memory: 0, error: Some(error) };
+    }
     let m = Meter::new(STEP_MEMORY);
     let mut r = Runner::new(world, &program, &m);
     let result = r.fixed_values().and_then(|_| r.block(&program.main));
@@ -211,6 +224,47 @@ pub(crate) struct Runner<'a, W: World> {
     growth: i64,
     /// How many pages the planned changes add (below 0: take away).
     items: i64,
+    /// Which part of a program is running (what it may do: design section 5).
+    pub(crate) part: Running,
+    /// What draw has put on the screen so far, in order.
+    pub(crate) shows: Vec<ScreenOp>,
+    /// close() was called (in start or key).
+    pub(crate) close: bool,
+    /// The last task call ended with give.
+    pub(crate) gave: bool,
+    /// In a test: what launch, press and the app checks work with.
+    pub(crate) harness: Option<&'a dyn Harness>,
+    /// The most steps this runner may take: MAX_STEPS, or less in a test whose app steps
+    /// used some of the test's MAX_TEST_STEPS.
+    pub(crate) step_limit: u64,
+}
+
+/// Which part of a program is running.
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub(crate) enum Running {
+    /// `run`, the lab, and the tasks a used page gives (not an app).
+    Run,
+    /// A test's own lines.
+    Test,
+    Start,
+    Key,
+    Draw,
+}
+
+impl Running {
+    pub(crate) fn name(self) -> &'static str {
+        match self {
+            Running::Run => "run",
+            Running::Test => "a test",
+            Running::Start => "start",
+            Running::Key => "key",
+            Running::Draw => "draw",
+        }
+    }
+
+    pub(crate) fn is_app(self) -> bool {
+        matches!(self, Running::Start | Running::Key | Running::Draw)
+    }
 }
 
 /// What a `try` puts back if its try part fails.
@@ -222,6 +276,8 @@ struct Snapshot {
     planned: usize,
     growth: i64,
     items: i64,
+    shows: usize,
+    close: bool,
 }
 
 /// What a target change does at its end.
@@ -253,13 +309,24 @@ impl<'a, W: World> Runner<'a, W> {
             level: 0,
             page: 0,
             checks: 0,
+            part: Running::Run,
+            shows: Vec::new(),
+            close: false,
+            gave: false,
+            harness: None,
+            step_limit: MAX_STEPS,
         }
     }
 
     pub(crate) fn tick(&mut self, n: usize) -> Res<()> {
         self.steps = self.steps.saturating_add(n as u64);
-        if self.steps > MAX_STEPS {
-            self.steps = MAX_STEPS + 1;
+        if self.steps > self.step_limit {
+            self.steps = self.step_limit + 1;
+            if self.step_limit < MAX_STEPS {
+                return Err(limit_fault(format!(
+                    "this test took too many steps in all, with its app's steps (at most {MAX_TEST_STEPS})"
+                )));
+            }
             Err(limit_fault(format!("the program took too many steps (at most {MAX_STEPS}); is a loop too big?")))
         } else {
             Ok(())
@@ -269,7 +336,7 @@ impl<'a, W: World> Runner<'a, W> {
     /// `same`, counting its work as steps (and stopping as soon as the steps run out).
     pub(crate) fn same(&mut self, a: &Value, b: &Value) -> Res<bool> {
         let mut work = 0;
-        let budget = (MAX_STEPS - self.steps.min(MAX_STEPS)) as usize;
+        let budget = (self.step_limit - self.steps.min(self.step_limit)) as usize;
         match same(a, b, &mut work, budget) {
             Some(r) => {
                 self.tick(work)?;
@@ -324,7 +391,7 @@ impl<'a, W: World> Runner<'a, W> {
     }
 
     #[inline(never)] // keeps the recursive eval() frame small (small kernel stack)
-    fn call_task(&mut self, name: &str, args: Vec<Value>) -> Res<Value> {
+    pub(crate) fn call_task(&mut self, name: &str, args: Vec<Value>) -> Res<Value> {
         if self.calls >= MAX_CALLS {
             return Err(limit_fault(format!("tasks call each other too deep (at most {MAX_CALLS})")));
         }
@@ -357,6 +424,7 @@ impl<'a, W: World> Runner<'a, W> {
         }
         let names = core::mem::replace(&mut self.vars, saved);
         self.drop_names(names);
+        self.gave = matches!(r, Ok(Flow::Give(_)));
         match r {
             Ok(Flow::Give(v)) => Ok(v),
             Ok(Flow::Stop) => Err(Fault::stopped()),
@@ -461,7 +529,17 @@ impl<'a, W: World> Runner<'a, W> {
             return Err(limit_fault("the computer has no more memory for this program".into()));
         }
         names.extend(self.vars.iter().cloned());
-        Ok(Snapshot { names, kept, said: self.out.len(), changes: self.actions.len(), planned: self.plan.len(), growth: self.growth, items: self.items })
+        Ok(Snapshot {
+            names,
+            kept,
+            said: self.out.len(),
+            changes: self.actions.len(),
+            planned: self.plan.len(),
+            growth: self.growth,
+            items: self.items,
+            shows: self.shows.len(),
+            close: self.close,
+        })
     }
 
     /// Undo what a try part did, and give the instead part its problem.
@@ -482,6 +560,10 @@ impl<'a, W: World> Runner<'a, W> {
         }
         self.growth = snap.growth;
         self.items = snap.items;
+        for s in self.shows.drain(snap.shows..) {
+            self.m.release(s.cost() + OVERHEAD);
+        }
+        self.close = snap.close;
         let v = text(&self.m, problem)?;
         self.set_var(name, v)
     }
@@ -570,6 +652,9 @@ impl<'a, W: World> Runner<'a, W> {
                 self.change(t, Change::Push(v))?;
             }
             Stmt::Say(e) => {
+                if self.part.is_app() {
+                    return Err(format!("{} can't use say: an app shows things with show(...) in draw", self.part.name()).into());
+                }
                 let v = self.eval(e)?;
                 if self.out.len() >= MAX_SAY {
                     return Err(limit_fault(format!("too many say lines (at most {MAX_SAY})")));
@@ -579,6 +664,9 @@ impl<'a, W: World> Runner<'a, W> {
                     return Err(limit_fault("the computer has no more memory for this program".into()));
                 }
                 self.out.push(s);
+            }
+            Stmt::Stop if self.part.is_app() => {
+                return Err("stop doesn't work in an app: close() closes it".into());
             }
             Stmt::Stop => return Ok(Flow::Stop),
             Stmt::Skip => return Ok(Flow::Skip),
@@ -600,6 +688,23 @@ impl<'a, W: World> Runner<'a, W> {
             }
             Stmt::Check(e) => self.check(e)?,
             Stmt::Pretend(_) => {} // made before the test runs
+            Stmt::Launch(e) | Stmt::Press(e) => {
+                let v = self.eval(e)?;
+                let Some(h) = self.harness else {
+                    return Err("launch and press only work inside a test".into());
+                };
+                let launch = matches!(stmt, Stmt::Launch(_));
+                let what = if launch { "launch" } else { "press" };
+                let Value::Text(t) = &v else {
+                    return Err(format!("{what} needs text, got {}", v.describe()).into());
+                };
+                let s = t.s.clone();
+                let r = if launch { h.launch(&s, self.steps) } else { h.press(&s, self.steps) };
+                // the test's own lines may now use only what the app's steps left
+                self.step_limit = MAX_TEST_STEPS.saturating_sub(h.used()).min(MAX_STEPS);
+                r?;
+                self.tick(0)?;
+            }
             Stmt::When(..) | Stmt::ForEach(..) | Stmt::Repeat(..) | Stmt::While(..) | Stmt::Try(..) => {}
         }
         Ok(Flow::Next)
@@ -928,6 +1033,15 @@ impl<'a, W: World> Runner<'a, W> {
                 _ => Err(format!("{what} needs a whole number, got {}", x.describe()).into()),
             }
         };
+        if self.part == Running::Draw
+            && matches!(b, B::Pages | B::Read | B::Field | B::Body | B::Exists | B::Fields | B::Today)
+        {
+            return Err(format!(
+                "draw can't use {}(...): draw works only from the state (look it up in start or key, and keep it in the state)",
+                builtin_name(b)
+            )
+            .into());
+        }
         Ok(match b {
             B::Pages => {
                 let d = self.path(&v[0])?;
@@ -1020,9 +1134,10 @@ impl<'a, W: World> Runner<'a, W> {
                 text(&self.m, &format!("{y:04}-{m:02}-{d:02}"))?
             }
             B::Nothing => Value::Nothing,
-            B::Write | B::Add | B::Toss | B::Send | B::Event => {
-                return Err(format!("{}(...) is an action: it must be on a line of its own", builtin_name(b)).into());
+            B::Write | B::Add | B::Toss | B::Send | B::Event | B::Title | B::Help | B::Show | B::Fill | B::Cursor | B::Close => {
+                return Err(format!("{}(...) must be on a line of its own", builtin_name(b)).into());
             }
+            B::EditText => return self.edit_text(&v),
             other if crate::parse::is_test_only(other) => return self.test_function(other, v),
             other => return self.library(other, v),
         })
@@ -1080,7 +1195,7 @@ impl<'a, W: World> Runner<'a, W> {
         }
         // the texts made for a change that is refused are given back (try may go on)
         let before = self.m.used();
-        let r = self.action_with(b, &v);
+        let r = if is_screen(b) || b == B::Close { self.screen_call(b, &v) } else { self.action_with(b, &v) };
         if r.is_err() {
             let now = self.m.used();
             self.m.release(now.saturating_sub(before));
@@ -1088,8 +1203,50 @@ impl<'a, W: World> Runner<'a, W> {
         r
     }
 
+    /// A screen function (only in draw) or close() (only in start and key).
+    #[inline(never)]
+    fn screen_call(&mut self, b: B, v: &[Value]) -> Res<()> {
+        let name = builtin_name(b);
+        if b == B::Close {
+            if !matches!(self.part, Running::Start | Running::Key) {
+                return Err(format!("{} can't use close(): only start and key can close the app", self.part.name()).into());
+            }
+            self.close = true;
+            return Ok(());
+        }
+        if self.part != Running::Draw {
+            return Err(format!("{name}(...) only works in an app's draw (it puts something on the app's screen)").into());
+        }
+        if self.shows.len() >= MAX_SHOWS {
+            return Err(limit_fault(format!("too many screen calls in one draw (at most {MAX_SHOWS})")));
+        }
+        // the texts, as text (counted by string(), and kept in the screen call)
+        let mut texts = Vec::new();
+        for (i, x) in v.iter().enumerate() {
+            let is_text = match b {
+                B::Title | B::Help => true,
+                B::Show => i == 2,
+                _ => false,
+            };
+            if is_text {
+                texts.push(self.string(x)?);
+            }
+        }
+        let op = screen_op(b, v, texts)?;
+        self.tick(1 + op.cost() / TEXT_WORK)?;
+        self.m.charge(OVERHEAD)?;
+        if self.shows.try_reserve(1).is_err() {
+            return Err(limit_fault("the computer has no more memory for this program".into()));
+        }
+        self.shows.push(op);
+        Ok(())
+    }
+
     #[inline(never)]
     fn action_with(&mut self, b: B, v: &[Value]) -> Res<()> {
+        if self.part == Running::Draw {
+            return Err(format!("draw can't use {}(...): only start and key can change pages", builtin_name(b)).into());
+        }
         if self.actions.len() >= MAX_ACTIONS {
             return Err(limit_fault(format!("too many changes (at most {MAX_ACTIONS} per run)")));
         }
@@ -1157,16 +1314,16 @@ impl<'a, W: World> Runner<'a, W> {
             B::Send => {
                 let (to, subject, text) = (self.string(&v[0])?, self.string(&v[1])?, self.string(&v[2])?);
                 self.w.check_send(&to, &subject, &text)?;
-                // the mail page: its header lines (25 bytes) and texts, as Mail writes it
-                self.grow(MAIL_COST + (to.len() + subject.len() + text.len()) as i64, 1)?;
+                // the mail page exactly as Mail writes it: header lines, texts, body trimmed at the end
+                self.grow(MAIL_COST + (to.len() + subject.len() + text.trim_end().len()) as i64, 1)?;
                 Action::Send { to, subject, text }
             }
             B::Event => {
                 let (date, time) = (self.string(&v[0])?, self.string(&v[1])?);
                 let (title, with) = (self.string(&v[2])?, self.string(&v[3])?);
                 self.w.check_event(&date, &time, &title, &with)?;
-                // the event page: its field names (28 bytes) and texts, as Calendar writes it
-                self.grow(MAIL_COST + (date.len() + time.len() + title.len() + with.len()) as i64, 1)?;
+                // the event page exactly as Calendar writes it: field names and texts
+                self.grow(EVENT_COST + (date.len() + time.len() + title.len() + with.len()) as i64, 1)?;
                 Action::Event { date, time, title, with }
             }
             _ => return Err("only actions can stand alone on a line".into()),

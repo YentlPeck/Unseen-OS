@@ -119,7 +119,7 @@ def main():
             import re
             total = re.search(r"lines \d+-\d+ of (\d+)", scr)
             check("very long lines are cut at the screen limit too",
-                  "more lines are not shown" in scr and total and int(total.group(1)) <= 6401, scr)
+                  "more lines are not shown" in scr and total and int(total.group(1)) <= 6400, scr)
             back(m)
             scr = run(m, "changes", limit=120)
             m.press("end")

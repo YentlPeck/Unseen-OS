@@ -94,7 +94,7 @@ done
 `desk:apps:shop-lib`:
 
 ```
-fixed list_page is 'desk:shop:list'
+fixed list_page is 'desk:shop-list'
 
 task load_items()
   when exists(list_page)
@@ -114,17 +114,17 @@ done
 use 'desk:apps:shop'
 
 test 'enter adds the typed item and saves it'
-  pretend 'desk:shop:list' holds 'milk'
+  pretend 'desk:shop-list' holds 'milk'
   launch 'desk:apps:shop'
   press 'b'
   press 'enter'
   check app_state().items is ['milk', 'b']
-  check page_now('desk:shop:list') is 'milk' & newline() & 'b'
+  check page_now('desk:shop-list') is 'milk' & newline() & 'b'
   check screen_line(2) has 'b'
 done
 
 test 'the picked item is shown bright'
-  pretend 'desk:shop:list' holds 'milk' & newline() & 'eggs'
+  pretend 'desk:shop-list' holds 'milk' & newline() & 'eggs'
   launch 'desk:apps:shop'
   press 'down'
   check screen_line(2) has '> eggs'
@@ -392,6 +392,11 @@ example `draw can't use write(...): only start and key can change pages`.
   one step (aimed at under half a second; measured in M5).
 - Keys pressed while a step runs wait their turn. Ctrl+Q goes before them: when a step ends
   and a Ctrl+Q is waiting, the app closes and the keys waiting before it are dropped.
+- **As built (M5):** keys are handled one at a time, in order, and Ctrl+Q closes the app as
+  soon as it is read. The keyboard holds one key at a time and the harness waits for each key
+  to be handled, so there is no queue of keys to skip. Measured in QEMU
+  (tools/test_apps_os.py): a step of about 360000 steps takes 0.09 s, and a slow step followed
+  by Ctrl+Q closes within the same 0.09 s.
 
 ### The screen
 
@@ -407,12 +412,25 @@ example `draw can't use write(...): only start and key can change pages`.
   (otherwise it is hidden).
 - The screen is empty at the start of every `draw`. Inside, the OS keeps the app's last screen
   and repaints it when needed; it never runs `draw` again just to repaint.
+- **As built (M5):** a `show` without a colour keeps the colour the place already has (normal,
+  or the colour of a `fill`), so `fill(r, 'select')` then `show(r, 2, text)` shows a selected
+  row. Any value can be shown (as `say` turns it into text). Characters a screen can't show are
+  shown as `?`. A help text is cut so that `Ctrl+Q close` always fits. The screen functions
+  are kept in order while `draw` runs, so `try` can undo the last ones; the screen is made
+  from them when `draw` ends (at most 2000 screen calls per draw).
 
 ### In the kernel
 
 A script app is one more kind of app on the OS's app stack (next to Mail, Notes, ...). It
 holds the checked program, the state and its last screen. A mistake replaces it by the Output
 viewer; Esc there goes back to where the app was opened.
+
+**As built (M5):** the engine (`script/src/app.rs`) gives a step back as its planned changes
+plus the new state and screen; the kernel (`kernel/src/programs.rs`) makes the changes the way
+`run` does (all together on a copy of the desk), and only then keeps the state and screen
+(`App::keep`). The state is copied into its own 256 KB budget at the end of each step, so the
+step's memory is given back in full. `run` refuses an app page (`open` it); an app page may
+only hold `app`, `use`, `fixed` and `task` lines, and `app` must be its first line.
 
 ## 6. Tests
 
@@ -454,6 +472,19 @@ test world).
 
 After the app has closed, `app_state()` and the screen checks show its last state and screen;
 another `press` makes the test fail.
+
+**As built (M5):** a `press` after the app closed (or with no `launch` before it) fails the
+test, like a failed check. `launch` and `press` can't be in the try part of a `try` (a step's
+changes are made in the test world and can't be undone; review of M5). The test's own lines
+and every app step, also a failed one, share the 5000000 steps of the test: each step may use
+at most what is left. `app_state()` gives a copy counted by the test, so keeping old states
+can't hold memory outside the budgets. The test world holds at most 5000 drawers and pages,
+as the desk, and a made mail or event takes the first number no page or drawer has. A `launch` that fails (a page that is not an app,
+or a mistake in `start`) closes the app at once: `app_open()` is no and `app_mistake()` says
+why. `launch` and `press` work only in a test's own lines (not in tasks), so a step never runs
+deep inside another program. The changes of a step are made in the test world as the kernel
+makes them (a mail as `mail:sent:sN`, an event as `calendar:eN`), within the test world's
+1 MB. `screen_line(0)` is the title bar and `screen_line(24)` the help bar.
 
 ### What a test can look at
 
@@ -511,8 +542,9 @@ at most 6400 screen lines and says how many more there were; the last line of it
 always shown (a cut history listing ends with how to see less).
 
 **Desk room (M4 re-check):** planned changes count the desk's growth exactly as the kernel
-counts it: bytes of page text (a toss frees exactly its text; a mail or event page adds at
-most 32 bytes besides its texts), and separately the number of pages. The bookkeeping of each
+counts it: bytes of page text (a toss frees exactly its text; a mail page adds exactly its
+25 bytes of header lines and an event page its 28 bytes of field names, besides the texts; a
+mail's body is trimmed at the end, as Mail does), and separately the number of pages. The bookkeeping of each
 change counts in the step memory, not as desk text. So a change the engine accepts is never
 refused when the changes are made.
 
@@ -561,7 +593,8 @@ two, a task call four (weighted by the stack each really uses). Measured in M3: 
 program the limits allow needs at most 80 KB of stack (release build; tools: script/examples
 stack.rs and stackfile.rs); the kernel stack is 256 KB. Measured in the real OS in M4 (the
 inspector's STACK probe, tools/test_script_os.py): the deepest programs through `run`, `test`
-and `lab` leave a watermark of 61 KB (the free stack is painted at boot; the probe finds the
+and `lab` leave a watermark of 61 KB; in M5 (tools/test_apps_os.py) the deepest app steps,
+also pressed from inside a test, leave 51 KB (the free stack is painted at boot; the probe finds the
 deepest byte written, which is what could harm the memory below the stack). Every part of the engine that walks
 code or a value (checking, running, copying, comparing, turning into text, freeing) has a depth
 limit, so the kernel stack can't overflow. The stack is measured with the deepest program the

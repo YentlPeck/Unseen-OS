@@ -16,7 +16,7 @@ use crate::fs::{self, Entry, Fs};
 use crate::history::{self, History};
 use crate::keyboard::Key;
 use crate::notes::Notes;
-use crate::programs::{self, LabApp};
+use crate::programs::{self, AppKey, LabApp, ScriptApp};
 use crate::screen::{Screen, ACCENT, BRIGHT, NORMAL, WARN};
 use alloc::format;
 use alloc::string::{String, ToString};
@@ -57,6 +57,7 @@ const COMMANDS: &[Command] = &[
     Command { name: "do", usage: "do <page>", about: "carry out the chore written on a page (guide do explains chores)", run: cmd_do },
     Command { name: "run", usage: "run <page>", about: "run the Unseen Script program on a page", run: cmd_run },
     Command { name: "test", usage: "test <page>", about: "run the tests on a test page and show which pass", run: cmd_test },
+    Command { name: "open", usage: "open <page>", about: "open the Unseen Script app on a page (Ctrl+Q closes it)", run: cmd_open },
     Command { name: "lab", usage: "lab", about: "try Unseen Script one line at a time (changes are only shown, never made)", run: cmd_lab },
     Command { name: "view", usage: "view <page> [from] [to]", about: "show the lines of a page with their numbers", run: cmd_view },
     Command { name: "edit", usage: "edit <page> <line> <text>", about: "replace one line of a page", run: cmd_edit },
@@ -84,6 +85,7 @@ enum App {
     Calc(Calc),
     Viewer(Viewer),
     Lab(LabApp),
+    Script(ScriptApp),
 }
 
 pub struct Shell {
@@ -213,7 +215,9 @@ impl Shell {
             Redraw,
             Close,
             Open(String),
+            Replace(Viewer),
         }
+        let today = if matches!(self.apps.last(), Some(App::Script(_))) { self.today() } else { String::new() };
         let next = match self.apps.last_mut() {
             Some(App::Notes(n)) => {
                 if n.key(&mut self.fs, key) { Next::Close } else { Next::Redraw }
@@ -230,12 +234,21 @@ impl Shell {
             Some(App::Calc(a)) => if a.key(key) { Next::Close } else { Next::Redraw },
             Some(App::Viewer(v)) => if v.key(key) { Next::Close } else { Next::Redraw },
             Some(App::Lab(a)) => if a.key(&self.fs, key) { Next::Close } else { Next::Redraw },
+            Some(App::Script(a)) => match a.key(&mut self.fs, key, today) {
+                AppKey::Stay => Next::Redraw,
+                AppKey::Close => Next::Close,
+                AppKey::Failed(v) => Next::Replace(v),
+            },
             None => return,
         };
         match next {
             Next::Redraw => {}
             Next::Close => {
                 self.apps.pop();
+            }
+            Next::Replace(v) => {
+                self.apps.pop();
+                self.apps.push(App::Viewer(v));
             }
             Next::Open(path) => match Notes::open(&self.fs, path) {
                 Ok(n) => self.apps.push(App::Notes(n)),
@@ -277,6 +290,7 @@ impl Shell {
             Some(App::Calc(a)) => a.draw(screen),
             Some(App::Viewer(v)) => v.draw(screen),
             Some(App::Lab(a)) => a.draw(screen),
+            Some(App::Script(a)) => a.draw(screen),
             None => {
                 self.status(screen);
                 screen.clear();
@@ -344,7 +358,7 @@ const GROUPS: [(&str, &[&str]); 7] = [
     ("Pages", &["read", "write", "add", "copy", "rename", "move", "toss", "seek"]),
     ("Apps", &["notes", "files", "mail", "contacts", "calendar", "settings", "calc"]),
     ("Chores", &["do"]),
-    ("Programs", &["run", "test", "lab", "view", "edit", "insert", "cut"]),
+    ("Programs", &["run", "test", "open", "lab", "view", "edit", "insert", "cut"]),
     ("History", &["stamp", "stamps", "changes", "compare", "bring", "rewind"]),
     ("Other", &["show", "wipe", "clock", "about", "guide"]),
 ];
@@ -616,6 +630,24 @@ fn cmd_test(sh: &mut Shell, screen: &mut Screen, rest: &str) {
     let today = sh.today();
     let viewer = programs::test(&sh.fs, &page, today);
     sh.apps.push(App::Viewer(viewer));
+    sh.redraw(screen);
+}
+
+fn cmd_open(sh: &mut Shell, screen: &mut Screen, rest: &str) {
+    let Some((page, extra)) = page_arg(sh, screen, rest, "open") else { return };
+    if !extra.trim().is_empty() {
+        return usage(screen, "open");
+    }
+    if let Err(e) = sh.fs.read_page(&page) {
+        return warn(screen, &format!("Could not do that: {e}."));
+    }
+    crate::log!("open: {}", fs::display(&page));
+    let today = sh.today();
+    match programs::open(&mut sh.fs, &page, today) {
+        Ok(Some(app)) => sh.apps.push(App::Script(app)),
+        Ok(None) => return warn(screen, "The app closed as soon as it started."),
+        Err(viewer) => sh.apps.push(App::Viewer(viewer)),
+    }
     sh.redraw(screen);
 }
 

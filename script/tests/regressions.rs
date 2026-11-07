@@ -227,3 +227,19 @@ fn fixed_values_and_code_share_the_program_budget() {
 fn use_comes_before_calls() {
     has(&err("write('desk:a', 'x')\nuse 'notes:shopping'"), "use must come at the top");
 }
+
+// ---- Sol's last check of M4 (7 Nov 2026) ----
+
+/// A mail or event page is counted exactly as Mail and Calendar write it.
+#[test]
+fn mail_and_event_pages_are_counted_exactly() {
+    let mut w = TestWorld::new();
+    w.free = 25 + 4 + 2 + 1; // from: me / to: omar / subject: Hi / body x
+    assert_eq!(script::run("main", "send('omar', 'Hi', 'x   ')", &w).error, None, "the body is trimmed");
+    w.free -= 1;
+    assert!(script::run("main", "send('omar', 'Hi', 'x')", &w).error.unwrap().message.contains("too full"));
+    w.free = 28 + 10 + 5 + 1;
+    assert_eq!(script::run("main", "event('2026-12-01', '10:00', 'X', '')", &w).error, None);
+    w.free -= 1;
+    assert!(script::run("main", "event('2026-12-01', '10:00', 'X', '')", &w).error.unwrap().message.contains("too full"));
+}

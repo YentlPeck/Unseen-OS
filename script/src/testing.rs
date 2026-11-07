@@ -7,12 +7,15 @@
 
 use alloc::collections::{BTreeMap, BTreeSet};
 use alloc::format;
+use alloc::rc::Rc;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
+use core::cell::{Cell, RefCell};
 
+use crate::app::{deep_copy, is_key, App, Step, APP_COLS, APP_ROWS, COLOURS};
 use crate::limits::*;
-use crate::parse::{Expr, Op, Pretend, Program, Stmt, Test, B};
-use crate::run::{at, mistake, prepare, text_len, write_text, Action, Mistake, Runner, World};
+use crate::parse::{builtin_name, Expr, Op, Pretend, Program, Stmt, Test, B};
+use crate::run::{at, mistake, prepare, text_len, write_text, Action, Mistake, Runner, Running, World};
 use crate::util::*;
 use crate::value::*;
 
@@ -21,6 +24,8 @@ pub const TEST_TODAY: &str = "2026-11-14";
 const DEFAULT_SETTINGS: &str = "name: friend\ntheme: blue\nstart: shell\nclock: 24h";
 const APP_DRAWERS: [(&str, &str); 4] = [("mail", "Mail"), ("contacts", "Contacts"), ("calendar", "Calendar"), ("system", "Settings")];
 const MAX_DESK: usize = 1024 * 1024;
+/// Drawers and pages in all, as the kernel's desk (fs::MAX_ITEMS).
+const MAX_ITEMS: usize = 5000;
 /// Counted for every page and drawer of a test world, on top of its path and text.
 const ENTRY_COST: usize = 64;
 
@@ -90,11 +95,11 @@ pub fn run_tests<W: World>(page: &str, source: &str, desk: &W) -> TestReport {
         };
         return TestReport { error: Some(e), results: Vec::new() };
     }
-    let results = program.tests.iter().map(|t| one_test(&program, t)).collect();
+    let results = program.tests.iter().map(|t| one_test(&program, t, desk)).collect();
     TestReport { error: None, results }
 }
 
-fn one_test(program: &Program, t: &Test) -> TestResult {
+fn one_test<D: World>(program: &Program, t: &Test, desk: &D) -> TestResult {
     let fail = |why: String| TestResult { title: t.title.clone(), line: t.line, passed: false, why };
     let show = |m: Mistake| -> String {
         // inside the test page, the page name is clear: show "line N: ..."
@@ -132,9 +137,14 @@ fn one_test(program: &Program, t: &Test) -> TestResult {
             return fail(format!("line {}: {e}", l.n));
         }
     }
-    // 2. the test itself
+    // 2. the test itself; launch and press make their steps' changes in the test world
+    let world = RefCell::new(world);
+    let live = Live(&world);
+    let tester = Tester { desk, world: &world, app: RefCell::new(None), launched: Cell::new(false), open: Cell::new(false), mistake: RefCell::new(String::new()), made: RefCell::new(Vec::new()), steps: Cell::new(0) };
     let m = Meter::new(STEP_MEMORY);
-    let mut r = Runner::new(&world, program, &m);
+    let mut r = Runner::new(&live, program, &m);
+    r.harness = Some(&tester);
+    r.part = Running::Test;
     let result = r.fixed_values().and_then(|_| {
         r.steps = steps;
         r.set_page(t.page);
@@ -237,7 +247,9 @@ impl<'a, W: World> Runner<'a, W> {
             }
             B::Sent | B::Events => {
                 let mut rows: Vec<Vec<(&str, String)>> = Vec::new();
-                for a in &self.actions {
+                // made by the app's steps first, then planned by the test's own lines
+                let made = self.harness.map(|h| h.made()).unwrap_or_default();
+                for a in made.iter().chain(self.actions.iter()) {
                     match (b, a) {
                         (B::Sent, Action::Send { to, subject, text }) => {
                             rows.push(alloc::vec![("to", to.clone()), ("subject", subject.clone()), ("text", text.clone())])
@@ -272,8 +284,235 @@ impl<'a, W: World> Runner<'a, W> {
                 }
                 lm.finish()
             }
+            B::AppState | B::ScreenLine | B::ScreenColour | B::AppOpen | B::AppMistake => match self.harness {
+                Some(h) => {
+                    let (v, work) = h.look(b, &v, &self.m)?;
+                    self.tick(work)?;
+                    v
+                }
+                None => return Err("internal: no test".into()),
+            },
             _ => return Err("internal: not a test function".into()),
         })
+    }
+}
+
+/// What a test's own lines use for launch, press and the app checks.
+pub(crate) trait Harness {
+    /// `own`: the steps the test's own lines have taken so far (they share one budget).
+    fn launch(&self, page: &str, own: u64) -> Res<()>;
+    fn press(&self, key: &str, own: u64) -> Res<()>;
+    /// app_state(), screen_line(row), screen_colour(row, col), app_open(), app_mistake(),
+    /// and the work it took (counted as steps).
+    fn look(&self, b: B, v: &[Value], m: &Rc<Meter>) -> Res<(Value, usize)>;
+    /// The mails and events the app's steps made.
+    fn made(&self) -> Vec<Action>;
+    /// The steps all the app's steps took so far.
+    fn used(&self) -> u64;
+}
+
+/// The test world, seen by a program while the test's steps change it.
+struct Live<'w>(&'w RefCell<TestWorld>);
+
+impl World for Live<'_> {
+    fn page(&self, p: &str) -> Option<String> {
+        self.0.borrow().page(p)
+    }
+    fn is_drawer(&self, p: &str) -> bool {
+        self.0.borrow().is_drawer(p)
+    }
+    fn pages_in(&self, d: &str) -> Vec<String> {
+        self.0.borrow().pages_in(d)
+    }
+    fn check_write(&self, p: &str) -> Result<(), String> {
+        self.0.borrow().check_write(p)
+    }
+    fn check_toss(&self, p: &str) -> Result<(), String> {
+        self.0.borrow().check_toss(p)
+    }
+    fn check_send(&self, a: &str, b: &str, c: &str) -> Result<(), String> {
+        self.0.borrow().check_send(a, b, c)
+    }
+    fn check_event(&self, a: &str, b: &str, c: &str, d: &str) -> Result<(), String> {
+        self.0.borrow().check_event(a, b, c, d)
+    }
+    fn today(&self) -> String {
+        self.0.borrow().today()
+    }
+    fn max_page(&self) -> usize {
+        self.0.borrow().max_page()
+    }
+    fn page_len(&self, p: &str) -> Option<usize> {
+        self.0.borrow().pages.get(p).map(|t| t.len())
+    }
+    fn free_space(&self) -> usize {
+        self.0.borrow().free_space()
+    }
+    fn free_items(&self) -> usize {
+        self.0.borrow().free_items()
+    }
+}
+
+struct Tester<'w, D: World> {
+    /// Where the app's code comes from.
+    desk: &'w D,
+    world: &'w RefCell<TestWorld>,
+    app: RefCell<Option<App>>,
+    /// launch was used (even if the app didn't open).
+    launched: Cell<bool>,
+    open: Cell<bool>,
+    /// The mistake that closed the app ('' if none).
+    mistake: RefCell<String>,
+    made: RefCell<Vec<Action>>,
+    /// All the app's steps in this test.
+    steps: Cell<u64>,
+}
+
+impl<D: World> Tester<'_, D> {
+    /// How many steps the next app step may take: the test's own lines and all its app
+    /// steps (also the failed ones) share MAX_TEST_STEPS.
+    fn budget(&self, own: u64) -> Res<u64> {
+        let used = own.saturating_add(self.steps.get());
+        if used >= MAX_TEST_STEPS {
+            return Err(too_many_steps());
+        }
+        Ok((MAX_TEST_STEPS - used).min(MAX_STEPS))
+    }
+
+    /// After a step: count its work; if it worked, make its changes in the test world, then
+    /// keep its state and screen.
+    fn finish(&self, app: &mut App, (step, used): (Result<Step, Mistake>, u64), own: u64) -> Res<()> {
+        let total = self.steps.get().saturating_add(used);
+        self.steps.set(total);
+        if total.saturating_add(own) > MAX_TEST_STEPS {
+            self.fail("the test's steps ran out".into());
+            return Err(too_many_steps());
+        }
+        let step = match step {
+            Ok(s) => s,
+            Err(e) => return Ok(self.fail(e.to_string())),
+        };
+        if let Err(e) = self.world.borrow_mut().make(&step.actions) {
+            return Ok(self.fail(format!("Stopped while making the changes: {e}")));
+        }
+        self.made.borrow_mut().extend(step.actions.iter().filter(|a| matches!(a, Action::Send { .. } | Action::Event { .. })).cloned());
+        if app.keep(step) {
+            self.open.set(false);
+        }
+        Ok(())
+    }
+
+    fn fail(&self, why: String) {
+        self.open.set(false);
+        *self.mistake.borrow_mut() = why;
+    }
+
+    fn need_app(&self, b: B) -> Res<()> {
+        if !self.launched.get() {
+            return Err(format!("{}() needs an app: launch 'PAGE' first", builtin_name(b)).into());
+        }
+        if self.app.borrow().is_none() {
+            return Err(format!("{}() needs an app, but it never started: {}", builtin_name(b), self.mistake.borrow()).into());
+        }
+        Ok(())
+    }
+}
+
+fn too_many_steps() -> Fault {
+    limit_fault(format!("this test took too many steps in all, with its app's steps (at most {MAX_TEST_STEPS})"))
+}
+
+fn row_arg(v: &Value, what: &str, min: usize, max: usize) -> Res<usize> {
+    match v {
+        Value::Num(n) if *n >= min as f64 && *n <= max as f64 && *n == (*n as i64) as f64 => Ok(*n as usize),
+        _ => Err(format!("{what} must be a whole number from {min} to {max}, got {}", v.describe()).into()),
+    }
+}
+
+impl<D: World> Harness for Tester<'_, D> {
+    fn launch(&self, page: &str, own: u64) -> Res<()> {
+        let budget = self.budget(own)?;
+        let path = path_of(page)?;
+        let Some(source) = self.desk.page(&path) else {
+            return Err(format!("there is no page called {} (an app's code comes from the desk)", display(&path)).into());
+        };
+        self.mistake.borrow_mut().clear();
+        self.launched.set(true);
+        self.open.set(true);
+        *self.app.borrow_mut() = None;
+        // the code comes from the desk; what it reads, from the test world
+        let mut app = match App::load(&path, &source, self.desk) {
+            Ok(a) => a,
+            Err(e) => {
+                self.fail(e.to_string());
+                return Ok(());
+            }
+        };
+        let step = app.start_within(&Live(self.world), budget);
+        let r = self.finish(&mut app, step, own);
+        *self.app.borrow_mut() = Some(app);
+        r
+    }
+
+    fn press(&self, key: &str, own: u64) -> Res<()> {
+        if !is_key(key) {
+            return Err(format!("'{}' is not a key (keys are like 'a', 'enter', 'up' or 'ctrl+s')", short(key)).into());
+        }
+        if !self.launched.get() {
+            return Err(Fault::check_failed(format!("press '{key}', but no app was launched (launch 'PAGE' first)")));
+        }
+        let mut slot = self.app.borrow_mut();
+        let (Some(app), true) = (slot.as_mut(), self.open.get()) else {
+            let why = self.mistake.borrow();
+            let after = if why.is_empty() { String::new() } else { format!(" after a mistake: {why}") };
+            return Err(Fault::check_failed(format!("press '{key}', but the app has closed{after}")));
+        };
+        if key == "ctrl+q" {
+            self.open.set(false);
+            return Ok(());
+        }
+        let budget = self.budget(own)?;
+        let step = app.key_within(key, &Live(self.world), budget);
+        self.finish(app, step, own)
+    }
+
+    fn look(&self, b: B, v: &[Value], m: &Rc<Meter>) -> Res<(Value, usize)> {
+        let mut work = 1;
+        let v = match b {
+            B::AppOpen => Value::Bool(self.open.get()),
+            B::AppMistake => text(m, &self.mistake.borrow())?,
+            B::AppState => {
+                self.need_app(b)?;
+                // a copy counted by the test (a shared value would keep old states alive uncounted)
+                match self.app.borrow().as_ref() {
+                    Some(a) => deep_copy(a.state(), m, &mut work)?,
+                    None => Value::Nothing,
+                }
+            }
+            B::ScreenLine => {
+                let row = row_arg(&v[0], "screen_line(row): the row", 0, APP_ROWS + 1)?;
+                self.need_app(b)?;
+                let line = self.app.borrow().as_ref().map(|a| a.screen().line(row)).unwrap_or_default();
+                text(m, &line)?
+            }
+            B::ScreenColour => {
+                let row = row_arg(&v[0], "screen_colour(row, col): the row", 1, APP_ROWS)?;
+                let col = row_arg(&v[1], "screen_colour(row, col): the column", 1, APP_COLS)?;
+                self.need_app(b)?;
+                let c = self.app.borrow().as_ref().map(|a| a.screen().cell(row, col).1).unwrap_or(0);
+                text(m, COLOURS[c as usize])?
+            }
+            _ => return Err("internal: not an app check".into()),
+        };
+        Ok((v, work))
+    }
+
+    fn made(&self) -> Vec<Action> {
+        self.made.borrow().clone()
+    }
+
+    fn used(&self) -> u64 {
+        self.steps.get()
     }
 }
 
@@ -346,6 +585,15 @@ impl TestWorld {
         if self.total() + adds > MAX_DESK {
             return Err("the test world would be too full".into());
         }
+        let mut new = usize::from(!self.pages.contains_key(&p));
+        let mut d = parent(&p);
+        while !d.is_empty() && !self.drawers.contains(d) {
+            new += 1;
+            d = parent(d);
+        }
+        if new > self.free_items() {
+            return Err(format!("the test world would hold too many pages (at most {MAX_ITEMS} drawers and pages)"));
+        }
         // the drawers above it
         let mut d = parent(&p);
         loop {
@@ -360,6 +608,73 @@ impl TestWorld {
         }
         self.pages.insert(p, text.into());
         Ok(())
+    }
+
+    /// Make a step's changes, all of them or none, as the kernel makes them (chores::make).
+    pub fn make(&mut self, actions: &[Action]) -> Result<(), String> {
+        if actions.is_empty() {
+            return Ok(());
+        }
+        let mut copy = TestWorld { pages: self.pages.clone(), drawers: self.drawers.clone(), today: self.today.clone() };
+        let too_long = |p: &str| format!("{} would be too long", display(p));
+        for a in actions {
+            match a {
+                Action::Write { page, text } => {
+                    copy.check_write(page)?;
+                    if text.len() > 16 * 1024 {
+                        return Err(too_long(page));
+                    }
+                    copy.pages.insert(page.clone(), text.clone());
+                }
+                Action::Add { page, line } => {
+                    copy.check_write(page)?;
+                    let old = copy.pages.get(page).cloned().unwrap_or_default();
+                    let new = if old.is_empty() { line.clone() } else { format!("{old}\n{line}") };
+                    if new.len() > 16 * 1024 {
+                        return Err(too_long(page));
+                    }
+                    copy.pages.insert(page.clone(), new);
+                }
+                Action::Toss { page } => {
+                    if copy.pages.remove(page).is_none() {
+                        return Err(format!("there is no page called {}", display(page)));
+                    }
+                }
+                Action::Send { to, subject, text } => {
+                    let mut n = 1;
+                    while copy.taken(&format!("mail:sent:s{n}")) {
+                        n += 1;
+                    }
+                    let body = format!("from: me\nto: {to}\nsubject: {subject}\n\n{}", text.trim_end());
+                    copy.pages.insert(format!("mail:sent:s{n}"), body);
+                }
+                Action::Event { date, time, title, with } => {
+                    let mut n = 1;
+                    while copy.taken(&format!("calendar:e{n}")) {
+                        n += 1;
+                    }
+                    copy.pages.insert(format!("calendar:e{n}"), format!("date: {date}\ntime: {time}\ntitle: {title}\nwith: {with}"));
+                }
+            }
+        }
+        if copy.total() > MAX_DESK {
+            return Err("the test world would be too full".into());
+        }
+        if copy.count() > MAX_ITEMS {
+            return Err(format!("the desk is full (at most {MAX_ITEMS} drawers and pages in all)"));
+        }
+        *self = copy;
+        Ok(())
+    }
+
+    /// A page or a drawer is there (Mail and Calendar pick the first free number).
+    fn taken(&self, p: &str) -> bool {
+        self.pages.contains_key(p) || self.drawers.contains(p)
+    }
+
+    /// Drawers and pages, as the kernel counts them (the desk itself is not one).
+    fn count(&self) -> usize {
+        self.pages.len() + self.drawers.len() - usize::from(self.drawers.contains(""))
     }
 
     pub fn pretend_today(&mut self, date: &str) -> Result<(), String> {
@@ -466,5 +781,8 @@ impl World for TestWorld {
     }
     fn free_space(&self) -> usize {
         MAX_DESK.saturating_sub(self.total())
+    }
+    fn free_items(&self) -> usize {
+        MAX_ITEMS.saturating_sub(self.count())
     }
 }

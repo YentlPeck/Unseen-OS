@@ -22,12 +22,16 @@ pub enum B {
     Position, Without, Keys, HasKey, Fields, DaysBetween, Month, Year,
     // only in tests
     PageNow, After, Sent, Events, Said,
+    // apps (design §5): typing into a text; and only in tests, what the launched app shows
+    EditText, AppState, ScreenLine, ScreenColour, AppOpen, AppMistake,
     // actions
     Write, Add, Toss, Send, Event,
+    // on a line of their own, like actions: the screen functions (only in draw) and close()
+    Title, Help, Show, Fill, Cursor, Close,
 }
 
 /// (name, built-in, number of values, is an action)
-const BUILTINS: [(&str, B, usize, bool); 59] = [
+const BUILTINS: [(&str, B, usize, bool); 71] = [
     ("pages", B::Pages, 1, false),
     ("read", B::Read, 1, false),
     ("field", B::Field, 2, false),
@@ -82,16 +86,36 @@ const BUILTINS: [(&str, B, usize, bool); 59] = [
     ("sent", B::Sent, 0, false),
     ("events", B::Events, 0, false),
     ("said", B::Said, 0, false),
+    ("edit_text", B::EditText, 2, false),
+    ("app_state", B::AppState, 0, false),
+    ("screen_line", B::ScreenLine, 1, false),
+    ("screen_colour", B::ScreenColour, 2, false),
+    ("app_open", B::AppOpen, 0, false),
+    ("app_mistake", B::AppMistake, 0, false),
     ("write", B::Write, 2, true),
     ("add", B::Add, 2, true),
     ("toss", B::Toss, 1, true),
     ("send", B::Send, 3, true),
     ("event", B::Event, 4, true),
+    ("title", B::Title, 1, true),
+    ("help", B::Help, 1, true),
+    ("show", B::Show, 3, true), // or 4, with a colour
+    ("fill", B::Fill, 2, true),
+    ("cursor", B::Cursor, 2, true),
+    ("close", B::Close, 0, true),
 ];
+
+/// The screen functions: only in an app's draw.
+pub fn is_screen(b: B) -> bool {
+    matches!(b, B::Title | B::Help | B::Show | B::Fill | B::Cursor)
+}
 
 /// Built-ins that look at what a test did: only in test blocks.
 pub fn is_test_only(b: B) -> bool {
-    matches!(b, B::PageNow | B::After | B::Sent | B::Events | B::Said)
+    matches!(
+        b,
+        B::PageNow | B::After | B::Sent | B::Events | B::Said | B::AppState | B::ScreenLine | B::ScreenColour | B::AppOpen | B::AppMistake
+    )
 }
 
 /// Built-ins that never look at the world (they may be used in fixed values).
@@ -226,6 +250,9 @@ pub enum Stmt {
     Check(Expr),
     /// Only at the top of a test: a page of the test world, or its date.
     Pretend(Pretend),
+    /// Only in tests: open an app (its page), and press a key in it.
+    Launch(Expr),
+    Press(Expr),
 }
 
 #[derive(Debug)]
@@ -278,6 +305,8 @@ pub struct Program {
     pub tests: Vec<Test>,
     /// The `use` lines of the page just parsed: (page path as written, line).
     pub uses: Vec<(String, usize)>,
+    /// The main page is an app: its `app 'TITLE'` line (title, line).
+    pub app: Option<(String, usize)>,
     /// What checking the pages cost (counted against the program budget).
     pub cost: usize,
 }
@@ -318,6 +347,9 @@ pub fn parse(source: &str) -> Result<Program, PErr> {
         fixed: Vec::new(),
         tests: Vec::new(),
         uses: Vec::new(),
+        app: None,
+        first: true,
+        tries: 0,
     };
     let (body, end) = cx.block(&mut pos, 0)?;
     match end {
@@ -328,6 +360,7 @@ pub fn parse(source: &str) -> Result<Program, PErr> {
             fixed: cx.fixed,
             tests: cx.tests,
             uses: cx.uses,
+            app: cx.app,
             cost: used,
         }),
         End::Instead(n, _) => Err((n, "instead, but there is no try before it".into())),
@@ -359,6 +392,11 @@ struct Cx<'a> {
     fixed: Vec<Fixed>,
     tests: Vec<Test>,
     uses: Vec<(String, usize)>,
+    app: Option<(String, usize)>,
+    /// The next line is the first line of the page (where `app` must be).
+    first: bool,
+    /// Inside the try part of a try (launch and press can't be there).
+    tries: usize,
 }
 
 fn start_error() -> String {
@@ -397,7 +435,8 @@ impl<'a> Cx<'a> {
                 Some(Tok::Word(w)) => Some(w.as_str()),
                 _ => None,
             };
-            if depth == 0 && first != "use" {
+            let first_line = core::mem::replace(&mut self.first, false);
+            if depth == 0 && first != "use" && first != "app" {
                 self.top_started = true;
             }
             // (1) a call on its own line (an instruction word always starts its instruction:
@@ -434,6 +473,30 @@ impl<'a> Cx<'a> {
                     }
                     continue;
                 }
+                ("app", _) => {
+                    if !first_line || depth > 0 {
+                        return Err(at("app must be the first line of the page: app 'TITLE'".into()));
+                    }
+                    match (toks.get(1), toks.len()) {
+                        (Some(Tok::Text(t)), 2) if !t.trim().is_empty() && !t.contains('\n') => {
+                            self.app = Some((t.clone(), n))
+                        }
+                        _ => return Err(at("app needs: app 'TITLE' (the app's name, in quotes)".into())),
+                    }
+                    continue;
+                }
+                ("launch" | "press", _) => {
+                    if self.test_depth.is_none() {
+                        return Err(at(format!("{first} only works inside a test (open opens an app)")));
+                    }
+                    if self.tries > 0 {
+                        return Err(at(format!("{first} can't be in the try part of a try: a step's changes can't be undone")));
+                    }
+                    let mut p = P::new(toks, 1);
+                    let e = p.expr().map_err(at)?;
+                    p.end().map_err(at)?;
+                    if first == "launch" { Stmt::Launch(e) } else { Stmt::Press(e) }
+                }
                 ("instead", _) => {
                     let mut p = P::new(toks, 1);
                     let name = p.name("instead").map_err(at)?;
@@ -444,7 +507,10 @@ impl<'a> Cx<'a> {
                     if toks.len() > 1 {
                         return Err(at("try must be alone on its line".into()));
                     }
-                    let (body, end) = self.nested(pos, depth, n)?;
+                    self.tries += 1;
+                    let r = self.nested(pos, depth, n);
+                    self.tries -= 1;
+                    let (body, end) = r?;
                     let name = match end {
                         End::Instead(_, name) => name,
                         End::Eof | End::Done(_) => return Err(at("this try has no instead (try ... instead problem ... done)".into())),
@@ -1027,13 +1093,19 @@ impl<'a> P<'a> {
             Tok::Word(w) if self.peek_sym("(") => {
                 let (b, argc, action) = builtin(&w).expect("checked");
                 if action && !action_ok {
+                    if is_screen(b) || b == B::Close {
+                        return Err(format!("{w}(...) must be on a line of its own (it gives no value)"));
+                    }
                     return Err(format!("{w}(...) is an action: it must be on a line of its own"));
                 }
                 self.i += 1;
                 self.deeper()?;
                 let args = self.items(")", &format!("{w}("))?;
                 self.brackets -= 1;
-                if args.len() != argc {
+                if b == B::Show && !(3..=4).contains(&args.len()) {
+                    return Err(format!("show(...) needs 3 or 4 values in its brackets (row, column, text and maybe a colour), got {}", args.len()));
+                }
+                if args.len() != argc && b != B::Show {
                     let s = if argc == 1 { "" } else { "s" };
                     return Err(format!("{w}(...) needs {argc} value{s} in its brackets, got {}", args.len()));
                 }
