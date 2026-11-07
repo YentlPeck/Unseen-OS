@@ -1,5 +1,8 @@
 # Pilot M7: Haiku and Luna build, extend and fix Unseen Script apps (7 Nov 2026)
 
+Two rounds: round 1 with the harness of experiments 1-4; round 2 with the batching fix
+(the `line` action and the one-command rule, below). Round 2: **6 of 6 passed**.
+
 A pilot checks that app tasks are fair and that the harness works. It is **not** an
 experiment: one game per task and player, manual condition only, and these tasks are never
 reused. Tasks: `tools/tasks_apps.py`; runner and grader: `tools/pilot5.py`; game records:
@@ -16,7 +19,7 @@ reused. Tasks: `tools/tasks_apps.py`; runner and grader: `tools/pilot5.py`; game
   the OS's own title bar, exact allowed paths, two weak tally checks, the scope told to the
   player, grading errors as harness errors, page copying) were fixed before any game.
 
-## Results
+## Results (round 1)
 
 | Task | Kind | Haiku | Luna |
 |---|---|---|---|
@@ -43,3 +46,27 @@ No harness errors, no OS crashes. Every app a player finished passed its hidden 
   Either changes the harness for app tasks only; experiments 1-4 stay as they were.
 - **Budgets:** 200 actions and 45 minutes were plenty (most actions used: 118, longest game:
   10 minutes).
+
+## Round 2: the batching fix (same day)
+
+For app tasks only (experiments 1-4 keep their files unchanged):
+
+- the game tool has one more action, `line "text"`: type the text, then press Enter, as one
+  action (`tools/broker_apps.py`, `tools/play_apps.py`, which the player gets as `play.py`);
+- the prompt lists it and says: every action is a command of its own, exactly one
+  `python play.py GAME ...` with the game name written out (no shell variables, no `;` or
+  `&&`, no loops) (`PROMPT` in `tools/pilot5.py`).
+
+The robot typed every known solution with `line` through the real harness and passed. Then
+the same three tasks, one game each (records: `out/pilot5/runs-2/`):
+
+| Task | Haiku | Luna |
+|---|---|---|
+| app-tally | PASS (4/4, 43 actions, 3 min) | PASS (4/4, 48 actions, 7 min) |
+| app-todo-move | PASS (5/5, 38 actions, 3 min) | PASS (5/5, 33 actions, 5 min) |
+| app-guests-fix | PASS (4/4, 41 actions, 3 min) | PASS (4/4, 12 actions, 3 min) |
+
+No audit failures, no harness errors, no OS crashes. Haiku no longer batched commands (in its
+to-do game: 32 `line`, 5 `press`, 1 `look`), and games took about half the actions of round 1.
+The models played the same tasks as in round 1 but kept nothing between games, so this checks
+the fix, not a learning effect. App experiments use the round-2 harness.

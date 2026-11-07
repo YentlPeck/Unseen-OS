@@ -646,7 +646,9 @@ and every non-empty line of its examples (and of the guide's example) is typed t
 x Haiku and Luna, manual condition, one game each. 4 of 6 passed; every finished app passed
 its hidden tests. Haiku's two losses were audit failures from batching game commands in one
 shell command (one of them after a correct fix). The tasks are fair and the harness works;
-before an experiment, the prompt or the game tool must deal with batching (see the report).
+round 2 added a `line` action (type a line and press Enter, one action) and a
+one-command rule to the app prompt: then 6 of 6 passed, with no audit failures. App
+experiments use that harness (tools/broker_apps.py, tools/play_apps.py, tools/pilot5.py).
 | M7 | pilot: Haiku and Luna build 2-3 small apps | the tasks are fair and the harness works (a check, not a result) |
 
 ## 12. Later: app benchmark (SWE-bench style)

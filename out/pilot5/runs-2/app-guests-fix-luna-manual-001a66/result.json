@@ -1,0 +1,43 @@
+{
+  "game": "app-guests-fix-luna-manual-001a66",
+  "task": "app-guests-fix",
+  "player": "luna",
+  "condition": "manual",
+  "passed": true,
+  "grade": {
+    "passed": true,
+    "tests": {
+      "delete removes the picked guest": [
+        true,
+        ""
+      ],
+      "delete on the last guest removes it": [
+        true,
+        ""
+      ],
+      "delete on the first guest": [
+        true,
+        ""
+      ],
+      "adding and picking still work": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "audit_ok": true,
+  "violations": [],
+  "os_crash": null,
+  "actions": 12,
+  "seconds": 172,
+  "timed_out": false,
+  "harness_errors": [],
+  "summary": "Fixed Delete to remove the picked guest; empty-list handling and pick adjustment remain intact. The existing guest app test passed.",
+  "files": {
+    "desk:apps:guests": "app 'Guests'\ntask start()\n  set guests to []\n  when exists('desk:guests')\n    set guests to lines(read('desk:guests'))\n  done\n  give {guests: guests, picked: 1, typing: ''}\ndone\ntask save(guests)\n  write('desk:guests', join(guests, newline()))\ndone\ntask key(s, k)\n  when k is 'up' and s.picked > 1\n    set s.picked to s.picked - 1\n  or when k is 'down' and s.picked < count(s.guests)\n    set s.picked to s.picked + 1\n  or when k is 'enter' and s.typing is not ''\n    add s.typing to s.guests\n    set s.typing to ''\n    save(s.guests)\n  or when k is 'delete' and count(s.guests) > 0\n    set s.guests to without(s.guests, s.picked)\n    set s.picked to max(min(s.picked, count(s.guests)), 1)\n    save(s.guests)\n  otherwise\n    set s.typing to edit_text(s.typing, k)\n  done\n  give s\ndone\ntask draw(s)\n  title(count(s.guests) & ' guests')\n  for each n in range(1, min(count(s.guests), 20))\n    set mark to '  '\n    when n is s.picked\n      set mark to '> '\n    done\n    show(n, 1, mark & n & '. ' & item(s.guests, n))\n  done\n  show(23, 1, 'name: ' & s.typing)\n  help('Up/Down pick  Enter add  Delete remove')\ndone",
+    "desk:apps:guests-tests": "use 'desk:apps:guests'\n\ntest 'enter adds a guest'\n  pretend 'desk:guests' holds 'Omar'\n  launch 'desk:apps:guests'\n  press 'L'\n  press 'i'\n  press 'n'\n  press 'a'\n  press 'enter'\n  check app_state().guests is ['Omar', 'Lina']\n  check screen_line(2) is '  2. Lina'\ndone",
+    "desk:guests": "Omar\nLina\nMira"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "game": "app-tally-luna-manual-1ec127",
+  "task": "app-tally",
+  "player": "luna",
+  "condition": "manual",
+  "passed": true,
+  "grade": {
+    "passed": true,
+    "tests": {
+      "it starts at 0 when nothing is saved": [
+        true,
+        ""
+      ],
+      "it starts from the saved count; plus adds; enter saves": [
+        true,
+        ""
+      ],
+      "minus never goes below 0, r sets it to 0": [
+        true,
+        ""
+      ],
+      "other keys change nothing": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "audit_ok": true,
+  "violations": [],
+  "os_crash": null,
+  "actions": 48,
+  "seconds": 405,
+  "timed_out": false,
+  "harness_errors": [],
+  "summary": "Created and verified `desk:apps:tally`; removed the temporary `desk:tally` test page, leaving no extra pages.",
+  "files": {
+    "desk:apps:tally": "app 'Tally'\ntask start()\n set n to 0\n when exists('desk:tally')\n  set n to number(read('desk:tally'))\n done\n give {n: n}\ndone\ntask key(s, k)\n when k is '+'\n  set s.n to s.n + 1\n or when k is '-' and s.n > 0\n  set s.n to s.n - 1\n or when k is 'r'\n  set s.n to 0\n or when k is 'enter'\n  write('desk:tally', s.n)\n done\n give s\ndone\ntask draw(s)\n show(1, 1, 'Count: ' & s.n)\ndone"
+  }
+}

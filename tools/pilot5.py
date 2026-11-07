@@ -29,12 +29,36 @@ ROOT = TOOLS.parent
 sys.path.insert(0, str(TOOLS))
 import run_task as R  # noqa: E402
 from audit import audit  # noqa: E402
-from broker import Broker  # noqa: E402
+from broker_apps import AppBroker  # noqa: E402
 from tasks import parse_start  # noqa: E402
 from tasks_apps import TASKS  # noqa: E402
 from unseen import Machine, SettleError  # noqa: E402
 
 OUT = ROOT / "out" / "pilot5"
+# Round 1 (7 Nov) used run_task.py's prompt and referee (type and press only). Round 2 adds
+# the line action and the one-command rule (docs/pilot5.md): its games go to runs-2.
+ROUND = 2
+RUNS = OUT / ("runs" if ROUND == 1 else f"runs-{ROUND}")
+
+PROMPT = """You are using a computer you have never seen before. You can only use it through one tool,
+run from the current folder:
+
+  python play.py {gid} look              see the screen
+  python play.py {gid} type "some text"  type text on one line (this does NOT press Enter)
+  python play.py {gid} line "some text"  type text on one line, then press Enter (one action)
+  python play.py {gid} press KEY [KEY]   press keys: enter, esc, backspace, tab, up, down,
+                                         left, right, home, end, delete, space, or ctrl+<letter>
+
+Every action shows you the screen afterwards. You have at most {max_actions} actions.
+Run every action as a command of its own: exactly one python play.py {gid} ... per command, with
+the game name written out in full (no shell variables, no ; or && between calls, no loops).
+Do not run any other commands and do not read any files.{tips}
+{manual}
+Your task: {request}
+
+Change only what the task asks for: leave everything else exactly as it was, and don't leave
+extra pages or drawers behind. When the task is done (or you cannot finish it), stop and give a
+one-line summary."""
 MAX_ACTIONS = 200
 TIME_LIMIT = 45 * 60
 R.TIME_LIMIT = TIME_LIMIT  # run_player reads it at call time
@@ -136,20 +160,20 @@ def play(task_id, player, condition="manual"):
     manual_text = MANUAL.read_text(encoding="utf-8") if condition == "manual" else None
     R.check_condition(condition, manual_text)
     gid = f"{task_id}-{player}-{condition}-{hashlib.sha1(str(time.time()).encode()).hexdigest()[:6]}"
-    run_dir, game_dir = OUT / "runs" / gid, R.GAMES_DIR / gid
+    run_dir, game_dir = RUNS / gid, R.GAMES_DIR / gid
     run_dir.mkdir(parents=True)
     game_dir.mkdir(parents=True)
-    shutil.copy(TOOLS / "play.py", game_dir / "play.py")
+    shutil.copy(TOOLS / "play_apps.py", game_dir / "play.py")
     summary, commands, others, cli_error, timed_out, exit_code = "", [], [], None, False, 0
     final_error, files, tampered = None, None, []
     with open(run_dir / "qemu.log", "w") as qlog:
         machine = Machine.start(task["start"], workdir=run_dir, log=qlog)
         started = time.time()
-        broker = Broker(machine, MAX_ACTIONS, run_dir / "transcript.jsonl", deadline=started + TIME_LIMIT)
+        broker = AppBroker(machine, MAX_ACTIONS, run_dir / "transcript.jsonl", deadline=started + TIME_LIMIT)
         try:
             (game_dir / "game.json").write_text(json.dumps({"game": gid, "port": broker.port, "token": broker.token}))
             protected = {f: R.sha(game_dir / f) for f in ("play.py", "game.json")}
-            prompt = R.PROMPT.format(gid=gid, max_actions=MAX_ACTIONS, request=task["request"] + SCOPE.format(data=task["data"]),
+            prompt = PROMPT.format(gid=gid, max_actions=MAX_ACTIONS, request=task["request"] + SCOPE.format(data=task["data"]),
                                      manual=R.context_block(condition, manual_text), tips=R.V3_TIP)
             (run_dir / "prompt.txt").write_text(prompt, encoding="utf-8")
             if player == "robot":
@@ -304,10 +328,12 @@ def validate():
 
 
 def report():
-    rows = [json.loads(p.read_text()) for p in sorted((OUT / "runs").glob("*/result.json"))]
-    for r in rows:
-        if r["player"] != "robot":
-            print(line(r))
+    for runs in sorted(OUT.glob("runs*")):
+        print(f"== {runs.name}")
+        for p in sorted(runs.glob("*/result.json")):
+            r = json.loads(p.read_text())
+            if r["player"] != "robot":
+                print(line(r))
 
 
 def main():

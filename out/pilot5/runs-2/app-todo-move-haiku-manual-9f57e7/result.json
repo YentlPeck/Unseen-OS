@@ -1,0 +1,47 @@
+{
+  "game": "app-todo-move-haiku-manual-9f57e7",
+  "task": "app-todo-move",
+  "player": "haiku",
+  "condition": "manual",
+  "passed": true,
+  "grade": {
+    "passed": true,
+    "tests": {
+      "ctrl+u moves the picked item up and saves": [
+        true,
+        ""
+      ],
+      "ctrl+n moves the picked item down and saves": [
+        true,
+        ""
+      ],
+      "at the top and the bottom nothing changes": [
+        true,
+        ""
+      ],
+      "moving on an empty list does nothing": [
+        true,
+        ""
+      ],
+      "adding, picking and deleting still work": [
+        true,
+        ""
+      ]
+    },
+    "problem": null,
+    "extra": []
+  },
+  "audit_ok": true,
+  "violations": [],
+  "os_crash": null,
+  "actions": 38,
+  "seconds": 178,
+  "timed_out": false,
+  "harness_errors": [],
+  "summary": "Added Ctrl+U and Ctrl+N to the to-do app on `desk:apps:todo`: each swaps the picked item with its neighbour, keeps it picked, and saves `desk:todo` at once.\n\nI checked it by hand: Ctrl+U on the first item and Ctrl+N on the last item changed nothing, and the moves were saved. The two existing tests on `desk:apps:todo-tests` still pass. The only other change is `desk:todo`, which I reordered while testing, as the task allows; I created no extra pages or drawers.",
+  "files": {
+    "desk:apps:todo": "app 'To do'\ntask start()\n  set items to []\n  when exists('desk:todo')\n    set items to lines(read('desk:todo'))\n  done\n  give {items: items, picked: 1, typing: ''}\ndone\ntask save(items)\n  write('desk:todo', join(items, newline()))\ndone\ntask key(s, k)\n  when k is 'up' and s.picked > 1\n    set s.picked to s.picked - 1\n  or when k is 'down' and s.picked < count(s.items)\n    set s.picked to s.picked + 1\n  or when k is 'enter' and s.typing is not ''\n    add s.typing to s.items\n    set s.typing to ''\n    save(s.items)\n  or when k is 'delete' and count(s.items) > 0\n    set s.items to without(s.items, s.picked)\n    set s.picked to max(min(s.picked, count(s.items)), 1)\n    save(s.items)\n  or when k is 'ctrl+u'\n    when s.picked > 1\n      set q to s.picked - 1\n      set items to s.items\n      set cur to item(items, s.picked)\n      set prev to item(items, q)\n      set items at q to cur\n      set items at s.picked to prev\n      set s.items to items\n      set s.picked to q\n      save(s.items)\n    done\n  or when k is 'ctrl+n'\n    when s.picked < count(s.items)\n      set q to s.picked + 1\n      set items to s.items\n      set cur to item(items, s.picked)\n      set nxt to item(items, q)\n      set items at q to cur\n      set items at s.picked to nxt\n      set s.items to items\n      set s.picked to q\n      save(s.items)\n    done\n  otherwise\n    set s.typing to edit_text(s.typing, k)\n  done\n  give s\ndone\ntask draw(s)\n  title('To do - ' & count(s.items) & ' items')\n  for each n in range(1, min(count(s.items), 20))\n    when n is s.picked\n      show(n, 1, '> ' & item(s.items, n), 'bright')\n    otherwise\n      show(n, 1, '  ' & item(s.items, n))\n    done\n  done\n  show(23, 1, 'new: ' & s.typing)\n  help('Up/Down pick  Enter add  Delete remove')\ndone",
+    "desk:apps:todo-tests": "use 'desk:apps:todo'\n\ntest 'enter adds the typed item and saves the list'\n  pretend 'desk:todo' holds 'call Mira'\n  launch 'desk:apps:todo'\n  press 'p'\n  press 'a'\n  press 'y'\n  press 'enter'\n  check app_state().items is ['call Mira', 'pay']\n  check page_now('desk:todo') is 'call Mira' & newline() & 'pay'\ndone\n\ntest 'the picked item is shown with >'\n  pretend 'desk:todo' holds 'a' & newline() & 'b'\n  launch 'desk:apps:todo'\n  press 'down'\n  check screen_line(2) is '> b'\n  check screen_line(1) is '  a'\ndone",
+    "desk:todo": "buy stamps\ncall the bank\nwater the plants"
+  }
+}
