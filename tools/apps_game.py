@@ -172,7 +172,7 @@ def play_app_game(task_id, player, text=None, max_actions=MAX_ACTIONS, condition
     game_dir.mkdir(parents=True)
     shutil.copy(TOOLS / "play_apps.py", game_dir / "play.py")
     summary, commands, others, cli_error, timed_out, exit_code = "", [], [], None, False, 0
-    final_error, files, tampered, launched = None, None, [], False
+    final_error, files, tampered, launched, luna_setup = None, None, [], False, None
     R.TIME_LIMIT = TIME_LIMIT  # run_player reads it at call time
     with open(run_dir / "qemu.log", "w") as qlog:
         machine = Machine.start(task["start"], workdir=run_dir, log=qlog)  # fails: nothing was played
@@ -198,6 +198,11 @@ def play_app_game(task_id, player, text=None, max_actions=MAX_ACTIONS, condition
                     cmd[cmd.index("--json"):cmd.index("--json")] = [x for f in LUNA_FEATURES_OFF for x in ("--disable", f)]
                     if LUNA_SANDBOX_ID.exists():
                         shutil.copy(LUNA_SANDBOX_ID, home / "cap_sid")
+                    elif os.environ.get("UNSEEN_REQUIRE_SANDBOX_ID"):  # the experiment needs it (PREREG5)
+                        raise RuntimeError(f"no saved sandbox identity at {LUNA_SANDBOX_ID}")
+                    luna_setup = {"effort": LUNA_EFFORT, "sandbox_id_reused": (home / "cap_sid").exists(),
+                                  "features_off": LUNA_FEATURES_OFF}
+                    (run_dir / "luna_setup.json").write_text(json.dumps(luna_setup))  # before the player starts
                     (run_dir / "player_cmd.json").write_text(json.dumps(cmd))
                 try:
                     timed_out, exit_code = run_player_timed(cmd, prompt, game_dir, run_dir / "player.log", env)
@@ -265,7 +270,7 @@ def play_app_game(task_id, player, text=None, max_actions=MAX_ACTIONS, condition
         + [f"infra: {e}" for e in broker.infra_errors] + ([cli_error] if cli_error else []) \
         + ([final_error] if final_error else [])
     result = {"game": gid, "task": task_id, "kind": task["kind"], "level": task["level"], "player": player,
-              "luna_effort": LUNA_EFFORT if player == "luna" else None,
+              "luna_effort": LUNA_EFFORT if player == "luna" else None, "luna_setup": luna_setup,
               "condition": condition, "context_sha256": sha256(text), "passed": passed,
               "visible_passed": passed, "hidden": grade, "rule": rule, "os_crash": os_crash,
               "actions": broker.used, "seconds": round(time.time() - started), "timed_out": timed_out,

@@ -49,7 +49,12 @@ from tasks_calib import TASKS as CALIB  # noqa: E402
 LEDGER = Path(os.environ.get("UNSEEN_LEDGER") or TOOLS.parent / "out" / "apps-dev" / "attempts-ledger.jsonl")
 _ledger_lock = threading.Lock()
 SCORED = ("game", "condition", "context_sha256", "passed", "rule", "audit_ok", "violations", "timed_out",
-          "harness_errors", "actions", "seconds", "settle_failures", "hidden", "os_crash", "summary")
+          "harness_errors", "actions", "seconds", "settle_failures", "hidden", "os_crash", "summary", "luna_setup")
+# The retry round (PREREG5.md, "What counts"): a cell gets two attempts per round. A restart of the
+# same round keeps the attempts it used; an explicit `run_experiment5.py --retry` starts the next
+# round, so a cell that ended with two harness errors can be played again. A finished game (a win,
+# a loss, an audit failure, an OS crash, a time-out) is never replayed, in any round.
+RETRY_ROUND = int(os.environ.get("UNSEEN_RETRY_ROUND") or 0)
 
 
 class HarnessError(RuntimeError):
@@ -86,16 +91,28 @@ def ledger_lock():
 
 
 def cut_off_tail():
-    """A last line an interruption cut off (no new line at its end) is moved to LEDGER.cut and
-    taken off the ledger, so the next row starts on a line of its own. Call with the lock held."""
+    """Repair a last line an interruption left without its new line. Call with the lock held.
+    A complete row (valid JSON) gets its new line, so it is kept (it may hold a finished game);
+    a cut-off fragment is moved to LEDGER.cut and taken off the ledger. Reads and writes both repair
+    first, so they always agree about the last row."""
     if not LEDGER.exists():
         return
     data = LEDGER.read_bytes()
     if not data or data.endswith(b"\n"):
         return
     keep = data[:data.rfind(b"\n") + 1]
+    tail = data[len(keep):]
+    try:
+        json.loads(tail.decode("utf-8"))
+        complete = True
+    except (ValueError, UnicodeDecodeError):
+        complete = False
+    if complete:
+        with open(LEDGER, "ab") as f:
+            f.write(b"\n")
+        return
     with open(LEDGER.with_name(LEDGER.name + ".cut"), "ab") as f:
-        f.write(data[len(keep):] + b"\n")
+        f.write(tail + b"\n")
     with open(LEDGER, "r+b") as f:
         f.truncate(len(keep))
 
@@ -115,6 +132,7 @@ def read_ledger():
     with ledger_lock():
         if not LEDGER.exists():
             return []
+        cut_off_tail()  # the same repair as before a write
         lines = [l for l in LEDGER.read_text(encoding="utf-8").split("\n") if l.strip()]
     rows = []
     for i, line in enumerate(lines):
@@ -163,12 +181,14 @@ def salvage(gid, player, condition, text, error):
     # then an OS crash (a loss); then a harness error of ours (the referee's settle or infra
     # errors, or the player's CLI failing) means a re-run, even if the time limit was reached too;
     # only a time-out with none of these is a loss.
-    os_crash, ours = None, []
+    os_crash, ours, actions = None, [], 0
     try:
         for line in (run / "transcript.jsonl").read_text(encoding="utf-8").splitlines():
             row = json.loads(line) if line.strip() else {}
             if not isinstance(row, dict):
                 continue
+            if "action" in row:
+                actions += 1
             if row.get("os_crash"):
                 os_crash = f"after action {row.get('n')}: {row['os_crash']}"
             for k in ("settle_error", "infra_error"):
@@ -178,12 +198,20 @@ def salvage(gid, player, condition, text, error):
         pass
     if cli_error:
         ours.append(cli_error)
+    if actions == 0 and not violations and player != "robot":
+        # as apps_game.py: a game in which no action reached the computer was not played
+        ours.append("no action reached the computer (0 actions)")
     timed_out = "[harness] time limit reached" in log
     if not violations and not os_crash and not timed_out:
         return None
     rule = ("audit failure" if violations else "the OS stopped responding" if os_crash
             else "harness error" if ours else "time limit reached")
+    try:  # written before the player started (tools/apps_game.py)
+        luna_setup = json.loads((run / "luna_setup.json").read_text())
+    except (OSError, ValueError):
+        luna_setup = None
     return {"game": gid, "condition": condition, "context_sha256": A.sha256(text), "passed": False, "hidden": None,
+            "luna_setup": luna_setup,
             "os_crash": os_crash, "timed_out": timed_out, "rule": rule + " (read from the game's records after our side failed)",
             "audit_ok": not violations, "violations": violations,
             "harness_errors": ([f"crash: {error!r}"] + ours) if violations or os_crash or ours else [],
@@ -191,24 +219,28 @@ def salvage(gid, player, condition, text, error):
 
 
 def unrecorded_results(cell, text):
+    """[(booking row, result or None)] for every booked game of the cell that has no outcome in the
+    ledger yet (an interruption came between the booking and its outcome). The result is what the
+    game's records show (salvage); None if they show nothing."""
     rows = ledger_rows(cell)
-    entered = {a.get("game") for a in rows if "passed" in a or ("harness_errors" in a and not a.get("started"))}
+    entered = {a.get("game") for a in rows if not a.get("started") and ("passed" in a or "harness_errors" in a)}
     out = []
     for a in rows:
         if a.get("started") and a.get("game") not in entered:
             r = salvage(a["game"], cell["player"], cell["condition"], text, "interrupted (found on restart)")
-            if r is not None and r.get("condition") == cell["condition"]:
-                out.append(r)
+            out.append((a, r if r is not None and r.get("condition") == cell["condition"] else None))
     return out
 
 
-def used_attempts(rows):
-    """The finished attempts the ledger already holds for a cell (harness errors), one per game:
-    they count toward the two attempts, also after a restart. A booking that never finished is
-    not one (unrecorded_results looks at those)."""
+def used_attempts(rows, round_=None):
+    """The finished attempts this retry round already used for a cell (harness errors), one per
+    game: they count toward its two attempts, also after a restart. A booking that never finished
+    is not one (unrecorded_results looks at those)."""
+    round_ = RETRY_ROUND if round_ is None else round_
     seen, out = set(), []
     for a in rows:
-        if a.get("started") or a.get("terminal") or a.get("game") in seen:
+        if (a.get("started") or a.get("terminal") or a.get("reused_from_ledger") or a.get("game") in seen
+                or a.get("round", 0) != round_):
             continue
         if "harness_errors" in a:
             seen.add(a.get("game"))
@@ -218,33 +250,41 @@ def used_attempts(rows):
 
 def run_with_retry(task_id, player, text, max_actions, condition, epoch=1):
     cell = {"player": player, "task": task_id, "condition": condition, "epoch": epoch}
+    tag = {"round": RETRY_ROUND}
     rows = ledger_rows(cell)
-    attempts = used_attempts(rows)
     done = next((a for a in rows if a.get("terminal")), None)
     if done:
+        record_attempt({**cell, **tag, "game": done.get("game"), "reused_from_ledger": True})
         result = {k: done.get(k) for k in SCORED}
         result.update(transcript=A.load_transcript(done.get("game")) if done.get("game") else [],
                       recovered_from_ledger=True, attempts=[{k: done.get(k) for k in SCORED}])
         return result
-    for result in unrecorded_results(cell, text):
-        attempts.append({k: result.get(k) for k in SCORED})
-        record_attempt({**cell, **attempts[-1], "terminal": terminal(result), "recovered_from_result": True})
+    # every interrupted booking gets its outcome, recorded under the round it was booked in
+    for booking, result in unrecorded_results(cell, text):
+        old = {"round": booking.get("round", 0)}
+        if result is None:  # its records show nothing: a harness error of that round (the game is discarded)
+            record_attempt({**cell, **old, "game": booking["game"], "terminal": False, "discarded": True,
+                            "harness_errors": ["interrupted: no result, nothing to recover (discarded)"]})
+            continue
+        record_attempt({**cell, **old, **{k: result.get(k) for k in SCORED}, "terminal": terminal(result),
+                        "recovered_from_result": True})
         if terminal(result):
-            result.update(attempts=attempts, recovered_from_ledger=True)
+            result.update(attempts=[{k: result.get(k) for k in SCORED}], recovered_from_ledger=True)
             return result
+    attempts = used_attempts(ledger_rows(cell))  # only this round's harness errors count
     while len(attempts) < 2:
         gid = A.new_game_id(task_id, player, condition)
-        record_attempt({**cell, "game": gid, "started": True, "terminal": False})  # booked before play
+        record_attempt({**cell, **tag, "game": gid, "started": True, "terminal": False})  # booked before play
         try:
             result = A.play_app_game(task_id, player, text, max_actions, condition=condition, gid=gid)
         except Exception as e:
             result = salvage(gid, player, condition, text, e)
             if result is None:
                 attempts.append({"game": gid, "harness_errors": [f"crash: {e!r}"]})
-                record_attempt({**cell, **attempts[-1], "terminal": False})
+                record_attempt({**cell, **tag, **attempts[-1], "terminal": False})
                 continue
         attempts.append({k: result.get(k) for k in SCORED})
-        record_attempt({**cell, **attempts[-1], "terminal": terminal(result)})
+        record_attempt({**cell, **tag, **attempts[-1], "terminal": terminal(result)})
         if terminal(result):
             result["attempts"] = attempts
             return result

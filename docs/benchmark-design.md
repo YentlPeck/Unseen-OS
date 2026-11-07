@@ -87,6 +87,10 @@ reference, reference vs plain), the primary measure (games passed), epochs (abou
 analysis, and the rules for re-runs and audit failures. Sol checks it; then `tools/freeze.py`
 gets experiment 5.
 
+**B4 ready to freeze (7 Nov):** `PREREG5.md`, `tools/analyze5.py` (validation of the whole run before
+any verdict, self-test), `tools/power5.py`, `tools/run_experiment5.py`, `tools/freeze5.py`. Sol
+reviewed it four times (8, 5, 2 and 0 blockers).
+
 ## The run (B5) and analysis (B6)
 
 Haiku and Luna, 3 conditions, every task, about 4 epochs: about 576 games, 2 at a time per
