@@ -1,0 +1,1 @@
+2026-11-07 23:55 stopped by hand (user went to bed) at 462/576 finished games: runner tree killed; resume with python tools/run_experiment5.py --retry

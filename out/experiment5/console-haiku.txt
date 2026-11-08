@@ -1,0 +1,214 @@
+[11/07/26 19:39:22] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_apps (72 x 4 samples): mockllm/model                                    
+epochs: 4, fail_on_error: False, max_samples: 4, player: haiku, conditions:    
+plain,reference,manual, seed: 20261108, max_actions: 250, manifest: ...,       
+taskset: bench, dataset: (samples)                                             
+---------------------------------------------------------                      
+                                                                               
+app_player   | Steps:   1/288   0% | Samples:   0/288 | accuracy:  n/a | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   2/288   0% | Samples:   1/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   3/288   1% | Samples:   2/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   4/288   1% | Samples:   3/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   5/288   1% | Samples:   4/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   6/288   2% | Samples:   5/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   7/288   2% | Samples:   6/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   8/288   2% | Samples:   7/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:   9/288   3% | Samples:   9/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  10/288   3% | Samples:   9/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  11/288   3% | Samples:  10/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  12/288   4% | Samples:  11/288 | accuracy: 1.00 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  13/288   4% | Samples:  12/288 | accuracy: 0.92 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  14/288   4% | Samples:  14/288 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  15/288   5% | Samples:  14/288 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  16/288   5% | Samples:  15/288 | accuracy: 0.93 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  17/288   5% | Samples:  16/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  18/288   6% | Samples:  17/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  19/288   6% | Samples:  18/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  20/288   6% | Samples:  19/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  21/288   7% | Samples:  20/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  22/288   7% | Samples:  21/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  23/288   7% | Samples:  22/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  24/288   8% | Samples:  24/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  25/288   8% | Samples:  24/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  26/288   9% | Samples:  26/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  27/288   9% | Samples:  26/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  28/288   9% | Samples:  27/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  29/288  10% | Samples:  28/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  30/288  10% | Samples:  29/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  31/288  10% | Samples:  30/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  32/288  11% | Samples:  31/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  33/288  11% | Samples:  32/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  34/288  11% | Samples:  33/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  35/288  12% | Samples:  34/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  36/288  12% | Samples:  35/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  37/288  12% | Samples:  36/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  38/288  13% | Samples:  37/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  39/288  13% | Samples:  38/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  40/288  13% | Samples:  39/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  41/288  14% | Samples:  40/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  42/288  14% | Samples:  41/288 | accuracy: 0.98 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  43/288  14% | Samples:  42/288 | accuracy: 0.98 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  44/288  15% | Samples:  43/288 | accuracy: 0.98 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  45/288  15% | Samples:  44/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  46/288  15% | Samples:  45/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  47/288  16% | Samples:  46/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  48/288  16% | Samples:  47/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  49/288  17% | Samples:  48/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  50/288  17% | Samples:  49/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  51/288  17% | Samples:  51/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  52/288  18% | Samples:  51/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  53/288  18% | Samples:  52/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  54/288  18% | Samples:  53/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  56/288  19% | Samples:  56/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  57/288  19% | Samples:  56/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  58/288  20% | Samples:  57/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  59/288  20% | Samples:  59/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  60/288  20% | Samples:  59/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  61/288  21% | Samples:  60/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  62/288  21% | Samples:  61/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  63/288  21% | Samples:  62/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  64/288  22% | Samples:  63/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  65/288  22% | Samples:  64/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  66/288  22% | Samples:  65/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  67/288  23% | Samples:  66/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  68/288  23% | Samples:  68/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  69/288  23% | Samples:  68/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  70/288  24% | Samples:  69/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  71/288  24% | Samples:  70/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  72/288  25% | Samples:  72/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  73/288  25% | Samples:  72/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  74/288  25% | Samples:  73/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  75/288  26% | Samples:  74/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  76/288  26% | Samples:  75/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  77/288  26% | Samples:  76/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  78/288  27% | Samples:  77/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  79/288  27% | Samples:  78/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  80/288  27% | Samples:  79/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  81/288  28% | Samples:  80/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  82/288  28% | Samples:  81/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  83/288  28% | Samples:  82/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  84/288  29% | Samples:  83/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  85/288  29% | Samples:  84/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  86/288  29% | Samples:  85/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  87/288  30% | Samples:  86/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  88/288  30% | Samples:  87/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  89/288  30% | Samples:  88/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  90/288  31% | Samples:  89/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  91/288  31% | Samples:  91/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  92/288  31% | Samples:  91/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  93/288  32% | Samples:  92/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  94/288  32% | Samples:  93/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  95/288  32% | Samples:  94/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  96/288  33% | Samples:  95/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  98/288  34% | Samples:  98/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps:  99/288  34% | Samples:  98/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 100/288  34% | Samples:  99/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 101/288  35% | Samples: 100/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 102/288  35% | Samples: 101/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 103/288  35% | Samples: 102/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 104/288  36% | Samples: 103/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 105/288  36% | Samples: 104/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 106/288  36% | Samples: 105/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 107/288  37% | Samples: 106/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 108/288  37% | Samples: 107/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 109/288  37% | Samples: 108/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 110/288  38% | Samples: 110/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 111/288  38% | Samples: 110/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 112/288  38% | Samples: 111/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 113/288  39% | Samples: 112/288 | accuracy: 0.97 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 114/288  39% | Samples: 113/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 115/288  39% | Samples: 114/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 116/288  40% | Samples: 115/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 117/288  40% | Samples: 116/288 | accuracy: 0.96 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 118/288  40% | Samples: 117/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 119/288  41% | Samples: 118/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 120/288  41% | Samples: 119/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 121/288  42% | Samples: 120/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 122/288  42% | Samples: 121/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 123/288  42% | Samples: 122/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 124/288  43% | Samples: 123/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 125/288  43% | Samples: 124/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 126/288  43% | Samples: 125/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 127/288  44% | Samples: 126/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 128/288  44% | Samples: 127/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 129/288  44% | Samples: 128/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 130/288  45% | Samples: 129/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 131/288  45% | Samples: 130/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 132/288  45% | Samples: 131/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 133/288  46% | Samples: 132/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 135/288  46% | Samples: 134/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 136/288  47% | Samples: 135/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 137/288  47% | Samples: 136/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 138/288  47% | Samples: 137/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 139/288  48% | Samples: 139/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 140/288  48% | Samples: 139/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 141/288  48% | Samples: 140/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 142/288  49% | Samples: 141/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 143/288  49% | Samples: 142/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 144/288  50% | Samples: 143/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 145/288  50% | Samples: 144/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 146/288  50% | Samples: 145/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 147/288  51% | Samples: 146/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 148/288  51% | Samples: 147/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 149/288  51% | Samples: 148/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 150/288  52% | Samples: 149/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 151/288  52% | Samples: 150/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 152/288  52% | Samples: 151/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 153/288  53% | Samples: 152/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 154/288  53% | Samples: 153/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 155/288  53% | Samples: 155/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+[11/08/26 11:42:50] WARNING  Control server failed to start      server.py:1862
+                             (eval will run without control                    
+                             surface): module 'socket' has no                  
+                             attribute 'AF_UNIX'                               
+Running 1 tasks...
+---------------------------------------------------------                      
+unseen_apps (72 x 4 samples): mockllm/model                                    
+epochs: 4, fail_on_error: False, max_samples: 4, player: haiku, conditions:    
+plain,reference,manual, seed: 20261108, max_actions: 250, manifest: ...,       
+taskset: bench, dataset: (samples)                                             
+---------------------------------------------------------                      
+                                                                               
+app_player   | Steps: 278/288  96% | Samples: 278/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 279/288  96% | Samples: 278/288 | accuracy: 0.95 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 280/288  97% | Samples: 280/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 281/288  97% | Samples: 280/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 282/288  97% | Samples: 281/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 283/288  98% | Samples: 282/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 284/288  98% | Samples: 284/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 285/288  98% | Samples: 284/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 286/288  99% | Samples: 285/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 287/288  99% | Samples: 286/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+app_player   | Steps: 288/288 100% | Samples: 287/288 | accuracy: 0.94 | mockllm:  0/20 | HTTP retries: 0
+
+---------------------------------------------------------                      
+unseen_apps (72 x 4 samples): mockllm/model                                    
+epochs: 4, fail_on_error: False, max_samples: 4, player: haiku, conditions:    
+plain,reference,manual, seed: 20261108, max_actions: 250, manifest: ...,       
+taskset: bench, dataset: (samples)                                             
+                                                                               
+total time:                                   0:11:17                          
+hidden_tests                                                                   
+accuracy      0.944                                                            
+stderr        0.017                                                            
+reference     0.990                                                            
+plain         0.896                                                            
+manual        0.948                                                            
+all           0.944                                                            
+fix           0.979                                                            
+feature       0.896                                                            
+build         0.958                                                            
+all2          0.944                                                            
+easy          0.981                                                            
+hard          0.833                                                            
+medium        0.940                                                            
+all3          0.944                                                            
+Log:                                                                           
+out/experiment5/logs/2026-11-08T10-42-50-00-00_unseen-apps_YbEHjZSVcRfcUsURWeK…
+---------------------------------------------------------                      
+                                                                               

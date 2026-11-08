@@ -1,0 +1,680 @@
+Deviation 1 applied (docs/deviations5.md): Inspect's list form of `conditions` is compared as comma-joined text.
+
+PRIMARY  pass rate, manual vs plain: the manual helps (p = 0.0001)
+   D = +10.9 points over 24 tasks; 95% interval +6.2 to +15.7; bootstrap +6.8 to +15.6
+KEY SECONDARY  actions in won games, manual vs plain: the manual helps (p = 0.0000)
+   actions -43% over 24 tasks; 95% interval -53% to -32%; bootstrap -53% to -33%
+   left out (no player won them in both conditions): 0 []
+   players used per task: agenda-fix-left: haiku (4 vs 3 won), luna (4 vs 4 won); agenda-fix-order: haiku (4 vs 4 won), luna (4 vs 4 won); agenda-today: haiku (4 vs 4 won), luna (3 vs 3 won); agenda-week: haiku (4 vs 4 won), luna (4 vs 2 won); build-budget: haiku (4 vs 3 won), luna (4 vs 3 won); build-inbox: haiku (4 vs 4 won), luna (3 vs 1 won); build-light: haiku (4 vs 4 won), luna (3 vs 2 won); build-match: haiku (4 vs 4 won), luna (4 vs 4 won); build-notes: haiku (4 vs 3 won), luna (3 vs 3 won); build-pick: haiku (4 vs 4 won), luna (4 vs 3 won); build-plan: haiku (4 vs 3 won), luna (4 vs 4 won); build-words: haiku (3 vs 4 won), luna (4 vs 3 won); recipes-fav: haiku (3 vs 3 won), luna (3 vs 3 won); recipes-find: haiku (1 vs 1 won); recipes-fix-esc: haiku (4 vs 4 won), luna (4 vs 4 won); recipes-fix-nine: haiku (4 vs 4 won), luna (4 vs 1 won); scores-fix-minus: haiku (4 vs 4 won), luna (4 vs 4 won); scores-fix-save: haiku (4 vs 4 won), luna (4 vs 4 won); scores-sort: haiku (4 vs 4 won), luna (4 vs 3 won); scores-total: haiku (4 vs 4 won), luna (4 vs 4 won); shop-edit: haiku (4 vs 4 won), luna (4 vs 2 won); shop-empty: haiku (4 vs 3 won), luna (4 vs 3 won); shop-fix-enter: haiku (4 vs 4 won), luna (4 vs 3 won); shop-fix-up: haiku (4 vs 3 won), luna (4 vs 4 won)
+   (the two verdicts are separate questions; neither is corrected for the other, and there is no experiment-wide 5% guarantee)
+
+Descriptive (no verdict):
+  manual vs plain, haiku: pass rate +5.2 points (p = 0.125, 95% -0.1 to +10.5, bootstrap +0.0 to +10.4); actions -42% (p = 0.000, 95% -52% to -30%, bootstrap -52% to -32%, 24 tasks)
+  manual vs plain, luna: pass rate +16.7 points (p = 0.001, 95% +7.4 to +25.1, bootstrap +8.3 to +26.0); actions -43% (p = 0.000, 95% -54% to -29%, bootstrap -54% to -31%, 23 tasks)
+  reference vs plain, both players: pass rate +9.4 points (p = 0.002, 95% +3.8 to +14.8, bootstrap +4.7 to +14.6); actions -47% (p = 0.000, 95% -56% to -37%, bootstrap -56% to -38%, 24 tasks)
+  reference vs plain, haiku: pass rate +9.4 points (p = 0.008, 95% +3.1 to +15.7, bootstrap +4.2 to +15.6); actions -45% (p = 0.000, 95% -52% to -36%, bootstrap -52% to -37%, 24 tasks)
+  reference vs plain, luna: pass rate +9.4 points (p = 0.170, 95% -2.6 to +21.5, bootstrap -1.0 to +20.8); actions -50% (p = 0.000, 95% -61% to -35%, bootstrap -61% to -37%, 23 tasks)
+  manual vs reference, both players: pass rate +1.6 points (p = 0.633, 95% -2.9 to +6.3, bootstrap -2.6 to +5.7); actions +8% (p = 0.232, 95% -5% to +22%, bootstrap -4% to +21%, 24 tasks)
+  manual vs reference, haiku: pass rate -4.2 points (p = 0.250, 95% -9.1 to +0.1, bootstrap -9.4 to +0.0); actions +5% (p = 0.479, 95% -8% to +21%, bootstrap -7% to +21%, 24 tasks)
+  manual vs reference, luna: pass rate +7.3 points (p = 0.092, 95% -0.1 to +14.6, bootstrap +0.0 to +13.5); actions +13% (p = 0.100, 95% -2% to +32%, bootstrap -0% to +32%, 23 tasks)
+
+Wins per player and condition:
+  haiku: plain 86/96, reference 95/96, manual 91/96
+  luna: plain 71/96, reference 80/96, manual 87/96
+Wins by kind:
+  build: plain 52/64, reference 58/64, manual 60/64
+  feature: plain 47/64, reference 55/64, manual 54/64
+  fix: plain 58/64, reference 62/64, manual 64/64
+Wins by level:
+  easy: plain 93/104, reference 101/104, manual 102/104
+  hard: plain 20/32, reference 25/32, manual 24/32
+  medium: plain 44/56, reference 49/56, manual 52/56
+Wins per task (out of 8 per condition; Haiku + Luna):
+  agenda-fix-left      fix      easy    plain 3+4  reference 4+3  manual 4+4
+  agenda-fix-order     fix      easy    plain 4+4  reference 4+3  manual 4+4
+  agenda-today         feature  easy    plain 4+3  reference 4+4  manual 4+3
+  agenda-week          feature  medium  plain 4+2  reference 4+3  manual 4+4
+  build-budget         build    medium  plain 3+3  reference 4+3  manual 4+4
+  build-inbox          build    hard    plain 4+1  reference 4+4  manual 4+3
+  build-light          build    easy    plain 4+2  reference 4+4  manual 4+3
+  build-match          build    easy    plain 4+4  reference 4+4  manual 4+4
+  build-notes          build    medium  plain 3+3  reference 4+2  manual 4+3
+  build-pick           build    medium  plain 4+3  reference 4+3  manual 4+4
+  build-plan           build    hard    plain 3+4  reference 4+3  manual 4+4
+  build-words          build    medium  plain 4+3  reference 4+3  manual 3+4
+  recipes-fav          feature  medium  plain 3+3  reference 4+3  manual 3+3
+  recipes-find         feature  hard    plain 1+0  reference 3+0  manual 1+0
+  recipes-fix-esc      fix      easy    plain 4+4  reference 4+4  manual 4+4
+  recipes-fix-nine     fix      easy    plain 4+1  reference 4+4  manual 4+4
+  scores-fix-minus     fix      easy    plain 4+4  reference 4+4  manual 4+4
+  scores-fix-save      fix      easy    plain 4+4  reference 4+4  manual 4+4
+  scores-sort          feature  hard    plain 4+3  reference 4+3  manual 4+4
+  scores-total         feature  easy    plain 4+4  reference 4+4  manual 4+4
+  shop-edit            feature  medium  plain 4+2  reference 4+4  manual 4+4
+  shop-empty           feature  easy    plain 3+3  reference 4+3  manual 4+4
+  shop-fix-enter       fix      easy    plain 4+3  reference 4+4  manual 4+4
+  shop-fix-up          fix      easy    plain 3+4  reference 4+4  manual 4+4
+Median actions and minutes in won games:
+  haiku: plain 60 actions, 2.8 min (86 won); reference 35 actions, 2.2 min (95 won); manual 34 actions, 2.2 min (91 won)
+  luna: plain 55 actions, 4.2 min (71 won); reference 26 actions, 2.4 min (80 won); manual 27 actions, 2.4 min (87 won)
+Audit failures 22, OS crashes 0, time-outs 0
+Final games that were lost other than by failing hidden tests:
+  ('haiku', 'agenda-fix-left', 'plain', 2): agenda-fix-left-haiku-plain-bd9e02 AUDIT FAILURE ['cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 look', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide script"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide run"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 press esc', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "read desk:apps:agenda"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide read"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 press up up up up up up up up up up up up up up up up up up up up up up', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide view"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 press ctrl+u', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 press end backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace backspace', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "view desk:apps:agenda 1 20"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "view desk:apps:agenda-tests"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide edit"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "edit desk:apps:agenda 13 \'    set s.day to add_days(s.day, -1)\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "edit desk:apps:agenda 13     set s.day to add_days(s.day, -1)"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "view desk:apps:agenda 9 16"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "test desk:apps:agenda-tests"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide write"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "guide add"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "write desk:apps:leftcheck use \'desk:apps:agenda\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "add desk:apps:leftcheck test \'left goes to the previous day\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "add desk:apps:leftcheck   pretend today is \'2026-12-01\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "add desk:apps:leftcheck   launch \'desk:apps:agenda\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "add desk:apps:leftcheck   press \'left\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "add desk:apps:leftcheck   check screen_line(1) is \'2026-11-30 monday\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "add desk:apps:leftcheck   check screen_line(3) is \'(no events)\'"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "add desk:apps:leftcheck done"', 'cd "C:\\Users\\yentl\\AppData\\Local\\Temp\\unseen-games\\agenda-fix-left-haiku-plain-bd9e02" && python play.py agenda-fix-left-haiku-plain-bd9e02 line "test desk:apps:leftcheck"']
+  ('haiku', 'build-words', 'manual', 4): build-words-haiku-manual-1193a2 AUDIT FAILURE ['python play.py build-words-haiku-manual-1193a2 insert desk:apps:words 2 task start()']
+  ('haiku', 'recipes-fav', 'manual', 4): recipes-fav-haiku-manual-a44f6d AUDIT FAILURE ['python play.py recipes-fav-haiku-manual-a44f6d line edit desk:apps:recipes 45         set nm to item(s.names, n)']
+  ('haiku', 'shop-empty', 'plain', 3): shop-empty-haiku-plain-f0768e AUDIT FAILURE ['python play.py shop-empty-haiku-plain-f0768e line "insert desk:apps:shop 32 "  when count(s.items) is 0""']
+  ('haiku', 'shop-fix-up', 'plain', 2): shop-fix-up-haiku-plain-300f39 AUDIT FAILURE ['python play.py shop-fix-up-haiku-plain-300f39 line "edit desk:apps:shop 13 "  when k is \'up\' and s.picked > 1""']
+  ('luna', 'agenda-fix-left', 'reference', 1): agenda-fix-left-luna-reference-125391 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py agenda-fix-left-luna-reference-125391 edit desk:apps:agenda 13 set s.day to add_days(s.day, -1)\'']
+  ('luna', 'agenda-fix-order', 'reference', 3): agenda-fix-order-luna-reference-b91785 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py agenda-fix-order-luna-reference-b91785 insert apps:agenda 29 set rows to sort(rows)\'']
+  ('luna', 'agenda-week', 'plain', 4): agenda-week-luna-plain-7bc719 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py agenda-week-luna-plain-7bc719 line \\"insert desk:apps:agenda 37 \\\\\\"when has_key(s, \'week\') and s.week\\\\\\"\\""']
+  ('luna', 'agenda-week', 'reference', 4): agenda-week-luna-reference-657d90 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py line "view desk:apps:agenda 21 38"\'']
+  ('luna', 'build-budget', 'plain', 3): build-budget-luna-plain-289cec AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py press esc\'']
+  ('luna', 'build-inbox', 'plain', 4): build-inbox-luna-plain-76304e AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py build-inbox-luna-plain-76304e add desk:apps:inbox task mail_info(p)\'']
+  ('luna', 'build-plan', 'reference', 2): build-plan-luna-reference-b4256b AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py press esc\'']
+  ('luna', 'build-words', 'plain', 3): build-words-luna-plain-b33d0e AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py build apps\'']
+  ('luna', 'build-words', 'reference', 1): build-words-luna-reference-070723 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py line "guide"\'']
+  ('luna', 'recipes-fav', 'manual', 1): recipes-fav-luna-manual-aa48d9 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py recipes-fav-luna-manual-aa48d9 insert desk:apps:recipes 3 set favourites to []\'']
+  ('luna', 'recipes-fav', 'reference', 1): recipes-fav-luna-reference-1e5c1c AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py recipes-fav-luna-reference-1e5c1c edit apps:recipes 11 give {names: names, texts: texts, favorites: favorites, picked: 1, open: no}\'']
+  ('luna', 'recipes-fix-nine', 'plain', 3): recipes-fix-nine-luna-plain-52fce3 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py recipes-fix-nine-luna-plain-52fce3 line \\"edit desk:apps:recipes 14 \\\\\\"for each n in range(1, min(count(s.names), 23))\\\\\\"\\""']
+  ('luna', 'scores-sort', 'reference', 2): scores-sort-luna-reference-bbc8de AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py scores-sort-luna-reference-bbc8de insert apps:scores 23 task sort_players(players)\'']
+  ('luna', 'shop-edit', 'plain', 3): shop-edit-luna-plain-889d03 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py shop-edit-luna-plain-889d03 line \\"edit desk:apps:shop 21 \\\\\\"    or when k is \'ctrl+e\' and count(s.items) > 0\\\\\\"\\""']
+  ('luna', 'shop-empty', 'plain', 2): shop-empty-luna-plain-3be8e7 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py shop-empty-luna-plain-3be8e7 line \\"insert desk:apps:shop 39 \\\\\\"  when count(s.items) is 0\\\\\\"\\""', '"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command "python play.py shop-empty-luna-plain-3be8e7 line \'insert desk:apps:shop 40 \\"    show(1, 1, \'\\\\\'\'(empty)\'\\\\\'\')\\"\'"']
+  ('luna', 'shop-empty', 'reference', 4): shop-empty-luna-reference-6b96d3 AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py shop-empty-luna-reference-6b96d3 insert desk:apps:shop 32 when count(s.items) is 0\'']
+  ('luna', 'shop-fix-enter', 'plain', 2): shop-fix-enter-luna-plain-1018ad AUDIT FAILURE ['"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py shop-fix-enter-luna-plain-1018ad line "edit desk:apps:shop 17 `"    or when k is \'"\'enter\' and s.typing is not \'\'"\'`""\'', '"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py shop-fix-enter-luna-plain-1018ad line "edit desk:apps:shop 21 `"     or when k is \'"\'enter\'"\'`""\'', '"C:\\\\windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe" -Command \'python play.py shop-fix-enter-luna-plain-1018ad line "edit desk:apps:shop 17 `"   or when k is \'"\'enter\' and s.typing is not \'\'"\'`""\'']
+
+Every booked attempt, with its round and what became of it:
+  2026-11-07 19:39:22 round 0 haiku agenda-fix-order reference epoch 1 agenda-fix-order-haiku-reference-e06a81: final game: won
+  2026-11-07 19:39:22 round 0 haiku recipes-find reference epoch 1 recipes-find-haiku-reference-661aea: final game: won
+  2026-11-07 19:39:22 round 0 haiku scores-total plain epoch 1 scores-total-haiku-plain-651e3a: final game: won
+  2026-11-07 19:39:22 round 0 haiku build-inbox reference epoch 1 build-inbox-haiku-reference-14302e: final game: won
+  2026-11-07 19:39:23 round 0 luna agenda-fix-order reference epoch 1 agenda-fix-order-luna-reference-527cea: final game: won
+  2026-11-07 19:39:23 round 0 luna recipes-find reference epoch 1 recipes-find-luna-reference-d0bfc0: final game: lost
+  2026-11-07 19:39:23 round 0 luna scores-total plain epoch 1 scores-total-luna-plain-96ea8e: final game: won
+  2026-11-07 19:39:23 round 0 luna build-inbox reference epoch 1 build-inbox-luna-reference-8a84e8: final game: won
+  2026-11-07 19:39:54 round 0 haiku build-match reference epoch 1 build-match-haiku-reference-9b7186: final game: won
+  2026-11-07 19:39:58 round 0 luna build-match reference epoch 1 build-match-luna-reference-3ce20a: final game: won
+  2026-11-07 19:40:46 round 0 haiku build-budget reference epoch 1 build-budget-haiku-reference-288ca4: final game: won
+  2026-11-07 19:41:37 round 0 haiku scores-sort reference epoch 1 scores-sort-haiku-reference-d1b915: final game: won
+  2026-11-07 19:42:30 round 0 luna build-budget reference epoch 1 build-budget-luna-reference-96160b: final game: won
+  2026-11-07 19:42:31 round 0 luna scores-sort reference epoch 1 scores-sort-luna-reference-cd55f0: final game: won
+  2026-11-07 19:45:20 round 0 haiku scores-fix-save plain epoch 1 scores-fix-save-haiku-plain-1078c8: final game: won
+  2026-11-07 19:45:53 round 0 luna scores-fix-save plain epoch 1 scores-fix-save-luna-plain-22f286: final game: won
+  2026-11-07 19:46:26 round 0 haiku shop-edit plain epoch 1 shop-edit-haiku-plain-5b4395: final game: won
+  2026-11-07 19:46:37 round 0 haiku build-plan manual epoch 1 build-plan-haiku-manual-3534a1: final game: won
+  2026-11-07 19:47:12 round 0 luna shop-edit plain epoch 1 shop-edit-luna-plain-7d2bec: final game: lost
+  2026-11-07 19:47:55 round 0 luna build-plan manual epoch 1 build-plan-luna-manual-c11c32: final game: won
+  2026-11-07 19:47:56 round 0 luna recipes-find manual epoch 1 recipes-find-luna-manual-c38453: final game: lost
+  2026-11-07 19:48:31 round 0 haiku recipes-find manual epoch 1 recipes-find-haiku-manual-d41317: final game: lost
+  2026-11-07 19:48:48 round 0 haiku build-plan reference epoch 1 build-plan-haiku-reference-1d01d9: final game: won
+  2026-11-07 19:48:50 round 0 haiku scores-fix-save reference epoch 1 scores-fix-save-haiku-reference-0f88e3: final game: won
+  2026-11-07 19:48:56 round 0 luna build-plan reference epoch 1 build-plan-luna-reference-54ec47: final game: won
+  2026-11-07 19:49:06 round 0 luna scores-fix-save reference epoch 1 scores-fix-save-luna-reference-9e95e5: final game: won
+  2026-11-07 19:49:34 round 0 haiku agenda-today plain epoch 1 agenda-today-haiku-plain-d2ecf8: final game: won
+  2026-11-07 19:49:47 round 0 luna agenda-today plain epoch 1 agenda-today-luna-plain-d21438: final game: lost
+  2026-11-07 19:51:33 round 0 haiku scores-fix-minus manual epoch 1 scores-fix-minus-haiku-manual-a52e1f: final game: won
+  2026-11-07 19:52:22 round 0 haiku recipes-fix-nine reference epoch 1 recipes-fix-nine-haiku-reference-654453: final game: won
+  2026-11-07 19:52:52 round 0 haiku shop-edit reference epoch 1 shop-edit-haiku-reference-670169: final game: won
+  2026-11-07 19:52:58 round 0 haiku recipes-fav plain epoch 1 recipes-fav-haiku-plain-621312: final game: won
+  2026-11-07 19:53:16 round 0 haiku scores-sort manual epoch 1 scores-sort-haiku-manual-d123e8: final game: won
+  2026-11-07 19:55:23 round 0 haiku build-inbox plain epoch 1 build-inbox-haiku-plain-27cc00: final game: won
+  2026-11-07 19:56:27 round 0 haiku build-inbox manual epoch 1 build-inbox-haiku-manual-ad8080: final game: won
+  2026-11-07 19:56:39 round 0 haiku agenda-week reference epoch 1 agenda-week-haiku-reference-fbf728: final game: won
+  2026-11-07 19:58:00 round 0 luna scores-fix-minus manual epoch 1 scores-fix-minus-luna-manual-e8cb46: final game: won
+  2026-11-07 19:58:55 round 0 haiku shop-fix-enter manual epoch 1 shop-fix-enter-haiku-manual-246b2d: final game: won
+  2026-11-07 19:59:10 round 0 luna recipes-fix-nine reference epoch 1 recipes-fix-nine-luna-reference-be2fd0: final game: won
+  2026-11-07 19:59:49 round 0 luna shop-edit reference epoch 1 shop-edit-luna-reference-7065bd: final game: won
+  2026-11-07 20:00:01 round 0 luna recipes-fav plain epoch 1 recipes-fav-luna-plain-51b138: final game: won
+  2026-11-07 20:00:26 round 0 luna scores-sort manual epoch 1 scores-sort-luna-manual-99f1e3: final game: won
+  2026-11-07 20:00:42 round 0 haiku shop-fix-enter plain epoch 1 shop-fix-enter-haiku-plain-5e5e2a: final game: won
+  2026-11-07 20:01:43 round 0 luna build-inbox plain epoch 1 build-inbox-luna-plain-06ed78: final game: lost
+  2026-11-07 20:02:24 round 0 luna build-inbox manual epoch 1 build-inbox-luna-manual-9e80eb: final game: won
+  2026-11-07 20:02:30 round 0 haiku scores-fix-minus plain epoch 1 scores-fix-minus-haiku-plain-6c2634: final game: won
+  2026-11-07 20:02:52 round 0 haiku build-match plain epoch 1 build-match-haiku-plain-78a9a2: final game: won
+  2026-11-07 20:04:02 round 0 luna agenda-week reference epoch 1 agenda-week-luna-reference-4803b1: final game: won
+  2026-11-07 20:04:19 round 0 haiku agenda-today manual epoch 1 agenda-today-haiku-manual-5b0242: final game: won
+  2026-11-07 20:04:23 round 0 haiku build-words manual epoch 1 build-words-haiku-manual-85aeaf: final game: won
+  2026-11-07 20:04:59 round 0 haiku recipes-fav manual epoch 1 recipes-fav-haiku-manual-acc21e: final game: won
+  2026-11-07 20:05:08 round 0 haiku build-light plain epoch 1 build-light-haiku-plain-920da9: final game: won
+  2026-11-07 20:06:09 round 0 haiku shop-empty manual epoch 1 shop-empty-haiku-manual-78ad11: final game: won
+  2026-11-07 20:06:53 round 0 luna shop-fix-enter manual epoch 1 shop-fix-enter-luna-manual-c33558: final game: won
+  2026-11-07 20:07:20 round 0 haiku scores-fix-save manual epoch 1 scores-fix-save-haiku-manual-f18ad5: final game: won
+  2026-11-07 20:07:43 round 0 luna shop-fix-enter plain epoch 1 shop-fix-enter-luna-plain-058b93: final game: won
+  2026-11-07 20:07:56 round 0 haiku build-match manual epoch 1 build-match-haiku-manual-65e2dd: final game: won
+  2026-11-07 20:08:08 round 0 haiku build-plan plain epoch 1 build-plan-haiku-plain-12b9af: final game: lost
+  2026-11-07 20:08:41 round 0 haiku build-pick reference epoch 1 build-pick-haiku-reference-35db15: final game: won
+  2026-11-07 20:08:52 round 0 luna scores-fix-minus plain epoch 1 scores-fix-minus-luna-plain-615849: final game: won
+  2026-11-07 20:08:59 round 0 luna build-match plain epoch 1 build-match-luna-plain-bb90c1: final game: won
+  2026-11-07 20:09:09 round 0 luna agenda-today manual epoch 1 agenda-today-luna-manual-054188: final game: won
+  2026-11-07 20:09:46 round 0 luna build-words manual epoch 1 build-words-luna-manual-e49990: final game: won
+  2026-11-07 20:09:53 round 0 haiku recipes-fix-esc plain epoch 1 recipes-fix-esc-haiku-plain-6de530: final game: won
+  2026-11-07 20:10:51 round 0 luna recipes-fav manual epoch 1 recipes-fav-luna-manual-aa48d9: final game: lost
+  2026-11-07 20:11:00 round 0 haiku recipes-fix-esc reference epoch 1 recipes-fix-esc-haiku-reference-88a90a: final game: won
+  2026-11-07 20:11:19 round 0 luna build-light plain epoch 1 build-light-luna-plain-cfa064: final game: lost
+  2026-11-07 20:11:44 round 0 haiku agenda-fix-left reference epoch 1 agenda-fix-left-haiku-reference-7f29fc: final game: won
+  2026-11-07 20:12:28 round 0 haiku scores-total manual epoch 1 scores-total-haiku-manual-f17089: final game: won
+  2026-11-07 20:12:46 round 0 haiku scores-fix-minus reference epoch 1 scores-fix-minus-haiku-reference-f3df74: final game: won
+  2026-11-07 20:13:17 round 0 luna shop-empty manual epoch 1 shop-empty-luna-manual-eb1e5e: final game: won
+  2026-11-07 20:13:29 round 0 haiku build-words reference epoch 1 build-words-haiku-reference-670997: final game: won
+  2026-11-07 20:14:27 round 0 haiku agenda-fix-left plain epoch 1 agenda-fix-left-haiku-plain-f07b1e: final game: won
+  2026-11-07 20:14:54 round 0 luna scores-fix-save manual epoch 1 scores-fix-save-luna-manual-bf6626: final game: won
+  2026-11-07 20:15:03 round 0 luna build-match manual epoch 1 build-match-luna-manual-7593dc: final game: won
+  2026-11-07 20:15:04 round 0 haiku recipes-find plain epoch 1 recipes-find-haiku-plain-4c7ada: final game: lost
+  2026-11-07 20:15:07 round 0 luna build-plan plain epoch 1 build-plan-luna-plain-a9c43a: harness error, re-run: ['codex turn.failed: {"type": "turn.failed", "error": {"message": "Incomplete response returned, reason: max_output_tokens"}}']
+  2026-11-07 20:15:30 round 0 haiku agenda-week plain epoch 1 agenda-week-haiku-plain-3c56f7: final game: won
+  2026-11-07 20:15:51 round 0 luna build-pick reference epoch 1 build-pick-luna-reference-ec487e: final game: won
+  2026-11-07 20:16:06 round 0 luna recipes-fix-esc plain epoch 1 recipes-fix-esc-luna-plain-8cd16f: final game: won
+  2026-11-07 20:16:12 round 0 haiku recipes-fix-nine plain epoch 1 recipes-fix-nine-haiku-plain-e2cf49: final game: won
+  2026-11-07 20:17:25 round 0 luna recipes-fix-esc reference epoch 1 recipes-fix-esc-luna-reference-8d4f68: final game: won
+  2026-11-07 20:18:14 round 0 luna agenda-fix-left reference epoch 1 agenda-fix-left-luna-reference-125391: final game: lost
+  2026-11-07 20:18:18 round 0 haiku agenda-fix-left manual epoch 1 agenda-fix-left-haiku-manual-25e3c2: final game: won
+  2026-11-07 20:18:47 round 0 haiku build-notes manual epoch 1 build-notes-haiku-manual-d744fa: final game: won
+  2026-11-07 20:18:57 round 0 luna scores-total manual epoch 1 scores-total-luna-manual-c58440: final game: won
+  2026-11-07 20:20:48 round 0 luna scores-fix-minus reference epoch 1 scores-fix-minus-luna-reference-d65fca: final game: won
+  2026-11-07 20:21:14 round 0 haiku shop-fix-up plain epoch 1 shop-fix-up-haiku-plain-5918c6: final game: won
+  2026-11-07 20:21:39 round 0 luna build-words reference epoch 1 build-words-luna-reference-070723: final game: lost
+  2026-11-07 20:22:29 round 0 haiku build-pick manual epoch 1 build-pick-haiku-manual-2a6df4: final game: won
+  2026-11-07 20:22:49 round 0 luna agenda-fix-left plain epoch 1 agenda-fix-left-luna-plain-91b679: final game: won
+  2026-11-07 20:23:01 round 0 haiku build-notes reference epoch 1 build-notes-haiku-reference-ede0ed: final game: won
+  2026-11-07 20:23:24 round 0 haiku build-budget plain epoch 1 build-budget-haiku-plain-3f2cfc: final game: won
+  2026-11-07 20:23:27 round 0 luna recipes-find plain epoch 1 recipes-find-luna-plain-69c718: final game: lost
+  2026-11-07 20:23:59 round 0 haiku recipes-fav reference epoch 1 recipes-fav-haiku-reference-7061ba: final game: won
+  2026-11-07 20:25:02 round 0 luna agenda-week plain epoch 1 agenda-week-luna-plain-08fda2: harness error, re-run: ['codex turn.failed: {"type": "turn.failed", "error": {"message": "Incomplete response returned, reason: max_output_tokens"}}']
+  2026-11-07 20:26:09 round 0 luna recipes-fix-nine plain epoch 1 recipes-fix-nine-luna-plain-f64018: final game: won
+  2026-11-07 20:26:27 round 0 luna agenda-fix-left manual epoch 1 agenda-fix-left-luna-manual-aed1d8: final game: won
+  2026-11-07 20:27:28 round 0 luna build-notes manual epoch 1 build-notes-luna-manual-489589: final game: won
+  2026-11-07 20:27:29 round 0 haiku shop-edit manual epoch 1 shop-edit-haiku-manual-7409a4: final game: won
+  2026-11-07 20:27:50 round 0 luna shop-fix-up plain epoch 1 shop-fix-up-luna-plain-0a5186: final game: won
+  2026-11-07 20:28:24 round 0 haiku shop-fix-up manual epoch 1 shop-fix-up-haiku-manual-a9536b: final game: won
+  2026-11-07 20:28:32 round 0 haiku build-light manual epoch 1 build-light-haiku-manual-151fd8: final game: won
+  2026-11-07 20:29:10 round 0 haiku shop-fix-enter reference epoch 1 shop-fix-enter-haiku-reference-bbe85a: final game: won
+  2026-11-07 20:29:27 round 0 haiku agenda-fix-order plain epoch 1 agenda-fix-order-haiku-plain-f0d9be: final game: won
+  2026-11-07 20:30:45 round 0 luna build-pick manual epoch 1 build-pick-luna-manual-d60aac: final game: won
+  2026-11-07 20:30:59 round 0 haiku agenda-today reference epoch 1 agenda-today-haiku-reference-515d57: final game: won
+  2026-11-07 20:31:05 round 0 haiku agenda-week manual epoch 1 agenda-week-haiku-manual-de88db: final game: won
+  2026-11-07 20:31:06 round 0 haiku shop-empty plain epoch 1 shop-empty-haiku-plain-8e1f4e: final game: won
+  2026-11-07 20:32:00 round 0 luna build-notes reference epoch 1 build-notes-luna-reference-0a503b: final game: lost
+  2026-11-07 20:32:09 round 0 haiku scores-sort plain epoch 1 scores-sort-haiku-plain-6854bc: final game: won
+  2026-11-07 20:32:39 round 0 haiku build-pick plain epoch 1 build-pick-haiku-plain-60d921: final game: won
+  2026-11-07 20:32:45 round 0 haiku agenda-fix-order manual epoch 1 agenda-fix-order-haiku-manual-4ba2b1: final game: won
+  2026-11-07 20:33:23 round 0 haiku build-budget manual epoch 1 build-budget-haiku-manual-e49355: final game: won
+  2026-11-07 20:35:32 round 0 haiku scores-total reference epoch 1 scores-total-haiku-reference-4bab74: final game: won
+  2026-11-07 20:36:39 round 0 haiku build-words plain epoch 1 build-words-haiku-plain-451925: final game: won
+  2026-11-07 20:37:39 round 0 luna build-budget plain epoch 1 build-budget-luna-plain-8d842a: final game: won
+  2026-11-07 20:38:41 round 0 haiku shop-empty reference epoch 1 shop-empty-haiku-reference-7a8f31: final game: won
+  2026-11-07 20:38:55 round 0 luna recipes-fav reference epoch 1 recipes-fav-luna-reference-1e5c1c: final game: lost
+  2026-11-07 20:39:17 round 0 haiku build-light reference epoch 1 build-light-haiku-reference-fd6872: final game: won
+  2026-11-07 20:39:34 round 0 haiku recipes-fix-nine manual epoch 1 recipes-fix-nine-haiku-manual-67c709: final game: won
+  2026-11-07 20:40:05 round 0 haiku shop-fix-up reference epoch 1 shop-fix-up-haiku-reference-ba5054: final game: won
+  2026-11-07 20:41:31 round 0 haiku build-notes plain epoch 1 build-notes-haiku-plain-9a0e29: final game: won
+  2026-11-07 20:41:36 round 0 haiku recipes-fix-esc manual epoch 1 recipes-fix-esc-haiku-manual-d6df84: final game: won
+  2026-11-07 20:41:47 round 0 haiku agenda-fix-order reference epoch 2 agenda-fix-order-haiku-reference-20a434: final game: won
+  2026-11-07 20:42:19 round 0 haiku recipes-find reference epoch 2 recipes-find-haiku-reference-e04e30: final game: lost
+  2026-11-07 20:43:10 round 0 luna shop-edit manual epoch 1 shop-edit-luna-manual-81db44: final game: won
+  2026-11-07 20:43:30 round 0 haiku scores-total plain epoch 2 scores-total-haiku-plain-5433c1: final game: won
+  2026-11-07 20:43:35 round 0 haiku build-inbox reference epoch 2 build-inbox-haiku-reference-48f6ad: final game: won
+  2026-11-07 20:44:51 round 0 haiku build-match reference epoch 2 build-match-haiku-reference-245c2a: final game: won
+  2026-11-07 20:45:12 round 0 luna shop-fix-up manual epoch 1 shop-fix-up-luna-manual-9d0e36: final game: won
+  2026-11-07 20:45:59 round 0 luna build-light manual epoch 1 build-light-luna-manual-b4b604: final game: won
+  2026-11-07 20:46:47 round 0 haiku build-budget reference epoch 2 build-budget-haiku-reference-6eb7e8: final game: won
+  2026-11-07 20:47:01 round 0 haiku scores-sort reference epoch 2 scores-sort-haiku-reference-8ef652: final game: won
+  2026-11-07 20:47:07 round 0 luna shop-fix-enter reference epoch 1 shop-fix-enter-luna-reference-db375e: final game: won
+  2026-11-07 20:48:13 round 0 haiku scores-fix-save plain epoch 2 scores-fix-save-haiku-plain-64b4aa: final game: won
+  2026-11-07 20:48:40 round 0 luna agenda-fix-order plain epoch 1 agenda-fix-order-luna-plain-e60c0e: final game: won
+  2026-11-07 20:49:31 round 0 luna agenda-today reference epoch 1 agenda-today-luna-reference-29edfd: final game: won
+  2026-11-07 20:49:34 round 0 haiku shop-edit plain epoch 2 shop-edit-haiku-plain-921540: final game: won
+  2026-11-07 20:51:05 round 0 luna agenda-week manual epoch 1 agenda-week-luna-manual-ffb72c: final game: won
+  2026-11-07 20:51:19 round 0 haiku build-plan manual epoch 2 build-plan-haiku-manual-f0526d: final game: won
+  2026-11-07 20:51:40 round 0 luna shop-empty plain epoch 1 shop-empty-luna-plain-fe631d: final game: won
+  2026-11-07 20:51:50 round 0 haiku recipes-find manual epoch 2 recipes-find-haiku-manual-7bb12e: final game: won
+  2026-11-07 20:52:19 round 0 haiku build-plan reference epoch 2 build-plan-haiku-reference-2fb7bd: final game: won
+  2026-11-07 20:53:15 round 0 haiku scores-fix-save reference epoch 2 scores-fix-save-haiku-reference-992f33: final game: won
+  2026-11-07 20:54:04 round 0 haiku agenda-today plain epoch 2 agenda-today-haiku-plain-136546: final game: won
+  2026-11-07 20:54:23 round 0 luna build-plan plain epoch 1 build-plan-luna-plain-3f2068: final game: won
+  2026-11-07 20:54:35 round 0 luna scores-sort plain epoch 1 scores-sort-luna-plain-d79310: final game: lost
+  2026-11-07 20:55:46 round 0 haiku scores-fix-minus manual epoch 2 scores-fix-minus-haiku-manual-c25a3c: final game: won
+  2026-11-07 20:56:06 round 0 luna build-pick plain epoch 1 build-pick-luna-plain-680916: final game: won
+  2026-11-07 20:56:16 round 0 haiku recipes-fix-nine reference epoch 2 recipes-fix-nine-haiku-reference-d34a93: final game: won
+  2026-11-07 20:57:04 round 0 haiku shop-edit reference epoch 2 shop-edit-haiku-reference-fdea0a: final game: won
+  2026-11-07 20:57:34 round 0 haiku recipes-fav plain epoch 2 recipes-fav-haiku-plain-4eb426: final game: won
+  2026-11-07 20:57:49 round 0 haiku scores-sort manual epoch 2 scores-sort-haiku-manual-0b5e4b: final game: won
+  2026-11-07 20:58:03 round 0 luna agenda-fix-order manual epoch 1 agenda-fix-order-luna-manual-149d9e: final game: won
+  2026-11-07 20:58:47 round 0 luna build-budget manual epoch 1 build-budget-luna-manual-d68cb3: final game: won
+  2026-11-07 20:59:49 round 0 haiku build-inbox plain epoch 2 build-inbox-haiku-plain-bd8133: final game: won
+  2026-11-07 21:01:31 round 0 haiku build-inbox manual epoch 2 build-inbox-haiku-manual-8f06db: final game: won
+  2026-11-07 21:02:19 round 0 haiku agenda-week reference epoch 2 agenda-week-haiku-reference-e48eab: final game: won
+  2026-11-07 21:02:20 round 0 haiku shop-fix-enter manual epoch 2 shop-fix-enter-haiku-manual-2cb48a: final game: won
+  2026-11-07 21:02:38 round 0 luna scores-total reference epoch 1 scores-total-luna-reference-9dfa5f: final game: won
+  2026-11-07 21:03:51 round 0 luna build-words plain epoch 1 build-words-luna-plain-f4503b: final game: won
+  2026-11-07 21:04:01 round 0 haiku shop-fix-enter plain epoch 2 shop-fix-enter-haiku-plain-099b03: final game: won
+  2026-11-07 21:04:57 round 0 luna shop-empty reference epoch 1 shop-empty-luna-reference-ccccea: final game: won
+  2026-11-07 21:05:00 round 0 luna build-light reference epoch 1 build-light-luna-reference-5012a0: final game: won
+  2026-11-07 21:05:22 round 0 luna agenda-week plain epoch 1 agenda-week-luna-plain-3bfe9d: final game: won
+  2026-11-07 21:06:33 round 0 haiku scores-fix-minus plain epoch 2 scores-fix-minus-haiku-plain-01894f: final game: won
+  2026-11-07 21:06:50 round 0 luna recipes-fix-nine manual epoch 1 recipes-fix-nine-luna-manual-f22256: final game: won
+  2026-11-07 21:07:40 round 0 haiku build-match plain epoch 2 build-match-haiku-plain-564086: final game: won
+  2026-11-07 21:07:50 round 0 luna shop-fix-up reference epoch 1 shop-fix-up-luna-reference-69adf8: final game: won
+  2026-11-07 21:07:54 round 0 luna build-notes plain epoch 1 build-notes-luna-plain-082e2c: final game: won
+  2026-11-07 21:08:33 round 0 luna recipes-fix-esc manual epoch 1 recipes-fix-esc-luna-manual-63af2a: final game: won
+  2026-11-07 21:08:34 round 0 haiku agenda-today manual epoch 2 agenda-today-haiku-manual-62e8a5: final game: won
+  2026-11-07 21:08:35 round 0 luna agenda-fix-order reference epoch 2 agenda-fix-order-luna-reference-a18787: final game: won
+  2026-11-07 21:09:17 round 0 luna recipes-find reference epoch 2 recipes-find-luna-reference-a44b67: final game: lost
+  2026-11-07 21:09:24 round 0 luna scores-total plain epoch 2 scores-total-luna-plain-999e75: final game: won
+  2026-11-07 21:11:03 round 0 haiku build-words manual epoch 2 build-words-haiku-manual-d9fbad: final game: won
+  2026-11-07 21:11:04 round 0 haiku recipes-fav manual epoch 2 recipes-fav-haiku-manual-931ef9: final game: won
+  2026-11-07 21:11:05 round 0 haiku build-light plain epoch 2 build-light-haiku-plain-3c1da5: final game: won
+  2026-11-07 21:11:49 round 0 luna build-inbox reference epoch 2 build-inbox-luna-reference-d3a2f8: final game: won
+  2026-11-07 21:12:11 round 0 haiku shop-empty manual epoch 2 shop-empty-haiku-manual-b90095: final game: won
+  2026-11-07 21:13:48 round 0 haiku scores-fix-save manual epoch 2 scores-fix-save-haiku-manual-c11269: final game: won
+  2026-11-07 21:14:05 round 0 haiku build-match manual epoch 2 build-match-haiku-manual-ebaee5: final game: won
+  2026-11-07 21:14:20 round 0 haiku build-plan plain epoch 2 build-plan-haiku-plain-6666a7: final game: won
+  2026-11-07 21:14:46 round 0 haiku build-pick reference epoch 2 build-pick-haiku-reference-b827e7: final game: won
+  2026-11-07 21:14:52 round 0 luna build-match reference epoch 2 build-match-luna-reference-eadd98: final game: won
+  2026-11-07 21:15:51 round 0 haiku recipes-fix-esc plain epoch 2 recipes-fix-esc-haiku-plain-1ae777: final game: won
+  2026-11-07 21:17:17 round 0 haiku recipes-fix-esc reference epoch 2 recipes-fix-esc-haiku-reference-001b53: final game: won
+  2026-11-07 21:17:19 round 0 luna build-budget reference epoch 2 build-budget-luna-reference-e46cb3: final game: lost
+  2026-11-07 21:17:49 round 0 luna scores-sort reference epoch 2 scores-sort-luna-reference-bbc8de: final game: lost
+  2026-11-07 21:17:56 round 0 haiku agenda-fix-left reference epoch 2 agenda-fix-left-haiku-reference-6468e1: final game: won
+  2026-11-07 21:18:35 round 0 luna scores-fix-save plain epoch 2 scores-fix-save-luna-plain-ec6ea6: final game: won
+  2026-11-07 21:19:30 round 0 haiku scores-total manual epoch 2 scores-total-haiku-manual-fb55bd: final game: won
+  2026-11-07 21:19:43 round 0 haiku scores-fix-minus reference epoch 2 scores-fix-minus-haiku-reference-a31e7f: final game: won
+  2026-11-07 21:20:02 round 0 luna shop-edit plain epoch 2 shop-edit-luna-plain-ce332e: final game: won
+  2026-11-07 21:20:28 round 0 luna build-plan manual epoch 2 build-plan-luna-manual-2bf019: final game: won
+  2026-11-07 21:20:41 round 0 haiku build-words reference epoch 2 build-words-haiku-reference-9f07a5: final game: won
+  2026-11-07 21:20:42 round 0 haiku agenda-fix-left plain epoch 2 agenda-fix-left-haiku-plain-bd9e02: final game: lost
+  2026-11-07 21:21:38 round 0 haiku recipes-find plain epoch 2 recipes-find-haiku-plain-b7227c: final game: lost
+  2026-11-07 21:22:19 round 0 luna recipes-find manual epoch 2 recipes-find-luna-manual-e46f77: final game: lost
+  2026-11-07 21:22:21 round 0 haiku agenda-week plain epoch 2 agenda-week-haiku-plain-2015fe: final game: won
+  2026-11-07 21:22:34 round 0 haiku recipes-fix-nine plain epoch 2 recipes-fix-nine-haiku-plain-9d91f3: final game: won
+  2026-11-07 21:23:15 round 0 haiku agenda-fix-left manual epoch 2 agenda-fix-left-haiku-manual-030c21: final game: won
+  2026-11-07 21:23:26 round 0 luna build-plan reference epoch 2 build-plan-luna-reference-b4256b: final game: lost
+  2026-11-07 21:23:54 round 0 haiku build-notes manual epoch 2 build-notes-haiku-manual-458ad6: final game: won
+  2026-11-07 21:24:23 round 0 luna scores-fix-save reference epoch 2 scores-fix-save-luna-reference-4f593f: final game: won
+  2026-11-07 21:24:34 round 0 haiku shop-fix-up plain epoch 2 shop-fix-up-haiku-plain-300f39: final game: lost
+  2026-11-07 21:25:07 round 0 luna agenda-today plain epoch 2 agenda-today-luna-plain-70915d: final game: won
+  2026-11-07 21:25:22 round 0 haiku build-pick manual epoch 2 build-pick-haiku-manual-eab5b0: final game: won
+  2026-11-07 21:26:34 round 0 luna scores-fix-minus manual epoch 2 scores-fix-minus-luna-manual-3e185c: final game: won
+  2026-11-07 21:27:59 round 0 haiku build-notes reference epoch 2 build-notes-haiku-reference-1dd28f: final game: won
+  2026-11-07 21:28:27 round 0 luna recipes-fix-nine reference epoch 2 recipes-fix-nine-luna-reference-30e06e: final game: won
+  2026-11-07 21:28:50 round 0 luna shop-edit reference epoch 2 shop-edit-luna-reference-04af4e: final game: won
+  2026-11-07 21:29:12 round 0 haiku build-budget plain epoch 2 build-budget-haiku-plain-7938b6: final game: won
+  2026-11-07 21:29:14 round 0 luna recipes-fav plain epoch 2 recipes-fav-luna-plain-c75ddc: harness error, re-run: ['codex turn.failed: {"type": "turn.failed", "error": {"message": "Incomplete response returned, reason: max_output_tokens"}}']
+  2026-11-07 21:30:19 round 0 haiku recipes-fav reference epoch 2 recipes-fav-haiku-reference-05e645: final game: won
+  2026-11-07 21:32:07 round 0 haiku shop-edit manual epoch 2 shop-edit-haiku-manual-c9b4cb: final game: won
+  2026-11-07 21:32:30 round 0 haiku shop-fix-up manual epoch 2 shop-fix-up-haiku-manual-6d15e7: final game: won
+  2026-11-07 21:32:35 round 0 luna scores-sort manual epoch 2 scores-sort-luna-manual-b9d72e: final game: won
+  2026-11-07 21:33:14 round 0 haiku build-light manual epoch 2 build-light-haiku-manual-38f937: final game: won
+  2026-11-07 21:33:48 round 0 haiku shop-fix-enter reference epoch 2 shop-fix-enter-haiku-reference-9e3845: final game: won
+  2026-11-07 21:34:04 round 0 luna build-inbox plain epoch 2 build-inbox-luna-plain-96e3e0: final game: lost
+  2026-11-07 21:34:54 round 0 haiku agenda-fix-order plain epoch 2 agenda-fix-order-haiku-plain-5d8078: final game: won
+  2026-11-07 21:35:30 round 0 haiku agenda-today reference epoch 2 agenda-today-haiku-reference-c0aa33: final game: won
+  2026-11-07 21:35:46 round 0 haiku agenda-week manual epoch 2 agenda-week-haiku-manual-2d24a2: final game: won
+  2026-11-07 21:35:56 round 0 luna build-inbox manual epoch 2 build-inbox-luna-manual-464ea3: final game: lost
+  2026-11-07 21:36:15 round 0 haiku shop-empty plain epoch 2 shop-empty-haiku-plain-78e8a3: final game: won
+  2026-11-07 21:36:26 round 0 luna agenda-week reference epoch 2 agenda-week-luna-reference-d8687e: final game: won
+  2026-11-07 21:36:45 round 0 haiku scores-sort plain epoch 2 scores-sort-haiku-plain-d901fd: final game: won
+  2026-11-07 21:37:04 round 0 haiku build-pick plain epoch 2 build-pick-haiku-plain-f5cddc: final game: won
+  2026-11-07 21:37:58 round 0 haiku agenda-fix-order manual epoch 2 agenda-fix-order-haiku-manual-a0b18c: final game: won
+  2026-11-07 21:38:36 round 0 haiku build-budget manual epoch 2 build-budget-haiku-manual-2f82e4: final game: won
+  2026-11-07 21:39:26 round 0 luna shop-fix-enter manual epoch 2 shop-fix-enter-luna-manual-b2895c: final game: won
+  2026-11-07 21:40:50 round 0 luna shop-fix-enter plain epoch 2 shop-fix-enter-luna-plain-1018ad: final game: lost
+  2026-11-07 21:41:01 round 0 luna scores-fix-minus plain epoch 2 scores-fix-minus-luna-plain-c742ed: final game: won
+  2026-11-07 21:41:16 round 0 luna build-match plain epoch 2 build-match-luna-plain-66f649: final game: won
+  2026-11-07 21:42:15 round 0 haiku scores-total reference epoch 2 scores-total-haiku-reference-d1055c: final game: won
+  2026-11-07 21:42:18 round 0 haiku build-words plain epoch 2 build-words-haiku-plain-e22f09: final game: won
+  2026-11-07 21:42:34 round 0 luna agenda-today manual epoch 2 agenda-today-luna-manual-8654a4: final game: lost
+  2026-11-07 21:43:21 round 0 haiku shop-empty reference epoch 2 shop-empty-haiku-reference-8ccd1c: final game: won
+  2026-11-07 21:43:47 round 0 haiku build-light reference epoch 2 build-light-haiku-reference-783e95: final game: won
+  2026-11-07 21:44:49 round 0 luna build-words manual epoch 2 build-words-luna-manual-4e66db: final game: won
+  2026-11-07 21:45:29 round 0 luna recipes-fav manual epoch 2 recipes-fav-luna-manual-6806a4: final game: won
+  2026-11-07 21:45:29 round 0 luna build-light plain epoch 2 build-light-luna-plain-4bd9e6: final game: won
+  2026-11-07 21:45:45 round 0 haiku recipes-fix-nine manual epoch 2 recipes-fix-nine-haiku-manual-1e1c31: final game: won
+  2026-11-07 21:45:57 round 0 haiku shop-fix-up reference epoch 2 shop-fix-up-haiku-reference-a835c8: final game: won
+  2026-11-07 21:46:00 round 0 haiku build-notes plain epoch 2 build-notes-haiku-plain-cc5599: final game: lost
+  2026-11-07 21:46:42 round 0 haiku recipes-fix-esc manual epoch 2 recipes-fix-esc-haiku-manual-eecf4e: final game: won
+  2026-11-07 21:46:56 round 0 haiku agenda-fix-order reference epoch 3 agenda-fix-order-haiku-reference-d74e8e: final game: won
+  2026-11-07 21:47:22 round 0 haiku recipes-find reference epoch 3 recipes-find-haiku-reference-741a55: final game: won
+  2026-11-07 21:47:28 round 0 haiku scores-total plain epoch 3 scores-total-haiku-plain-5bc5a2: final game: won
+  2026-11-07 21:47:43 round 0 haiku build-inbox reference epoch 3 build-inbox-haiku-reference-c19bab: final game: won
+  2026-11-07 21:48:16 round 0 luna shop-empty manual epoch 2 shop-empty-luna-manual-7cbdce: final game: won
+  2026-11-07 21:48:42 round 0 haiku build-match reference epoch 3 build-match-haiku-reference-7631e4: final game: won
+  2026-11-07 21:49:47 round 0 luna scores-fix-save manual epoch 2 scores-fix-save-luna-manual-929817: final game: won
+  2026-11-07 21:49:50 round 0 luna build-match manual epoch 2 build-match-luna-manual-eb4186: final game: won
+  2026-11-07 21:50:31 round 0 luna build-plan plain epoch 2 build-plan-luna-plain-6d26a6: final game: won
+  2026-11-07 21:50:39 round 0 luna build-pick reference epoch 2 build-pick-luna-reference-ebf321: final game: lost
+  2026-11-07 21:50:58 round 0 haiku build-budget reference epoch 3 build-budget-haiku-reference-939159: final game: won
+  2026-11-07 21:52:22 round 0 luna recipes-fix-esc plain epoch 2 recipes-fix-esc-luna-plain-c0138d: final game: won
+  2026-11-07 21:53:15 round 0 haiku scores-sort reference epoch 3 scores-sort-haiku-reference-9dc3c3: final game: won
+  2026-11-07 21:55:35 round 0 haiku scores-fix-save plain epoch 3 scores-fix-save-haiku-plain-a2e859: final game: won
+  2026-11-07 21:56:00 round 0 haiku shop-edit plain epoch 3 shop-edit-haiku-plain-dfec7f: final game: won
+  2026-11-07 21:56:16 round 0 haiku build-plan manual epoch 3 build-plan-haiku-manual-e3eb58: final game: won
+  2026-11-07 21:56:39 round 0 haiku recipes-find manual epoch 3 recipes-find-haiku-manual-90a672: final game: lost
+  2026-11-07 21:57:02 round 0 haiku build-plan reference epoch 3 build-plan-haiku-reference-91bdb5: final game: won
+  2026-11-07 21:57:54 round 0 luna recipes-fix-esc reference epoch 2 recipes-fix-esc-luna-reference-9a8595: final game: won
+  2026-11-07 21:58:31 round 0 luna agenda-fix-left reference epoch 2 agenda-fix-left-luna-reference-02fd6c: final game: won
+  2026-11-07 21:59:17 round 0 luna scores-total manual epoch 2 scores-total-luna-manual-80d1ad: final game: won
+  2026-11-07 21:59:34 round 0 haiku scores-fix-save reference epoch 3 scores-fix-save-haiku-reference-545b56: final game: won
+  2026-11-07 22:00:33 round 0 haiku agenda-today plain epoch 3 agenda-today-haiku-plain-d21882: final game: won
+  2026-11-07 22:00:38 round 0 luna scores-fix-minus reference epoch 2 scores-fix-minus-luna-reference-ae0bab: final game: won
+  2026-11-07 22:00:38 round 0 luna build-words reference epoch 2 build-words-luna-reference-9b34b6: final game: won
+  2026-11-07 22:00:39 round 0 haiku scores-fix-minus manual epoch 3 scores-fix-minus-haiku-manual-936148: final game: won
+  2026-11-07 22:01:26 round 0 luna agenda-fix-left plain epoch 2 agenda-fix-left-luna-plain-de9831: harness error, re-run: ['codex turn.failed: {"type": "turn.failed", "error": {"message": "Incomplete response returned, reason: max_output_tokens"}}']
+  2026-11-07 22:01:56 round 0 haiku recipes-fix-nine reference epoch 3 recipes-fix-nine-haiku-reference-626bf5: final game: won
+  2026-11-07 22:02:48 round 0 haiku shop-edit reference epoch 3 shop-edit-haiku-reference-4126eb: final game: won
+  2026-11-07 22:02:49 round 0 haiku recipes-fav plain epoch 3 recipes-fav-haiku-plain-f33b51: final game: won
+  2026-11-07 22:02:53 round 0 luna recipes-find plain epoch 2 recipes-find-luna-plain-6dc543: final game: lost
+  2026-11-07 22:03:08 round 0 haiku scores-sort manual epoch 3 scores-sort-haiku-manual-f229ac: final game: won
+  2026-11-07 22:05:35 round 0 haiku build-inbox plain epoch 3 build-inbox-haiku-plain-fbccc4: final game: won
+  2026-11-07 22:05:35 round 0 haiku build-inbox manual epoch 3 build-inbox-haiku-manual-82e502: final game: won
+  2026-11-07 22:06:26 round 0 luna agenda-week plain epoch 2 agenda-week-luna-plain-7c4fc7: final game: won
+  2026-11-07 22:06:45 round 0 haiku agenda-week reference epoch 3 agenda-week-haiku-reference-ae5efe: final game: won
+  2026-11-07 22:08:47 round 0 luna recipes-fav plain epoch 2 recipes-fav-luna-plain-cb1ba1: final game: lost
+  2026-11-07 22:09:13 round 0 haiku shop-fix-enter manual epoch 3 shop-fix-enter-haiku-manual-9ea1c7: final game: won
+  2026-11-07 22:10:42 round 0 haiku shop-fix-enter plain epoch 3 shop-fix-enter-haiku-plain-b3b69b: final game: won
+  2026-11-07 22:11:38 round 0 haiku scores-fix-minus plain epoch 3 scores-fix-minus-haiku-plain-849ef0: final game: won
+  2026-11-07 22:12:11 round 0 haiku build-match plain epoch 3 build-match-haiku-plain-1d99a8: final game: won
+  2026-11-07 22:13:12 round 0 haiku agenda-today manual epoch 3 agenda-today-haiku-manual-703e5c: final game: won
+  2026-11-07 22:13:54 round 0 haiku build-words manual epoch 3 build-words-haiku-manual-d983d1: final game: won
+  2026-11-07 22:14:12 round 0 haiku recipes-fav manual epoch 3 recipes-fav-haiku-manual-55d566: final game: won
+  2026-11-07 22:14:55 round 0 haiku build-light plain epoch 3 build-light-haiku-plain-dee2a6: final game: won
+  2026-11-07 22:16:06 round 0 haiku shop-empty manual epoch 3 shop-empty-haiku-manual-1ccb38: final game: won
+  2026-11-07 22:17:19 round 0 haiku scores-fix-save manual epoch 3 scores-fix-save-haiku-manual-e77a44: final game: won
+  2026-11-07 22:17:19 round 0 luna recipes-fix-nine plain epoch 2 recipes-fix-nine-luna-plain-ef2a33: final game: lost
+  2026-11-07 22:18:05 round 0 luna agenda-fix-left manual epoch 2 agenda-fix-left-luna-manual-a1f503: final game: won
+  2026-11-07 22:18:06 round 0 luna build-notes manual epoch 2 build-notes-luna-manual-66a175: final game: won
+  2026-11-07 22:18:07 round 0 haiku build-match manual epoch 3 build-match-haiku-manual-4c8fd3: final game: won
+  2026-11-07 22:18:22 round 0 haiku build-plan plain epoch 3 build-plan-haiku-plain-355718: final game: won
+  2026-11-07 22:18:57 round 0 luna shop-fix-up plain epoch 2 shop-fix-up-luna-plain-19925b: final game: won
+  2026-11-07 22:19:59 round 0 haiku build-pick reference epoch 3 build-pick-haiku-reference-b727be: final game: won
+  2026-11-07 22:20:34 round 0 luna build-pick manual epoch 2 build-pick-luna-manual-a44940: final game: won
+  2026-11-07 22:20:53 round 0 haiku recipes-fix-esc plain epoch 3 recipes-fix-esc-haiku-plain-b40f0e: final game: won
+  2026-11-07 22:21:51 round 0 haiku recipes-fix-esc reference epoch 3 recipes-fix-esc-haiku-reference-2e083d: final game: won
+  2026-11-07 22:22:33 round 0 haiku agenda-fix-left reference epoch 3 agenda-fix-left-haiku-reference-66c1de: final game: won
+  2026-11-07 22:22:52 round 0 luna build-notes reference epoch 2 build-notes-luna-reference-e23f58: final game: lost
+  2026-11-07 22:23:29 round 0 haiku scores-total manual epoch 3 scores-total-haiku-manual-0f4a94: final game: won
+  2026-11-07 22:23:47 round 0 haiku scores-fix-minus reference epoch 3 scores-fix-minus-haiku-reference-86e4fa: final game: won
+  2026-11-07 22:25:02 round 0 luna build-budget plain epoch 2 build-budget-luna-plain-99be4e: final game: won
+  2026-11-07 22:25:09 round 0 haiku build-words reference epoch 3 build-words-haiku-reference-d9f654: final game: won
+  2026-11-07 22:25:18 round 0 haiku agenda-fix-left plain epoch 3 agenda-fix-left-haiku-plain-2b9548: final game: won
+  2026-11-07 22:26:04 round 0 luna recipes-fav reference epoch 2 recipes-fav-luna-reference-b2ecd2: final game: won
+  2026-11-07 22:26:16 round 0 haiku recipes-find plain epoch 3 recipes-find-haiku-plain-1428a2: final game: lost
+  2026-11-07 22:26:22 round 0 haiku agenda-week plain epoch 3 agenda-week-haiku-plain-dd7965: final game: won
+  2026-11-07 22:26:57 round 0 luna shop-edit manual epoch 2 shop-edit-luna-manual-a603b1: final game: won
+  2026-11-07 22:27:12 round 0 haiku recipes-fix-nine plain epoch 3 recipes-fix-nine-haiku-plain-69bde4: final game: won
+  2026-11-07 22:27:56 round 0 haiku agenda-fix-left manual epoch 3 agenda-fix-left-haiku-manual-13add0: final game: won
+  2026-11-07 22:28:24 round 0 haiku build-notes manual epoch 3 build-notes-haiku-manual-4bc1fa: final game: won
+  2026-11-07 22:29:04 round 0 haiku shop-fix-up plain epoch 3 shop-fix-up-haiku-plain-d86627: final game: won
+  2026-11-07 22:29:54 round 0 haiku build-pick manual epoch 3 build-pick-haiku-manual-7aec71: final game: won
+  2026-11-07 22:31:01 round 0 luna shop-fix-up manual epoch 2 shop-fix-up-luna-manual-03b54d: final game: won
+  2026-11-07 22:31:14 round 0 luna build-light manual epoch 2 build-light-luna-manual-4573ce: final game: won
+  2026-11-07 22:32:53 round 0 haiku build-notes reference epoch 3 build-notes-haiku-reference-fa83cd: final game: won
+  2026-11-07 22:33:01 round 0 luna shop-fix-enter reference epoch 2 shop-fix-enter-luna-reference-ed2648: final game: won
+  2026-11-07 22:33:25 round 0 haiku build-budget plain epoch 3 build-budget-haiku-plain-182270: final game: lost
+  2026-11-07 22:34:14 round 0 luna agenda-fix-order plain epoch 2 agenda-fix-order-luna-plain-1a7098: final game: won
+  2026-11-07 22:34:34 round 0 luna agenda-today reference epoch 2 agenda-today-luna-reference-e71138: final game: won
+  2026-11-07 22:34:36 round 0 haiku recipes-fav reference epoch 3 recipes-fav-haiku-reference-0eac12: final game: won
+  2026-11-07 22:35:47 round 0 haiku shop-edit manual epoch 3 shop-edit-haiku-manual-2c0572: final game: won
+  2026-11-07 22:36:26 round 0 luna agenda-week manual epoch 2 agenda-week-luna-manual-7ccd39: final game: won
+  2026-11-07 22:37:50 round 0 haiku shop-fix-up manual epoch 3 shop-fix-up-haiku-manual-6d2c18: final game: won
+  2026-11-07 22:38:06 round 0 haiku build-light manual epoch 3 build-light-haiku-manual-3102e2: final game: won
+  2026-11-07 22:38:23 round 0 luna shop-empty plain epoch 2 shop-empty-luna-plain-3be8e7: final game: lost
+  2026-11-07 22:38:28 round 0 haiku shop-fix-enter reference epoch 3 shop-fix-enter-haiku-reference-a766bc: final game: won
+  2026-11-07 22:39:41 round 0 haiku agenda-fix-order plain epoch 3 agenda-fix-order-haiku-plain-40a216: final game: won
+  2026-11-07 22:40:30 round 0 haiku agenda-today reference epoch 3 agenda-today-haiku-reference-a4a1fa: final game: won
+  2026-11-07 22:40:31 round 0 haiku agenda-week manual epoch 3 agenda-week-haiku-manual-be4d64: final game: won
+  2026-11-07 22:40:43 round 0 luna scores-sort plain epoch 2 scores-sort-luna-plain-9aa02f: final game: won
+  2026-11-07 22:41:15 round 0 haiku shop-empty plain epoch 3 shop-empty-haiku-plain-f0768e: final game: lost
+  2026-11-07 22:42:02 round 0 haiku scores-sort plain epoch 3 scores-sort-haiku-plain-1b4eb8: final game: won
+  2026-11-07 22:42:17 round 0 haiku build-pick plain epoch 3 build-pick-haiku-plain-64bd57: final game: won
+  2026-11-07 22:42:19 round 0 luna agenda-fix-left plain epoch 2 agenda-fix-left-luna-plain-fc144b: final game: won
+  2026-11-07 22:45:37 round 0 luna build-pick plain epoch 2 build-pick-luna-plain-21af5e: final game: won
+  2026-11-07 22:46:02 round 0 haiku agenda-fix-order manual epoch 3 agenda-fix-order-haiku-manual-45e6a6: final game: won
+  2026-11-07 22:46:30 round 0 haiku build-budget manual epoch 3 build-budget-haiku-manual-577cb4: final game: won
+  2026-11-07 22:46:41 round 0 haiku scores-total reference epoch 3 scores-total-haiku-reference-f61e2a: final game: won
+  2026-11-07 22:47:57 round 0 haiku build-words plain epoch 3 build-words-haiku-plain-602ea1: final game: won
+  2026-11-07 22:47:58 round 0 haiku shop-empty reference epoch 3 shop-empty-haiku-reference-ce1258: final game: won
+  2026-11-07 22:48:30 round 0 luna agenda-fix-order manual epoch 2 agenda-fix-order-luna-manual-fe2eab: final game: won
+  2026-11-07 22:49:15 round 0 luna build-budget manual epoch 2 build-budget-luna-manual-8d6b5c: final game: won
+  2026-11-07 22:49:19 round 0 luna scores-total reference epoch 2 scores-total-luna-reference-1aeb27: final game: won
+  2026-11-07 22:49:26 round 0 haiku build-light reference epoch 3 build-light-haiku-reference-33dbf2: final game: won
+  2026-11-07 22:49:32 round 0 luna build-words plain epoch 2 build-words-luna-plain-850dad: final game: won
+  2026-11-07 22:50:34 round 0 luna shop-empty reference epoch 2 shop-empty-luna-reference-b9beb2: final game: won
+  2026-11-07 22:50:46 round 0 haiku recipes-fix-nine manual epoch 3 recipes-fix-nine-haiku-manual-a3c1c1: final game: won
+  2026-11-07 22:51:30 round 0 luna build-light reference epoch 2 build-light-luna-reference-dcc1a3: final game: won
+  2026-11-07 22:51:34 round 0 haiku shop-fix-up reference epoch 3 shop-fix-up-haiku-reference-90e08b: final game: won
+  2026-11-07 22:52:10 round 0 haiku build-notes plain epoch 3 build-notes-haiku-plain-65b608: final game: won
+  2026-11-07 22:52:12 round 0 luna recipes-fix-nine manual epoch 2 recipes-fix-nine-luna-manual-d1f587: final game: won
+  2026-11-07 22:52:20 round 0 haiku recipes-fix-esc manual epoch 3 recipes-fix-esc-haiku-manual-2c5fb6: final game: won
+  2026-11-07 22:53:02 round 0 haiku agenda-fix-order reference epoch 4 agenda-fix-order-haiku-reference-ac7b28: final game: won
+  2026-11-07 22:53:13 round 0 haiku recipes-find reference epoch 4 recipes-find-haiku-reference-fd53e8: final game: won
+  2026-11-07 22:53:27 round 0 haiku scores-total plain epoch 4 scores-total-haiku-plain-adb2d2: final game: won
+  2026-11-07 22:53:36 round 0 luna shop-fix-up reference epoch 2 shop-fix-up-luna-reference-f7bc57: final game: won
+  2026-11-07 22:53:43 round 0 luna build-notes plain epoch 2 build-notes-luna-plain-75c119: final game: won
+  2026-11-07 22:53:53 round 0 haiku build-inbox reference epoch 4 build-inbox-haiku-reference-2822a1: final game: won
+  2026-11-07 22:54:17 round 0 luna recipes-fix-esc manual epoch 2 recipes-fix-esc-luna-manual-20ebb6: final game: won
+  2026-11-07 22:54:32 round 0 luna agenda-fix-order reference epoch 3 agenda-fix-order-luna-reference-b91785: final game: lost
+  2026-11-07 22:55:00 round 0 luna recipes-find reference epoch 3 recipes-find-luna-reference-f22dfa: final game: lost
+  2026-11-07 22:55:01 round 0 haiku build-match reference epoch 4 build-match-haiku-reference-378f71: final game: won
+  2026-11-07 22:55:08 round 0 luna scores-total plain epoch 3 scores-total-luna-plain-ebfeab: final game: won
+  2026-11-07 22:55:42 round 0 luna build-inbox reference epoch 3 build-inbox-luna-reference-a87379: final game: won
+  2026-11-07 22:57:00 round 0 haiku build-budget reference epoch 4 build-budget-haiku-reference-5b4306: final game: won
+  2026-11-07 22:57:31 round 0 luna build-match reference epoch 3 build-match-luna-reference-5bc5b2: final game: won
+  2026-11-07 22:58:19 round 0 haiku scores-sort reference epoch 4 scores-sort-haiku-reference-f5b2c2: final game: won
+  2026-11-07 23:00:11 round 0 luna build-budget reference epoch 3 build-budget-luna-reference-4ad5c2: final game: won
+  2026-11-07 23:00:32 round 0 luna scores-sort reference epoch 3 scores-sort-luna-reference-fb3399: final game: won
+  2026-11-07 23:02:16 round 0 haiku scores-fix-save plain epoch 4 scores-fix-save-haiku-plain-d252c9: final game: won
+  2026-11-07 23:02:20 round 0 haiku shop-edit plain epoch 4 shop-edit-haiku-plain-4eea30: final game: won
+  2026-11-07 23:02:50 round 0 haiku build-plan manual epoch 4 build-plan-haiku-manual-556498: final game: won
+  2026-11-07 23:03:03 round 0 luna scores-fix-save plain epoch 3 scores-fix-save-luna-plain-75032c: final game: won
+  2026-11-07 23:03:20 round 0 haiku recipes-find manual epoch 4 recipes-find-haiku-manual-d9efbc: final game: lost
+  2026-11-07 23:03:23 round 0 haiku build-plan reference epoch 4 build-plan-haiku-reference-237b5b: final game: won
+  2026-11-07 23:04:31 round 0 luna shop-edit plain epoch 3 shop-edit-luna-plain-889d03: final game: lost
+  2026-11-07 23:04:36 round 0 luna build-plan manual epoch 3 build-plan-luna-manual-faf3d6: final game: won
+  2026-11-07 23:04:44 round 0 haiku scores-fix-save reference epoch 4 scores-fix-save-haiku-reference-d219ce: final game: won
+  2026-11-07 23:04:54 round 0 luna recipes-find manual epoch 3 recipes-find-luna-manual-4c9a89: final game: lost
+  2026-11-07 23:05:27 round 0 haiku agenda-today plain epoch 4 agenda-today-haiku-plain-1a9671: final game: won
+  2026-11-07 23:06:17 round 0 luna build-plan reference epoch 3 build-plan-luna-reference-a93fc5: final game: won
+  2026-11-07 23:08:12 round 0 haiku scores-fix-minus manual epoch 4 scores-fix-minus-haiku-manual-8c7ba0: final game: won
+  2026-11-07 23:08:45 round 0 luna scores-fix-save reference epoch 3 scores-fix-save-luna-reference-181487: final game: won
+  2026-11-07 23:09:17 round 0 haiku recipes-fix-nine reference epoch 4 recipes-fix-nine-haiku-reference-71eb21: final game: won
+  2026-11-07 23:09:33 round 0 haiku shop-edit reference epoch 4 shop-edit-haiku-reference-7e7fd5: final game: won
+  2026-11-07 23:09:39 round 0 luna agenda-today plain epoch 3 agenda-today-luna-plain-801637: final game: won
+  2026-11-07 23:10:39 round 0 haiku recipes-fav plain epoch 4 recipes-fav-haiku-plain-397ee0: final game: lost
+  2026-11-07 23:10:52 round 0 haiku scores-sort manual epoch 4 scores-sort-haiku-manual-104573: final game: won
+  2026-11-07 23:11:26 round 0 haiku build-inbox plain epoch 4 build-inbox-haiku-plain-bb8ad6: final game: won
+  2026-11-07 23:12:11 round 0 haiku build-inbox manual epoch 4 build-inbox-haiku-manual-83c0ff: final game: won
+  2026-11-07 23:15:16 round 0 luna scores-fix-minus manual epoch 3 scores-fix-minus-luna-manual-eb2367: final game: won
+  2026-11-07 23:15:17 round 0 haiku agenda-week reference epoch 4 agenda-week-haiku-reference-f10169: final game: won
+  2026-11-07 23:15:32 round 0 luna recipes-fix-nine reference epoch 3 recipes-fix-nine-luna-reference-56ebac: final game: won
+  2026-11-07 23:15:56 round 0 luna shop-edit reference epoch 3 shop-edit-luna-reference-90640c: final game: won
+  2026-11-07 23:16:10 round 0 luna recipes-fav plain epoch 3 recipes-fav-luna-plain-7118e2: final game: won
+  2026-11-07 23:17:04 round 0 luna scores-sort manual epoch 3 scores-sort-luna-manual-368ad4: final game: won
+  2026-11-07 23:17:24 round 0 luna build-inbox plain epoch 3 build-inbox-luna-plain-7e52c2: discarded (interrupted, nothing to recover): a harness error
+  2026-11-07 23:18:19 round 0 haiku shop-fix-enter manual epoch 4 shop-fix-enter-haiku-manual-957cf8: final game: won
+  2026-11-07 23:19:12 round 0 haiku shop-fix-enter plain epoch 4 shop-fix-enter-haiku-plain-32c92f: final game: won
+  2026-11-07 23:19:34 round 0 haiku scores-fix-minus plain epoch 4 scores-fix-minus-haiku-plain-1a9874: final game: won
+  2026-11-07 23:20:05 round 0 luna build-inbox manual epoch 3 build-inbox-luna-manual-e432bb: final game: won
+  2026-11-07 23:20:38 round 0 haiku build-match plain epoch 4 build-match-haiku-plain-af4c19: final game: won
+  2026-11-07 23:21:02 round 0 haiku agenda-today manual epoch 4 agenda-today-haiku-manual-e339c0: final game: won
+  2026-11-07 23:21:09 round 0 haiku build-words manual epoch 4 build-words-haiku-manual-1193a2: final game: lost
+  2026-11-07 23:21:12 round 0 luna agenda-week reference epoch 3 agenda-week-luna-reference-bf4969: final game: won
+  2026-11-07 23:21:41 round 0 haiku recipes-fav manual epoch 4 recipes-fav-haiku-manual-a44f6d: final game: lost
+  2026-11-07 23:22:40 round 0 haiku build-light plain epoch 4 build-light-haiku-plain-1ebbd0: final game: won
+  2026-11-07 23:22:59 round 0 haiku shop-empty manual epoch 4 shop-empty-haiku-manual-a33a83: final game: won
+  2026-11-07 23:23:13 round 0 haiku scores-fix-save manual epoch 4 scores-fix-save-haiku-manual-13aa08: final game: won
+  2026-11-07 23:23:22 round 0 haiku build-match manual epoch 4 build-match-haiku-manual-2c5915: final game: won
+  2026-11-07 23:23:58 round 0 haiku build-plan plain epoch 4 build-plan-haiku-plain-1113e2: final game: won
+  2026-11-07 23:24:13 round 0 haiku build-pick reference epoch 4 build-pick-haiku-reference-e25b2b: final game: won
+  2026-11-07 23:25:16 round 0 luna shop-fix-enter manual epoch 3 shop-fix-enter-luna-manual-e71c2e: final game: won
+  2026-11-07 23:25:27 round 0 haiku recipes-fix-esc plain epoch 4 recipes-fix-esc-haiku-plain-abd98f: final game: won
+  2026-11-07 23:26:22 round 0 luna shop-fix-enter plain epoch 3 shop-fix-enter-luna-plain-1294dc: final game: won
+  2026-11-07 23:26:59 round 0 luna scores-fix-minus plain epoch 3 scores-fix-minus-luna-plain-2a5c18: final game: won
+  2026-11-07 23:27:04 round 0 haiku recipes-fix-esc reference epoch 4 recipes-fix-esc-haiku-reference-3a9cc5: final game: won
+  2026-11-07 23:27:37 round 0 haiku agenda-fix-left reference epoch 4 agenda-fix-left-haiku-reference-16e846: final game: won
+  2026-11-07 23:27:41 round 0 luna build-match plain epoch 3 build-match-luna-plain-982dcc: final game: won
+  2026-11-07 23:27:49 round 0 haiku scores-total manual epoch 4 scores-total-haiku-manual-a018a1: final game: won
+  2026-11-07 23:28:10 round 0 luna agenda-today manual epoch 3 agenda-today-luna-manual-3cc248: final game: won
+  2026-11-07 23:28:10 round 0 haiku scores-fix-minus reference epoch 4 scores-fix-minus-haiku-reference-f26b35: final game: won
+  2026-11-07 23:28:55 round 0 haiku build-words reference epoch 4 build-words-haiku-reference-e49849: final game: won
+  2026-11-07 23:29:01 round 0 luna build-words manual epoch 3 build-words-luna-manual-972226: final game: won
+  2026-11-07 23:29:26 round 0 haiku agenda-fix-left plain epoch 4 agenda-fix-left-haiku-plain-c9d85a: final game: won
+  2026-11-07 23:29:50 round 0 haiku recipes-find plain epoch 4 recipes-find-haiku-plain-17e2e8: final game: won
+  2026-11-07 23:29:56 round 0 luna recipes-fav manual epoch 3 recipes-fav-luna-manual-44958b: final game: won
+  2026-11-07 23:31:10 round 0 haiku agenda-week plain epoch 4 agenda-week-haiku-plain-e959f6: final game: won
+  2026-11-07 23:31:34 round 0 luna build-light plain epoch 3 build-light-luna-plain-c3a9ab: final game: lost
+  2026-11-07 23:31:43 round 0 haiku recipes-fix-nine plain epoch 4 recipes-fix-nine-haiku-plain-de1153: final game: won
+  2026-11-07 23:31:58 round 0 haiku agenda-fix-left manual epoch 4 agenda-fix-left-haiku-manual-0e886b: final game: won
+  2026-11-07 23:32:10 round 0 luna shop-empty manual epoch 3 shop-empty-luna-manual-c6a3d2: final game: won
+  2026-11-07 23:33:15 round 0 haiku build-notes manual epoch 4 build-notes-haiku-manual-a8aadb: final game: won
+  2026-11-07 23:33:55 round 0 luna scores-fix-save manual epoch 3 scores-fix-save-luna-manual-a42f31: final game: won
+  2026-11-07 23:34:45 round 0 haiku shop-fix-up plain epoch 4 shop-fix-up-haiku-plain-0658cd: final game: won
+  2026-11-07 23:34:48 round 0 luna build-match manual epoch 3 build-match-luna-manual-7009c4: final game: won
+  2026-11-07 23:35:45 round 0 haiku build-pick manual epoch 4 build-pick-haiku-manual-6febbb: final game: won
+  2026-11-07 23:36:38 round 0 luna build-plan plain epoch 3 build-plan-luna-plain-d04921: discarded (interrupted, nothing to recover): a harness error
+  2026-11-07 23:37:18 round 0 luna build-pick reference epoch 3 build-pick-luna-reference-941f17: final game: won
+  2026-11-07 23:38:08 round 0 haiku build-notes reference epoch 4 build-notes-haiku-reference-2fe848: final game: won
+  2026-11-07 23:38:43 round 0 haiku build-budget plain epoch 4 build-budget-haiku-plain-99951f: final game: won
+  2026-11-07 23:40:55 round 0 haiku recipes-fav reference epoch 4 recipes-fav-haiku-reference-f796a8: final game: won
+  2026-11-07 23:41:12 round 0 luna recipes-fix-esc plain epoch 3 recipes-fix-esc-luna-plain-de25cb: final game: won
+  2026-11-07 23:41:50 round 0 luna recipes-fix-esc reference epoch 3 recipes-fix-esc-luna-reference-bfe1d1: final game: won
+  2026-11-07 23:42:40 round 0 luna agenda-fix-left reference epoch 3 agenda-fix-left-luna-reference-0680af: final game: won
+  2026-11-07 23:42:49 round 0 haiku shop-edit manual epoch 4 shop-edit-haiku-manual-8ff8ee: final game: won
+  2026-11-07 23:43:05 round 0 luna scores-total manual epoch 3 scores-total-luna-manual-02080d: final game: won
+  2026-11-07 23:43:48 round 0 luna scores-fix-minus reference epoch 3 scores-fix-minus-luna-reference-0fb0a0: final game: won
+  2026-11-07 23:44:19 round 0 luna build-words reference epoch 3 build-words-luna-reference-e89ce2: final game: won
+  2026-11-07 23:44:30 round 0 haiku shop-fix-up manual epoch 4 shop-fix-up-haiku-manual-add349: final game: won
+  2026-11-07 23:44:37 round 0 luna agenda-fix-left plain epoch 3 agenda-fix-left-luna-plain-ad5dbd: final game: won
+  2026-11-07 23:44:54 round 0 haiku build-light manual epoch 4 build-light-haiku-manual-135289: final game: won
+  2026-11-07 23:45:19 round 0 haiku shop-fix-enter reference epoch 4 shop-fix-enter-haiku-reference-ebfbd2: final game: won
+  2026-11-07 23:45:19 round 0 haiku agenda-fix-order plain epoch 4 agenda-fix-order-haiku-plain-939eb7: final game: won
+  2026-11-07 23:46:07 round 0 haiku agenda-today reference epoch 4 agenda-today-haiku-reference-58aa44: final game: won
+  2026-11-07 23:46:52 round 0 haiku agenda-week manual epoch 4 agenda-week-haiku-manual-b91841: final game: won
+  2026-11-07 23:47:23 round 0 haiku shop-empty plain epoch 4 shop-empty-haiku-plain-48138e: final game: won
+  2026-11-07 23:47:32 round 0 haiku scores-sort plain epoch 4 scores-sort-haiku-plain-47fd10: final game: won
+  2026-11-07 23:47:43 round 0 luna recipes-find plain epoch 3 recipes-find-luna-plain-2c9d5d: discarded (interrupted, nothing to recover): a harness error
+  2026-11-07 23:47:44 round 0 haiku build-pick plain epoch 4 build-pick-haiku-plain-5720b7: discarded (interrupted, nothing to recover): a harness error
+  2026-11-07 23:47:48 round 0 luna agenda-week plain epoch 3 agenda-week-luna-plain-9636f6: discarded (interrupted, nothing to recover): a harness error
+  2026-11-07 23:50:22 round 0 haiku agenda-fix-order manual epoch 4 agenda-fix-order-haiku-manual-7a26ed: final game: won
+  2026-11-07 23:50:54 round 0 haiku build-budget manual epoch 4 build-budget-haiku-manual-af7eea: discarded (interrupted, nothing to recover): a harness error
+  2026-11-07 23:53:43 round 0 haiku scores-total reference epoch 4 scores-total-haiku-reference-3c953c: discarded (interrupted, nothing to recover): a harness error
+  2026-11-07 23:54:14 round 0 haiku build-words plain epoch 4 build-words-haiku-plain-38474e: discarded (interrupted, nothing to recover): a harness error
+  2026-11-08 11:42:50 round 1 luna build-inbox plain epoch 3 build-inbox-luna-plain-e572a2: final game: won
+  2026-11-08 11:42:50 round 1 luna build-plan plain epoch 3 build-plan-luna-plain-f88704: final game: won
+  2026-11-08 11:42:50 round 1 luna recipes-fix-nine plain epoch 3 recipes-fix-nine-luna-plain-52fce3: final game: lost
+  2026-11-08 11:42:50 round 1 luna recipes-find plain epoch 3 recipes-find-luna-plain-1e91c0: final game: lost
+  2026-11-08 11:42:54 round 1 haiku shop-empty reference epoch 4 shop-empty-haiku-reference-52616b: final game: won
+  2026-11-08 11:42:54 round 1 haiku build-pick plain epoch 4 build-pick-haiku-plain-b0a110: final game: won
+  2026-11-08 11:42:54 round 1 haiku scores-total reference epoch 4 scores-total-haiku-reference-de7692: final game: won
+  2026-11-08 11:42:54 round 1 haiku build-budget manual epoch 4 build-budget-haiku-manual-3a9737: final game: won
+  2026-11-08 11:44:43 round 1 haiku build-light reference epoch 4 build-light-haiku-reference-8466a6: final game: won
+  2026-11-08 11:44:51 round 1 haiku recipes-fix-nine manual epoch 4 recipes-fix-nine-haiku-manual-f6be42: final game: won
+  2026-11-08 11:46:51 round 1 haiku shop-fix-up reference epoch 4 shop-fix-up-haiku-reference-17a907: final game: won
+  2026-11-08 11:47:04 round 1 haiku build-notes plain epoch 4 build-notes-haiku-plain-1654b9: final game: won
+  2026-11-08 11:47:23 round 1 luna agenda-fix-left manual epoch 3 agenda-fix-left-luna-manual-ffa2c3: final game: won
+  2026-11-08 11:47:26 round 1 haiku build-words plain epoch 4 build-words-haiku-plain-99a48f: final game: won
+  2026-11-08 11:47:33 round 1 haiku recipes-fix-esc manual epoch 4 recipes-fix-esc-haiku-manual-4b6a4f: final game: won
+  2026-11-08 11:48:31 round 1 luna build-notes manual epoch 3 build-notes-luna-manual-d0f7d4: final game: won
+  2026-11-08 11:51:25 round 1 luna shop-fix-up plain epoch 3 shop-fix-up-luna-plain-db36f4: final game: won
+  2026-11-08 11:52:58 round 1 luna build-pick manual epoch 3 build-pick-luna-manual-fe02f5: final game: won
+  2026-11-08 11:53:54 round 1 luna agenda-week plain epoch 3 agenda-week-luna-plain-59442d: final game: lost
+  2026-11-08 11:53:57 round 1 luna build-notes reference epoch 3 build-notes-luna-reference-c71729: final game: won
+  2026-11-08 11:55:38 round 1 luna build-budget plain epoch 3 build-budget-luna-plain-289cec: final game: lost
+  2026-11-08 11:57:59 round 1 luna recipes-fav reference epoch 3 recipes-fav-luna-reference-a7468f: final game: won
+  2026-11-08 11:59:01 round 1 luna shop-edit manual epoch 3 shop-edit-luna-manual-175dc0: final game: won
+  2026-11-08 12:01:19 round 1 luna shop-fix-up manual epoch 3 shop-fix-up-luna-manual-f824c2: final game: won
+  2026-11-08 12:02:51 round 1 luna build-light manual epoch 3 build-light-luna-manual-a527a3: final game: won
+  2026-11-08 12:03:42 round 1 luna shop-fix-enter reference epoch 3 shop-fix-enter-luna-reference-083d5e: final game: won
+  2026-11-08 12:04:14 round 1 luna agenda-fix-order plain epoch 3 agenda-fix-order-luna-plain-168cde: final game: won
+  2026-11-08 12:04:40 round 1 luna agenda-today reference epoch 3 agenda-today-luna-reference-99c3b3: final game: won
+  2026-11-08 12:06:31 round 1 luna agenda-week manual epoch 3 agenda-week-luna-manual-66f8a2: final game: won
+  2026-11-08 12:06:37 round 1 luna shop-empty plain epoch 3 shop-empty-luna-plain-fcf35c: final game: won
+  2026-11-08 12:07:41 round 1 luna scores-sort plain epoch 3 scores-sort-luna-plain-bb1906: final game: won
+  2026-11-08 12:09:37 round 1 luna build-pick plain epoch 3 build-pick-luna-plain-d257e4: final game: won
+  2026-11-08 12:09:52 round 1 luna agenda-fix-order manual epoch 3 agenda-fix-order-luna-manual-189613: final game: won
+  2026-11-08 12:10:49 round 1 luna build-budget manual epoch 3 build-budget-luna-manual-14ab46: final game: won
+  2026-11-08 12:11:24 round 1 luna scores-total reference epoch 3 scores-total-luna-reference-553885: final game: won
+  2026-11-08 12:12:40 round 1 luna build-words plain epoch 3 build-words-luna-plain-b33d0e: final game: lost
+  2026-11-08 12:15:04 round 1 luna shop-empty reference epoch 3 shop-empty-luna-reference-e3c727: final game: won
+  2026-11-08 12:15:06 round 1 luna build-light reference epoch 3 build-light-luna-reference-892892: final game: won
+  2026-11-08 12:15:36 round 1 luna recipes-fix-nine manual epoch 3 recipes-fix-nine-luna-manual-28be25: final game: won
+  2026-11-08 12:16:34 round 1 luna shop-fix-up reference epoch 3 shop-fix-up-luna-reference-e74e91: final game: won
+  2026-11-08 12:16:46 round 1 luna build-notes plain epoch 3 build-notes-luna-plain-21d46e: harness error, re-run: ['codex turn.failed: {"type": "turn.failed", "error": {"message": "Incomplete response returned, reason: max_output_tokens"}}']
+  2026-11-08 12:16:49 round 1 luna recipes-fix-esc manual epoch 3 recipes-fix-esc-luna-manual-2dd3bd: final game: won
+  2026-11-08 12:17:38 round 1 luna agenda-fix-order reference epoch 4 agenda-fix-order-luna-reference-3c1fc6: final game: won
+  2026-11-08 12:17:43 round 1 luna recipes-find reference epoch 4 recipes-find-luna-reference-877d78: final game: lost
+  2026-11-08 12:18:27 round 1 luna scores-total plain epoch 4 scores-total-luna-plain-9a3d12: final game: won
+  2026-11-08 12:20:36 round 1 luna build-inbox reference epoch 4 build-inbox-luna-reference-00559d: final game: won
+  2026-11-08 12:21:10 round 1 luna build-match reference epoch 4 build-match-luna-reference-843cf6: final game: won
+  2026-11-08 12:23:48 round 1 luna build-budget reference epoch 4 build-budget-luna-reference-06b626: final game: won
+  2026-11-08 12:24:08 round 1 luna scores-sort reference epoch 4 scores-sort-luna-reference-516e69: final game: won
+  2026-11-08 12:27:30 round 1 luna scores-fix-save plain epoch 4 scores-fix-save-luna-plain-fef1b4: final game: won
+  2026-11-08 12:28:41 round 1 luna shop-edit plain epoch 4 shop-edit-luna-plain-903d7f: final game: won
+  2026-11-08 12:29:58 round 1 luna build-plan manual epoch 4 build-plan-luna-manual-51618e: final game: won
+  2026-11-08 12:30:02 round 1 luna recipes-find manual epoch 4 recipes-find-luna-manual-6261f1: final game: lost
+  2026-11-08 12:31:01 round 1 luna build-plan reference epoch 4 build-plan-luna-reference-217993: final game: won
+  2026-11-08 12:38:06 round 1 luna scores-fix-save reference epoch 4 scores-fix-save-luna-reference-2bb431: final game: won
+  2026-11-08 12:38:45 round 1 luna agenda-today plain epoch 4 agenda-today-luna-plain-3119ae: final game: won
+  2026-11-08 12:42:55 round 1 luna scores-fix-minus manual epoch 4 scores-fix-minus-luna-manual-548bdc: final game: won
+  2026-11-08 12:43:37 round 1 luna recipes-fix-nine reference epoch 4 recipes-fix-nine-luna-reference-cf6add: final game: won
+  2026-11-08 12:44:16 round 1 luna shop-edit reference epoch 4 shop-edit-luna-reference-7aab23: final game: won
+  2026-11-08 12:46:35 round 1 luna recipes-fav plain epoch 4 recipes-fav-luna-plain-9057b1: final game: won
+  2026-11-08 12:49:46 round 1 luna scores-sort manual epoch 4 scores-sort-luna-manual-122f6e: final game: won
+  2026-11-08 12:52:31 round 1 luna build-inbox plain epoch 4 build-inbox-luna-plain-1a076d: harness error, re-run: ['codex turn.failed: {"type": "turn.failed", "error": {"message": "Incomplete response returned, reason: max_output_tokens"}}']
+  2026-11-08 12:54:25 round 1 luna build-inbox manual epoch 4 build-inbox-luna-manual-8235a8: final game: won
+  2026-11-08 12:54:50 round 1 luna agenda-week reference epoch 4 agenda-week-luna-reference-657d90: final game: lost
+  2026-11-08 12:56:52 round 1 luna build-notes plain epoch 3 build-notes-luna-plain-441d48: final game: won
+  2026-11-08 13:02:15 round 1 luna shop-fix-enter manual epoch 4 shop-fix-enter-luna-manual-d221f0: final game: won
+  2026-11-08 13:02:34 round 1 luna shop-fix-enter plain epoch 4 shop-fix-enter-luna-plain-7f07f6: final game: won
+  2026-11-08 13:03:23 round 1 luna scores-fix-minus plain epoch 4 scores-fix-minus-luna-plain-b932a5: final game: won
+  2026-11-08 13:03:24 round 1 luna build-match plain epoch 4 build-match-luna-plain-a1d888: final game: won
+  2026-11-08 13:05:04 round 1 luna agenda-today manual epoch 4 agenda-today-luna-manual-e7f39b: final game: won
+  2026-11-08 13:06:09 round 1 luna build-words manual epoch 4 build-words-luna-manual-947eec: final game: won
+  2026-11-08 13:06:36 round 1 luna recipes-fav manual epoch 4 recipes-fav-luna-manual-0c7c0d: final game: won
+  2026-11-08 13:08:33 round 1 luna build-light plain epoch 4 build-light-luna-plain-f532b7: final game: won
+  2026-11-08 13:09:52 round 1 luna shop-empty manual epoch 4 shop-empty-luna-manual-289e94: final game: won
+  2026-11-08 13:11:15 round 1 luna scores-fix-save manual epoch 4 scores-fix-save-luna-manual-bcb22e: final game: won
+  2026-11-08 13:11:18 round 1 luna build-match manual epoch 4 build-match-luna-manual-de56ac: final game: won
+  2026-11-08 13:12:15 round 1 luna build-plan plain epoch 4 build-plan-luna-plain-4f30b7: final game: won
+  2026-11-08 13:13:21 round 1 luna build-pick reference epoch 4 build-pick-luna-reference-a169a2: final game: won
+  2026-11-08 13:14:26 round 1 luna recipes-fix-esc plain epoch 4 recipes-fix-esc-luna-plain-99c073: final game: won
+  2026-11-08 13:17:30 round 1 luna recipes-fix-esc reference epoch 4 recipes-fix-esc-luna-reference-1868e6: final game: won
+  2026-11-08 13:17:57 round 1 luna agenda-fix-left reference epoch 4 agenda-fix-left-luna-reference-8fb6ea: final game: won
+  2026-11-08 13:18:12 round 1 luna scores-total manual epoch 4 scores-total-luna-manual-0d8b1e: final game: won
+  2026-11-08 13:18:49 round 1 luna scores-fix-minus reference epoch 4 scores-fix-minus-luna-reference-0e5559: final game: won
+  2026-11-08 13:19:49 round 1 luna build-words reference epoch 4 build-words-luna-reference-a764c2: final game: won
+  2026-11-08 13:20:25 round 1 luna agenda-fix-left plain epoch 4 agenda-fix-left-luna-plain-b1f6c6: final game: won
+  2026-11-08 13:22:53 round 1 luna recipes-find plain epoch 4 recipes-find-luna-plain-9c8e77: final game: lost
+  2026-11-08 13:24:12 round 1 luna agenda-week plain epoch 4 agenda-week-luna-plain-7bc719: final game: lost
+  2026-11-08 13:24:38 round 1 luna recipes-fix-nine plain epoch 4 recipes-fix-nine-luna-plain-c89c4a: final game: lost
+  2026-11-08 13:25:29 round 1 luna agenda-fix-left manual epoch 4 agenda-fix-left-luna-manual-02cabd: final game: won
+  2026-11-08 13:26:59 round 1 luna build-notes manual epoch 4 build-notes-luna-manual-e58c8a: final game: lost
+  2026-11-08 13:27:10 round 1 luna shop-fix-up plain epoch 4 shop-fix-up-luna-plain-07f1ae: final game: won
+  2026-11-08 13:28:50 round 1 luna build-pick manual epoch 4 build-pick-luna-manual-8fd373: final game: won
+  2026-11-08 13:31:33 round 1 luna build-notes reference epoch 4 build-notes-luna-reference-e47f74: final game: won
+  2026-11-08 13:32:17 round 1 luna build-inbox plain epoch 4 build-inbox-luna-plain-76304e: final game: lost
+  2026-11-08 13:35:50 round 1 luna build-budget plain epoch 4 build-budget-luna-plain-2249d0: final game: won
+  2026-11-08 13:37:58 round 1 luna recipes-fav reference epoch 4 recipes-fav-luna-reference-deb9b7: final game: won
+  2026-11-08 13:38:14 round 1 luna shop-edit manual epoch 4 shop-edit-luna-manual-cc57c8: final game: won
+  2026-11-08 13:40:25 round 1 luna shop-fix-up manual epoch 4 shop-fix-up-luna-manual-4a84b0: final game: won
+  2026-11-08 13:41:00 round 1 luna build-light manual epoch 4 build-light-luna-manual-aa2b1f: final game: lost
+  2026-11-08 13:42:01 round 1 luna shop-fix-enter reference epoch 4 shop-fix-enter-luna-reference-4919bb: final game: won
+  2026-11-08 13:42:15 round 1 luna agenda-fix-order plain epoch 4 agenda-fix-order-luna-plain-6844cc: final game: won
+  2026-11-08 13:43:24 round 1 luna agenda-today reference epoch 4 agenda-today-luna-reference-d6d63a: final game: won
+  2026-11-08 13:43:38 round 1 luna agenda-week manual epoch 4 agenda-week-luna-manual-eddc71: final game: won
+  2026-11-08 13:43:44 round 1 luna shop-empty plain epoch 4 shop-empty-luna-plain-fc7a76: final game: won
+  2026-11-08 13:44:24 round 1 luna scores-sort plain epoch 4 scores-sort-luna-plain-394829: final game: won
+  2026-11-08 13:45:38 round 1 luna build-pick plain epoch 4 build-pick-luna-plain-12ab69: final game: lost
+  2026-11-08 13:47:01 round 1 luna agenda-fix-order manual epoch 4 agenda-fix-order-luna-manual-b9614a: final game: won
+  2026-11-08 13:47:45 round 1 luna build-budget manual epoch 4 build-budget-luna-manual-47e894: final game: won
+  2026-11-08 13:51:09 round 1 luna scores-total reference epoch 4 scores-total-luna-reference-92414c: final game: won
+  2026-11-08 13:51:15 round 1 luna build-words plain epoch 4 build-words-luna-plain-167283: final game: won
+  2026-11-08 13:51:59 round 1 luna shop-empty reference epoch 4 shop-empty-luna-reference-6b96d3: final game: lost
+  2026-11-08 13:52:39 round 1 luna build-light reference epoch 4 build-light-luna-reference-147679: final game: won
+  2026-11-08 13:54:10 round 1 luna recipes-fix-nine manual epoch 4 recipes-fix-nine-luna-manual-97d4a6: final game: won
+  2026-11-08 13:55:26 round 1 luna shop-fix-up reference epoch 4 shop-fix-up-luna-reference-dd970c: final game: won
+  2026-11-08 13:55:28 round 1 luna build-notes plain epoch 4 build-notes-luna-plain-acb771: final game: lost
+  2026-11-08 13:57:25 round 1 luna recipes-fix-esc manual epoch 4 recipes-fix-esc-luna-manual-237303: final game: won
+Finished games reused from the ledger (not replayed): 0
+Games that opened guide script:
+  plain: 165 of 192 (0 without a transcript)
+  reference: 9 of 192 (0 without a transcript)
+  manual: 0 of 192 (0 without a transcript)

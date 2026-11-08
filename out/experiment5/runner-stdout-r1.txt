@@ -1,0 +1,2 @@
+haiku: inspect finished with exit code 0
+luna: inspect finished with exit code 0

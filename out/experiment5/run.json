@@ -1,0 +1,37 @@
+{
+  "started": "2026-11-07 19:39:17",
+  "epochs": 4,
+  "manifest": "9f2002bee12e1604f8d5df53b194ebc7e8ff835e48e7af67dd5b2b647c86eacc",
+  "round": 1,
+  "cli_versions_at_start": [
+    {
+      "time": "2026-11-07 19:39:17",
+      "claude": "2.1.319 (Claude Code)",
+      "codex": "codex-cli 0.167.0"
+    },
+    {
+      "time": "2026-11-08 11:42:40",
+      "claude": "2.1.319 (Claude Code)",
+      "codex": "codex-cli 0.167.0"
+    }
+  ],
+  "rounds": [
+    {
+      "time": "2026-11-07 19:39:17",
+      "round": 0
+    },
+    {
+      "time": "2026-11-08 11:42:40",
+      "round": 1
+    }
+  ],
+  "haiku": "YbEHjZSVcRfcUsURWeKooY",
+  "luna": "XQ5YbQTFQM7aEnKat39bjZ",
+  "cli_versions_at_end": [
+    {
+      "time": "2026-11-08 14:03:45",
+      "claude": "2.1.319 (Claude Code)",
+      "codex": "codex-cli 0.167.0"
+    }
+  ]
+}
