@@ -9,27 +9,106 @@ paths use `:` and saving is Ctrl+K. Because it didn't exist before November 2026
 it in its training data. A model has to figure it out from the screen.
 
 Version 0.3 has eight apps: a shell, **Notes**, **Files**, **Mail**, **Contacts**, **Calendar**,
-**Settings** and a **Calculator**, plus **chores**: a tiny scripting language of its own.
+**Settings** and a **Calculator**, plus **chores**: a tiny scripting language of its own. Later
+it gained **Unseen Script**, a full programming language for building full-screen apps (state,
+`start`, `key`, `draw`, modules and tests), and **stamps**: version history for the desk.
+
+**Status: finished (8 Nov 2026).** Five pre-registered experiments, 1,704 scored games.
 
 ![The Mail app](docs/img/v2-mail.png)
 
-## Four experiments
+## Five experiments
 
-| | Experiment 1 (v0.1) | Experiment 2 (v0.2) | Experiment 3 (v0.3) | Experiment 4 (v0.3) |
-|---|---|---|---|---|
-| Apps | shell, Notes, Files | + Mail, Contacts, Calendar, Settings, Calculator | + chores (scripting) | same as experiment 3 |
-| Tasks | 30 single-app tasks | 20 tasks, most needing 2-3 apps | 16 tasks too big to do by hand | the same 16 tasks |
-| Compared | manual vs nothing | manual vs nothing | manual vs nothing | manual vs the reference alone (and nothing) |
-| Games | 120 | 240 | 192 | 576 |
-| Pre-registered verdict | **The manual helps** (p = 0.013) | **No clear difference** (p = 1.0) | **The manual helps** (p = 0.0001) | **The manual helps more than the reference** (p = 0.003) |
-| What really happened | models nearly always won; the verdict came from the audit | models nearly always won, with or without the manual | without the manual, the big tasks were never solved | the reference alone did most of the work; the manual added about 20 points more |
+| | Experiment 1 (v0.1) | Experiment 2 (v0.2) | Experiment 3 (v0.3) | Experiment 4 (v0.3) | Experiment 5 (Unseen Script) |
+|---|---|---|---|---|---|
+| Apps | shell, Notes, Files | + Mail, Contacts, Calendar, Settings, Calculator | + chores (scripting) | same as experiment 3 | + Unseen Script apps |
+| Tasks | 30 single-app tasks | 20 tasks, most needing 2-3 apps | 16 tasks too big to do by hand | the same 16 tasks | 24 programming tasks: build, extend or fix an app |
+| Compared | manual vs nothing | manual vs nothing | manual vs nothing | manual vs the reference alone (and nothing) | manual vs nothing (and the reference alone) |
+| Games | 120 | 240 | 192 | 576 | 576 |
+| Pre-registered verdict | **The manual helps** (p = 0.013) | **No clear difference** (p = 1.0) | **The manual helps** (p = 0.0001) | **The manual helps more than the reference** (p = 0.003) | **The manual helps** (p = 0.0001) |
+| What really happened | models nearly always won; the verdict came from the audit | models nearly always won, with or without the manual | without the manual, the big tasks were never solved | the reference alone did most of the work; the manual added about 20 points more | +10.9 points pass rate and 43% fewer actions in won games; no significant difference between manual and reference |
 
 Experiments 1 and 2 showed that **small models can operate a computer they have never seen**,
 and that on easy tasks a manual mostly makes them faster. Experiment 3 made the tasks hard enough
 to need a program in a language that exists nowhere else, and there **the manual made the
 difference between failing and succeeding**: wins went from 18/96 to 59/96. Experiment 4 asked
 how much of that comes from simply having the language reference: **the reference alone lifted
-wins from 45/192 to 103/192, and the full manual lifted them further to 141/192.**
+wins from 45/192 to 103/192, and the full manual lifted them further to 141/192.** Experiment 5
+moved to real programming: building, extending and fixing apps, graded by hidden tests like
+SWE-bench. There **the manual helped again (+10.9 points)**. Unlike experiment 4, no significant
+difference between the manual and the reference was detected.
+
+## Experiment 5: the Unseen App Benchmark
+
+**Question:** when small AI models must program for real in Unseen Script, how much does the
+manual help?
+
+The models get 24 tasks:
+
+- **8 build:** write a new app from a spec.
+- **8 feature:** add something to one of four existing apps (a shop list, scores, recipes, an
+  agenda).
+- **8 fix:** repair a bug in one of the four apps.
+
+A game is won only if every **hidden test** passes in a fresh copy of the desk. The tests also
+check that the app changed nothing it shouldn't, and the command audit must pass. There are
+three conditions:
+
+- **plain**: nothing in the prompt. The 255-line reference is on the computer (`guide script`).
+- **reference**: the reference in the prompt.
+- **manual**: the full 961-line manual in the prompt. It contains the reference word for word.
+
+Each player played each task 4 times per condition: 2 x 24 x 3 x 4 = **576 games**, at most 250
+actions and 45 minutes each. Rules frozen before the first game: [PREREG5.md](PREREG5.md). Plan,
+pilot and calibration: [docs/benchmark-design.md](docs/benchmark-design.md),
+[docs/pilot5.md](docs/pilot5.md), [docs/calibration5.md](docs/calibration5.md).
+
+### Results
+
+| Wins | Plain | Reference | Manual |
+|---|---|---|---|
+| Haiku | 86/96 | 95/96 | 91/96 |
+| Luna | 71/96 | 80/96 | 87/96 |
+| Median actions in won games | Haiku 60 · Luna 55 | Haiku 35 · Luna 26 | Haiku 34 · Luna 27 |
+
+**Pre-registered verdicts:**
+
+- **Primary, pass rate, manual vs plain: "The manual helps."** D = +10.9 points over the 24
+  tasks. Sign-flip test, p = 0.0001; 95% interval +6.2 to +15.7.
+- **Key secondary, actions in won games: "The manual helps."** −43%, p < 0.0001; 95% interval
+  −53% to −32%.
+
+Also reported, without a verdict:
+
+- **Reference vs plain:** +9.4 points (p = 0.002).
+- **Manual vs reference:** +1.6 points (p = 0.63, 95% −2.9 to +6.3). No significant difference
+  was detected.
+- **By player, manual vs plain:**
+  - Luna gained more: +16.7 points (p = 0.001).
+  - Haiku gained less: +5.2 points (p = 0.125). It was already at 90% in plain.
+- In 165 of 192 plain games, the player opened `guide script` and read the reference on screen.
+
+Full results: [docs/results5.md](docs/results5.md). Analysis output:
+[out/experiment5/analysis.txt](out/experiment5/analysis.txt). Every step of every game:
+`inspect view --log-dir out/experiment5/logs`.
+
+### Honest notes
+
+- **One analysis deviation.** The frozen analysis refused a verdict only because Inspect stored
+  the `conditions` setting as a list instead of text. `tools/analyze5_d1.py` fixes just that one
+  format and runs the frozen analysis unchanged. No result changes. Details:
+  [docs/deviations5.md](docs/deviations5.md).
+- **22 games failed the audit** and count as losses: 17 Luna, 5 Haiku. By condition: 11 plain,
+  8 reference, 3 manual. Of these, 9, 8 and 1 had passed every hidden test, so part of the
+  pass-rate gap comes from the command rule.
+- **0 OS crashes, 0 time-outs.**
+- **The run was paused overnight** (7 Nov 23:55 to 8 Nov 11:43) and resumed with `--retry`. 8
+  games in progress were discarded and played again. 6 Luna games hit a Codex
+  `max_output_tokens` error, all in plain, and got their registered re-run (4 won, 2 lost).
+- Two small models and 24 tasks. Feature and fix tasks share four base apps, so tasks are not
+  fully independent.
+- The experimenter wrote the language, the tasks and the manual. Sol reviewed the tasks, the
+  harness, the pre-registration and the results.
 
 ## Experiment 4: the full manual or just the reference?
 
@@ -330,8 +409,12 @@ Results: [out/experiment/results.json](out/experiment/results.json). Logs: `out/
 - **Chores** (`kernel/src/chore.rs`): a tokenizer, parser and interpreter in `no_std` Rust, with
   hard limits on steps, text, lists and depth. A chore's changes apply all at once, and only if
   it succeeds. Host tests (`chore-tests/`) include 40,000 fuzzed programs.
-- **The harness** is [Inspect](https://inspect.aisi.org.uk/) (`tools/inspect_eval.py`), with an
-  append-only ledger of every attempt and frozen-file checks before running and analysing.
+- **Unseen Script** (`script/`): a lexer, parser, checker and interpreter in `no_std` Rust, with
+  modules, a test runner (`test`) and full-screen apps (`start`, `key`, `draw`). The OS runs it,
+  and `script/tests/` runs it on the PC. Design: [docs/script-design.md](docs/script-design.md).
+- **The harness** is [Inspect](https://inspect.aisi.org.uk/) (`tools/inspect_eval.py`, and
+  `tools/inspect_apps.py` for experiment 5), with an append-only ledger of every attempt and
+  frozen-file checks before running and analysing.
 
 ## Run it yourself (Windows)
 
@@ -341,12 +424,12 @@ Needs Rust, QEMU (`C:\Program Files\qemu`) and Python 3.12 with `inspect-ai`.
 .\run.ps1                                  # build the OS and open it in a QEMU window
 python tools/validate_tasks.py             # prove all tasks are fair
 inspect eval tools/inspect_eval.py -T player=robot -T taskset=v2 --model mockllm/model
-git checkout experiment-4                  # each experiment's exact state is a git tag
-python tools/analyze4.py                   # re-check experiment 4's verdict from the logs
+git checkout experiment-5                  # each experiment's exact state is a git tag
+python tools/analyze5_d1.py                # re-check experiment 5's verdict from the logs
 ```
 
 The analysis scripts refuse to run if any frozen file changed, so re-check an experiment from its
-own tag (`experiment-1` to `experiment-4`): later versions of the harness change
+own tag (`experiment-1` to `experiment-5`): later versions of the harness change
 shared files.
 
-Built 4-6 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
+Built 4-8 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
