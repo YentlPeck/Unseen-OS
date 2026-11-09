@@ -2,7 +2,7 @@
 
 ## Written by Yentl
 
-Got recommended to try out system programming so I decided to try out operating systems building with AI agents. Unseen OS is a small operating system which allows for some basic tasks. Next to that I was able to create Unseen Script which is a programming language specifically made for the OS. It can help agents because they have never tried this system or the language itself.
+Got recommended to try out system programming so I decided to try out operating system building with AI agents. Unseen OS is a small operating system which allows for some basic tasks. Next to that I was able to create Unseen Script which is a programming language specifically made for the OS. Because no AI has ever seen this system or its language, it shows how well agents cope with something completely new.
 
 ## Written by Claude
 
