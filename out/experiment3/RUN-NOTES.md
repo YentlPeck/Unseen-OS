@@ -1,7 +1,7 @@
 # Experiment 3 run notes (not a frozen file)
 
 - **5 Nov 14:27** started (`tools/run_experiment3.py`, runner pid 40300). Frozen at commit
-  d43b185 (manifest sha256 ca246f78...). run.json: haiku `Q4aoDqgkqJBmpMykd7pbZx`,
+  271c0fc (manifest sha256 ca246f78...). run.json: haiku `Q4aoDqgkqJBmpMykd7pbZx`,
   luna `ZW46UjjeVgzphZsYPKzzZ6`. First games of both players checked: logged in and playing.
   Another project's experiment (Pixelforge, also Haiku/Luna) may be running on the same PC.
 - **To resume after an interruption:** `python tools/run_experiment3.py --retry`, then

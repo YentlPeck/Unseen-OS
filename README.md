@@ -1,5 +1,11 @@
 # Unseen OS
 
+## Written by Yentl
+
+*(Your own words go here: why you built this, what surprised you, what you would do next.)*
+
+## Written by Claude
+
 **A tiny operating system no AI has ever seen, built to test whether small AI models can
 operate an unfamiliar computer, and whether reading the manual helps.**
 
@@ -17,7 +23,7 @@ it gained **Unseen Script**, a full programming language for building full-scree
 
 ![The Mail app](docs/img/v2-mail.png)
 
-## Five experiments
+### Five experiments
 
 | | Experiment 1 (v0.1) | Experiment 2 (v0.2) | Experiment 3 (v0.3) | Experiment 4 (v0.3) | Experiment 5 (Unseen Script) |
 |---|---|---|---|---|---|
@@ -38,7 +44,7 @@ moved to real programming: building, extending and fixing apps, graded by hidden
 SWE-bench. There **the manual helped again (+10.9 points)**. Unlike experiment 4, no significant
 difference between the manual and the reference was detected.
 
-## Experiment 5: the Unseen App Benchmark
+### Experiment 5: the Unseen App Benchmark
 
 **Question:** when small AI models must program for real in Unseen Script, how much does the
 manual help?
@@ -63,7 +69,7 @@ actions and 45 minutes each. Rules frozen before the first game: [PREREG5.md](PR
 pilot and calibration: [docs/benchmark-design.md](docs/benchmark-design.md),
 [docs/pilot5.md](docs/pilot5.md), [docs/calibration5.md](docs/calibration5.md).
 
-### Results
+#### Results
 
 | Wins | Plain | Reference | Manual |
 |---|---|---|---|
@@ -92,7 +98,7 @@ Full results: [docs/results5.md](docs/results5.md). Analysis output:
 [out/experiment5/analysis.txt](out/experiment5/analysis.txt). Every step of every game:
 `inspect view --log-dir out/experiment5/logs`.
 
-### Honest notes
+#### Honest notes
 
 - **One analysis deviation.** The frozen analysis refused a verdict only because Inspect stored
   the `conditions` setting as a list instead of text. `tools/analyze5_d1.py` fixes just that one
@@ -110,7 +116,7 @@ Full results: [docs/results5.md](docs/results5.md). Analysis output:
 - The experimenter wrote the language, the tasks and the manual. Sol reviewed the tasks, the
   harness, the pre-registration and the results.
 
-## Experiment 4: the full manual or just the reference?
+### Experiment 4: the full manual or just the reference?
 
 The manual in experiment 3 holds the chore reference (the same text `guide do` shows on screen),
 but also the OS chapters, extra explanations, five worked examples and tips. Experiment 4 asks
@@ -127,7 +133,7 @@ acknowledged batches (experiment 3 lost keys in long actions), and the audit all
 the game tool's PowerShell arguments. Rules frozen before the first game: [PREREG4.md](PREREG4.md).
 Design and Sol's reviews: [docs/v4-design.md](docs/v4-design.md).
 
-### Results
+#### Results
 
 | Wins | Plain | Reference | Manual |
 |---|---|---|---|
@@ -193,7 +199,7 @@ Results: [out/experiment4/results.json](out/experiment4/results.json). Run notes
 [out/experiment4/RUN-NOTES.md](out/experiment4/RUN-NOTES.md). Every step of every game:
 `inspect view --log-dir out/experiment4/logs`.
 
-### Honest notes
+#### Honest notes
 
 - **84 games failed the audit** and count as losses: Haiku 28 / 30 / 13 and Luna 5 / 8 / 0
   (plain / reference / manual).
@@ -213,7 +219,7 @@ Results: [out/experiment4/results.json](out/experiment4/results.json). Run notes
   invoice mails, so they are not independent of each other.
 - Another project ran AI experiments with the same accounts on the same PC during the run.
 
-## Experiment 3: writing code in an unseen language
+### Experiment 3: writing code in an unseen language
 
 Unseen OS 0.3 adds **chores**: small programs typed into a page and run with `do <page>`. The
 language uses familiar ideas (variables, loops, conditions), but its syntax, built-ins and page
@@ -243,7 +249,7 @@ without and 3 times with the manual. The manual holds the same reference word fo
 explanations and 5 worked examples. Rules frozen before the first game: [PREREG3.md](PREREG3.md).
 Language design and reviews: [docs/v3-design.md](docs/v3-design.md).
 
-### Results
+#### Results
 
 | | Without manual | With manual |
 |---|---|---|
@@ -273,7 +279,7 @@ the manual, none better without, 1 tied (p = 0.0001). The same holds for each pl
 Results: [out/experiment3/results.json](out/experiment3/results.json). Every step of every game:
 `inspect view --log-dir out/experiment3/logs`.
 
-### Honest notes
+#### Honest notes
 
 - **28 games failed the audit** and count as losses. 23 were Haiku, all real rule breaks
   (`$(...)`, `$'...'`, shell variables), in both conditions. 5 were Luna: 2 real (unquoted
@@ -293,7 +299,7 @@ Results: [out/experiment3/results.json](out/experiment3/results.json). Every ste
   harness before freezing.
 - Another project ran AI experiments with the same accounts on the same PC during the run.
 
-## Experiment 2: multi-app tasks
+### Experiment 2: multi-app tasks
 
 Two small models, **Claude Haiku** and **GPT Luna**, played **20 tasks** that need several apps
 together (e.g. "Lina asked to move a lesson (see your mail). Change it in the calendar, then reply
@@ -304,7 +310,7 @@ to Lina with the new date."). Each task was played **3 times without and 3 times
 The rules were written down and all files frozen (SHA-256 manifest) **before** the first game:
 see [PREREG2.md](PREREG2.md).
 
-### Results
+#### Results
 
 | | Without manual | With manual |
 |---|---|---|
@@ -332,7 +338,7 @@ No game timed out and no game needed a harness re-run. Results:
 [out/experiment2/results.json](out/experiment2/results.json). Every step of every game:
 `inspect view --log-dir out/experiment2/logs`.
 
-### Honest notes
+#### Honest notes
 
 - **Ceiling effect:** 97.5% of games were won in both conditions, so this experiment could not
   show a benefit on success even if one exists. Harder tasks are the next step (see below).
@@ -346,7 +352,7 @@ No game timed out and no game needed a harness re-run. Results:
 - The harness was reviewed three times by a second model (GPT Sol) before launch, and every issue
   found was fixed before freezing.
 
-## Experiment 1: single-app tasks
+### Experiment 1: single-app tasks
 
 Haiku and Luna each played **30 tasks** (10 easy, 10 medium, 10 hard) in Notes, Files and the
 shell, once without and once with the manual: 120 games, at most 40 actions each. Rules:
@@ -373,7 +379,7 @@ version needed fewer actions in 47 of the 49 pairs where the count differed.
 
 Results: [out/experiment/results.json](out/experiment/results.json). Logs: `out/experiment/logs/`.
 
-### Honest notes (experiment 1)
+#### Honest notes (experiment 1)
 
 - One game per cell; no placebo control. See *Limitations* in PREREG.md.
 - 6 pilot games were played while building the harness; they are listed in PREREG.md and the
@@ -387,7 +393,7 @@ Results: [out/experiment/results.json](out/experiment/results.json). Logs: `out/
   computer-use tool available. Both were fixed for experiment 2: every game runs from a fresh,
   empty setup folder that holds only the login.
 
-## How it works
+### How it works
 
 ```
  AI player ──► play.py ──► referee (broker.py) ──► QEMU ──► Unseen OS
@@ -416,7 +422,7 @@ Results: [out/experiment/results.json](out/experiment/results.json). Logs: `out/
   `tools/inspect_apps.py` for experiment 5), with an append-only ledger of every attempt and
   frozen-file checks before running and analysing.
 
-## Run it yourself (Windows)
+### Run it yourself (Windows)
 
 Needs Rust, QEMU (`C:\Program Files\qemu`) and Python 3.12 with `inspect-ai`.
 
@@ -433,3 +439,5 @@ own tag (`experiment-1` to `experiment-5`): later versions of the harness change
 shared files.
 
 Built 4-8 Nov 2026 by Yentl Peck, directing Claude Opus (builder) and GPT Sol (reviewer).
+
+License: MIT (see [LICENSE](LICENSE)); bundled crates are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

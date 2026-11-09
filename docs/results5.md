@@ -1,6 +1,6 @@
 # Experiment 5, the Unseen App Benchmark: results
 
-Run 7–8 Nov 2026 under [PREREG5.md](../PREREG5.md) (frozen manifest `9f2002be…`, commit 3fb7216).
+Run 7–8 Nov 2026 under [PREREG5.md](../PREREG5.md) (frozen manifest `9f2002be…`, commit 9cb8a4c).
 Full report: `out/experiment5/analysis.txt`, made by `python tools/analyze5_d1.py`, which is the
 frozen `tools/analyze5.py` with one formatting deviation ([deviations5.md](deviations5.md); no
 result changes).

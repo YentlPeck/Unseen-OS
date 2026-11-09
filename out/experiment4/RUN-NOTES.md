@@ -1,7 +1,7 @@
 # Experiment 4 run notes (not a frozen file)
 
 - **5 Nov 20:27** started (`tools/run_experiment4.py`, runner pid 12884). Frozen at commit
-  5296428 (manifest sha256 949ee880...). run.json: haiku `f2sTNPSNVArxrySQr3hKB3`,
+  0ea6569 (manifest sha256 949ee880...). run.json: haiku `f2sTNPSNVArxrySQr3hKB3`,
   luna `bhDCGz5QATNFPyQCAkjWV7`. CLI versions at start: claude 2.1.318, codex-cli 0.166.0.
   576 games, expected 11-12 hours.
 - **To resume after an interruption:** `python tools/run_experiment4.py --retry`, then
